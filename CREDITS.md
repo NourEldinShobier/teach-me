@@ -12,3 +12,5 @@ Teach Me reimplements ideas from these projects. Text is adapted only where note
 | [cathrynlavery/diagram-design](https://github.com/cathrynlavery/diagram-design), archify | MIT | Delegated to for large diagrams when installed. |
 | Bret Victor, Nicky Case, Bartosz Ciechanowski, Red Blob Games | — | The explorable-explanation tradition: drive the mechanism, see cause and effect together. |
 | Wiktionary | CC BY-SA | Gender/plural checks for language cards (attributed per lesson). |
+| [shadcn/ui](https://github.com/shadcn-ui/ui) | MIT | Zinc theme tokens and component styles (Tabs, Button, Badge, Slider, Select, RadioGroup, Alert, Tooltip), re-expressed in plain CSS in `tm.css`. |
+| [Lucide](https://github.com/lucide-icons/lucide) | ISC | Icon paths inlined in `tm.js` (play, pause, chevrons, rotate-ccw, volume-2, copy, sun, moon, sun-moon). |

@@ -46,6 +46,21 @@
   const shuffleIdx = (n, seed) => { const a = [...Array(n).keys()]; let s = seed || 1; for (let i = n - 1; i > 0; i--) { s = Math.imul(s ^ (s >>> 15), 2246822507) >>> 0; const j = s % (i + 1); [a[i], a[j]] = [a[j], a[i]]; } return a; };
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const toast = (msg) => { const t = h('div', { class: 'tm-toast', role: 'status', text: msg }); document.body.append(t); setTimeout(() => t.remove(), 1800); };
+  // Lucide icons (ISC licence, lucide.dev), inlined so lessons stay one file.
+  const ICON_PATHS = {
+    play: '<path d="M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z"/>',
+    pause: '<rect x="14" y="3" width="5" height="18" rx="1"/><rect x="5" y="3" width="5" height="18" rx="1"/>',
+    prev: '<path d="m15 18-6-6 6-6"/>', next: '<path d="m9 18 6-6-6-6"/>',
+    reset: '<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>',
+    volume: '<path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z"/><path d="M16 9a5 5 0 0 1 0 6"/><path d="M19.364 18.364a9 9 0 0 0 0-12.728"/>',
+    copy: '<rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>',
+    sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>',
+    moon: '<path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/>',
+    auto: '<path d="M12 2v2"/><path d="M14.837 16.385a6 6 0 1 1-7.223-7.222c.624-.147.97.66.715 1.248a4 4 0 0 0 5.26 5.259c.589-.255 1.396.09 1.248.715"/><path d="M16 12a4 4 0 0 0-4-4"/><path d="m19 5-1.256 1.256"/><path d="M20 12h2"/>'
+  };
+  const icon = (n) => '<svg class="tm-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + ICON_PATHS[n] + '</svg>';
+  const fillRange = (r) => r.style.setProperty('--v', ((r.value - r.min) / ((r.max - r.min) || 1)) * 100 + '%');
+  tm.icon = icon;
   const copy = async (text) => { try { await navigator.clipboard.writeText(text); toast('Copied'); } catch { prompt('Copy this:', text); } };
   const download = (name, text, type = 'application/json') => { const a = h('a', { href: URL.createObjectURL(new Blob([text], { type })), download: name }); document.body.append(a); a.click(); a.remove(); };
   Object.assign(tm, { h, svg, iso, clamp, lerp, ease, hash, copy, toast });
@@ -127,7 +142,7 @@
     const pl = tm.players[idx]; if (!pl) return { error: 'no player' };
     const root = pl.stage || document;
     let els = [...root.querySelectorAll('[data-track]')];
-    if (!els.length) els = [...root.querySelectorAll('svg g, svg circle, svg rect, svg path')].slice(0, 200);
+    if (!els.length) els = [...root.querySelectorAll('svg g, svg circle, svg rect, svg path')].filter((e) => !e.closest('.tm-ico')).slice(0, 200); // UI icons are not figure parts
     // Hidden parts don't count: something that fades out and reappears elsewhere is a cut, not a jump.
     const shown = (e) => { const cs = getComputedStyle(e); return cs.display !== 'none' && cs.visibility !== 'hidden' && +cs.opacity > 0.05 && e.getAttribute('opacity') !== '0'; };
     const pos = () => els.map((e) => { if (!shown(e)) return null; const r = e.getBoundingClientRect(); return [r.x, r.y, r.width, r.height]; });
@@ -162,7 +177,7 @@
   };
   let figN = 0, uidN = 0;
   const figNum = (cfg) => { if (typeof cfg.fig === 'number') figN = Math.max(figN, cfg.fig); return cfg.fig || ++figN; };
-  const cardHead = (cfg, extra = []) => h('div', { class: 'tm-card-head' }, h('span', { text: 'Fig ' + figNum(cfg) }), h('b', { text: cfg.title || '' }), h('span', { class: 'tm-sp' }), ...extra);
+  const cardHead = (cfg, extra = []) => h('div', { class: 'tm-card-head' }, h('span', { class: 'tm-fig', text: 'Fig ' + figNum(cfg) }), h('b', { text: cfg.title || '' }), h('span', { class: 'tm-sp' }), ...extra);
   const modeKey = (kind) => 'tm:mode:' + kind;
   const modeToggle = (kind, pl, def) => {
     const forced = Q.get('auto'); let auto = forced != null ? forced === '1' : store.get(modeKey(kind), def) === 'auto';
@@ -216,6 +231,7 @@
         badge.hidden = badge.textContent === '×1' || badge.textContent === '×1/1';
         badge.title = 'Real time ' + s.seconds + ' s, shown in ' + s.dur + ' s';
       } else badge.hidden = true;
+      stepBtns.forEach((b, k) => b.style.setProperty('--p', k < i ? 1 : k === i ? p : 0));
       if (i >= 0) recordStep(id, i, steps.length);
     };
     const onState = () => {
@@ -343,7 +359,7 @@
     const scrub = h('input', { type: 'range', class: 'tm-scrub', min: 0, max: frames.length, value: 0, 'aria-label': 'Step' });
     const onFrame = (i) => {
       if (i === lastI) return; lastI = i;
-      const f = frames[i] || { line: 0, vars: {}, note: cfg.restNote || 'Press ▶ to run the code one step at a time.' };
+      const f = frames[i] || { line: 0, vars: {}, note: cfg.restNote || 'Press play to run the code one step at a time.' };
       const prev = frames[i - 1]?.vars || {};
       lines.forEach((l, k) => l.classList.toggle('tm-cur', k + 1 === f.line));
       const cur = lines[f.line - 1]; // scroll only the code panel, never the page
@@ -352,16 +368,16 @@
       out.textContent = frames.slice(0, i + 1).map((x) => x.out || '').join('');
       note.innerHTML = f.note || '';
       counter.textContent = (i + 1) + ' / ' + frames.length;
-      scrub.max = frames.length; scrub.value = i + 1;
+      scrub.max = frames.length; scrub.value = i + 1; fillRange(scrub);
       if (i >= 0) recordStep(id, i, frames.length);
     };
     const pl = new Player({ steps: frames.map(() => ({ dur: (cfg.stepMs || 900) / 1000 })), onFrame, id, holdStep: 0, loopGap: 2 });
-    const bPrev = h('button', { class: 'tm-btn', type: 'button', text: '◀', 'aria-label': 'Previous step', onclick: () => pl.goto(pl.i - 1) });
-    const bPlay = h('button', { class: 'tm-btn tm-primary', type: 'button', text: '▶', 'aria-label': 'Play' });
-    const bNext = h('button', { class: 'tm-btn', type: 'button', text: '▶|', 'aria-label': 'Next step', onclick: () => pl.goto(pl.i + 1) });
-    const bReset = h('button', { class: 'tm-btn', type: 'button', text: '↺', 'aria-label': 'Reset', onclick: () => pl.reset() });
+    const bPrev = h('button', { class: 'tm-btn', type: 'button', html: icon('prev'), 'aria-label': 'Previous step', onclick: () => pl.goto(pl.i - 1) });
+    const bPlay = h('button', { class: 'tm-btn tm-primary', type: 'button', html: icon('play'), 'aria-label': 'Play' });
+    const bNext = h('button', { class: 'tm-btn', type: 'button', html: icon('next'), 'aria-label': 'Next step', onclick: () => pl.goto(pl.i + 1) });
+    const bReset = h('button', { class: 'tm-btn', type: 'button', html: icon('reset'), 'aria-label': 'Reset', onclick: () => pl.reset() });
     bPlay.onclick = () => (pl.playing ? pl.stop() : pl.play());
-    pl.onState = () => { bPlay.textContent = pl.playing ? '❚❚' : '▶'; bPlay.setAttribute('aria-label', pl.playing ? 'Pause' : 'Play'); };
+    pl.onState = () => { bPlay.innerHTML = icon(pl.playing ? 'pause' : 'play'); bPlay.setAttribute('aria-label', pl.playing ? 'Pause' : 'Play'); };
     scrub.oninput = () => pl.goto(+scrub.value - 1);
     const paramBox = cfg.params?.length ? h('div', { class: 'tm-params' }, h('span', { class: 'tm-muted', text: 'Try changing:' }), ...cfg.params.map((p) => {
       const inp = h('input', { value: p.value, 'aria-label': p.label || p.id });
@@ -398,13 +414,14 @@
     const inputs = h('div', { class: 'tm-sim-inputs' }, ...cfg.inputs.map((inp) => {
       if (inp.options || inp.type === 'text') { // select or text input instead of a slider
         const ctl = inp.options ? h('select', { 'aria-label': inp.label }, ...inp.options.map((o) => h('option', { value: o, text: o, selected: o === inp.value }))) : h('input', { value: inp.value, 'aria-label': inp.label, spellcheck: 'false' });
-        ctl.style.cssText = 'font:14px var(--mono);padding:5px 8px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--ink);width:100%';
+        ctl.className = inp.options ? 'tm-select' : 'tm-input';
         ctl.oninput = () => { values[inp.id] = ctl.value; update(); };
         return h('label', { style: 'grid-template-columns:minmax(110px,180px) 1fr' }, h('span', { text: inp.label }), ctl);
       }
       const o = h('output', { text: fmt(inp, inp.value) });
       const r = h('input', { type: 'range', min: inp.min, max: inp.max, step: inp.step || 1, value: inp.value, 'aria-label': inp.label });
-      r.oninput = () => { values[inp.id] = +r.value; o.textContent = fmt(inp, r.value); r.setAttribute('aria-valuetext', o.textContent); update(); };
+      fillRange(r);
+      r.oninput = () => { fillRange(r); values[inp.id] = +r.value; o.textContent = fmt(inp, r.value); r.setAttribute('aria-valuetext', o.textContent); update(); };
       return h('label', {}, h('span', { text: inp.label }), r, o);
     }));
     el.replaceChildren(h('div', { class: 'tm-card' }, cardHead(cfg), hint, stage, chips, inputs));
@@ -493,7 +510,7 @@
     // Card schedules live in one shared key, so the same card on a course review page keeps its history.
     const sched = (id) => store.get("tm:cards", {})[id] || progress.cards[id];
     const queue = () => cards.filter((c) => !sched(c.id) || sched(c.id).due <= Date.now()).sort((a, b) => (sched(a.id)?.due || 0) - (sched(b.id)?.due || 0));
-    const sayBtn = (text, lang = cfg.lang) => (lang && text ? h('button', { class: 'tm-say', type: 'button', 'aria-label': 'Listen', text: '🔊', onclick: (e) => { e.stopPropagation(); speak(text, lang, e.currentTarget); } }) : null);
+    const sayBtn = (text, lang = cfg.lang) => (lang && text ? h('button', { class: 'tm-say', type: 'button', 'aria-label': 'Listen', html: icon('volume'), onclick: (e) => { e.stopPropagation(); speak(text, lang, e.currentTarget); } }) : null);
     const show = () => {
       const q = queue(); const nNew = cards.filter((c) => !sched(c.id)).length;
       bar.replaceChildren(h('span', { text: `${q.length} to review · ${nNew} new · ${cards.length} total` }), h('span', { class: 'tm-sp' }),
@@ -543,7 +560,7 @@
   tm.speak = speak;
   function mountSay(el) {
     const lang = el.dataset.say; const text = el.dataset.sayText || el.textContent.trim();
-    const b = h('button', { class: 'tm-say', type: 'button', 'aria-label': 'Listen: ' + text, title: 'Listen (Shift+click: slow)', text: '🔊' });
+    const b = h('button', { class: 'tm-say', type: 'button', 'aria-label': 'Listen: ' + text, title: 'Listen (Shift+click: slow)', html: icon('volume') });
     b.onclick = (e) => speak(text, lang, b, e.shiftKey ? 0.65 : 0.92);
     el.after(b);
   }
@@ -560,7 +577,7 @@
   function mountAsk(el, cfg) {
     const prompts = cfg.prompts || ['Explain this with a different analogy.', 'Quiz me harder on this lesson.', 'What would break if this worked the other way?'];
     el.replaceChildren(h('div', { class: 'tm-callout' }, h('b', { text: 'Stuck or curious? Ask your agent.' }), h('p', { class: 'tm-muted', style: 'margin:4px 0 10px', text: 'Claude is your teacher here. Copy a prompt or ask your own.' }),
-      h('ul', { class: 'tm-ask' }, ...prompts.map((p) => h('li', {}, h('span', { text: p }), h('button', { class: 'tm-iconbtn', type: 'button', text: 'Copy', onclick: () => copy(`${p} (lesson: ${document.title})`) }))))));
+      h('ul', { class: 'tm-ask' }, ...prompts.map((p) => h('li', {}, h('span', { text: p }), h('button', { class: 'tm-iconbtn', type: 'button', html: icon('copy') + 'Copy', onclick: () => copy(`${p} (lesson: ${document.title})`) }))))));
   }
   const summary = () => {
     const q = Object.values(progress.quiz), pr = Object.values(progress.predictions);
@@ -584,7 +601,7 @@
   applyTheme(Q.get('theme') || store.get('tm:theme', 'auto'));
   function mountTheme(btn) {
     const order = ['auto', 'light', 'dark'];
-    const label = () => (btn.textContent = { auto: '◐ Auto', light: '☀ Light', dark: '☾ Dark' }[store.get('tm:theme', 'auto')]);
+    const label = () => { const t = store.get('tm:theme', 'auto'); btn.innerHTML = icon(t) + { auto: 'Auto', light: 'Light', dark: 'Dark' }[t]; btn.title = 'Theme: ' + t; };
     btn.onclick = () => { const t = order[(order.indexOf(store.get('tm:theme', 'auto')) + 1) % 3]; store.set('tm:theme', t); applyTheme(t); label(); };
     label();
   }

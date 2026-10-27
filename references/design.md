@@ -1,0 +1,47 @@
+# Design rules (shadcn/ui look)
+
+The runtime (`templates/tm.css`, `tm.js`) already styles every component like shadcn/ui (zinc theme, new-york-v4): Tabs-style Manual/Auto switch, outline and primary buttons, badges, Slider, Select, RadioGroup-style quiz options, Alert-style callouts, Tooltip glossary terms, lucide icons. Lessons get this for free. These rules keep custom figures and lesson markup consistent with it.
+
+## Colour: tokens only
+
+Use CSS variables in figures and lesson styles, never hex values (except `#fff` text on a filled bar). Both themes then work with no extra code.
+
+| Token | Use for |
+|---|---|
+| `--ink` | text, outlines of real objects |
+| `--muted` | secondary labels, axes, captions |
+| `--line` | borders, gridlines, inactive arrows |
+| `--soft` | surfaces, bands, zones, empty tracks |
+| `--panel` | box fills (cards, nodes) |
+| `--primary` / `--primary-fg` | the one main action; filled pills |
+| `--accent` / `--accent-soft` | the thing that is moving or active right now (one per figure) |
+| `--good` / `--good-soft` | works, OK, passed |
+| `--bad` / `--bad-soft` | breaks, ALARM, wrong |
+| `--warn` / `--warn-soft` | caution, approximate numbers |
+
+Mix with `color-mix(in oklch, var(--accent) 40%, transparent)` for tints. One accent colour per figure; everything else is zinc.
+
+## Shapes and type in SVG
+
+- Strokes 1.2-1.6 px; corner radius 6-8 for boxes, 3-5 for bars, 999 for pills.
+- Flat fills, no gradients or glows. A soft `drop-shadow(0 1px 1px rgb(0 0 0 / .05))` on raised boxes is the most depth allowed.
+- Text: classes `lbl` (13 px, medium) and `sub` (11 px, muted). Weights 400-600. Numbers in readouts use `font-variant-numeric: tabular-nums`.
+- Labels never overlap lines or other labels: move a value inside its bar (white) when it sits within ~7 % of a threshold line; put line labels where the data is low.
+
+## Icons
+
+Use `tm.icon(name)` (lucide: `play`, `pause`, `prev`, `next`, `reset`, `volume`, `copy`, `sun`, `moon`, `auto`) for any control. No emoji or Unicode glyphs (▶ ↺ 🔊) as buttons.
+
+## Motion
+
+- Easing `var(--ease)` (`cubic-bezier(.4,0,.2,1)`); UI transitions 150-250 ms; figure moves follow the step's `dur`.
+- Animate opacity, transform, colour and length. Never animate layout (width of a card, page height).
+- Fade things in over at least 0.2 of a step; don't pop them.
+- `prefers-reduced-motion` turns off UI animation; figures jump to each step's end state, which must read on its own.
+
+## Layout and copy
+
+- A figure card holds: head (Fig n · title · controls), hint line, stage, chips. Don't add more chrome.
+- Chips are `key value` pairs; mark at most one or two `hot` per frame.
+- Hints are one or two sentences; bold only the term being taught.
+- Check both themes: `?theme=light` and `?theme=dark`.

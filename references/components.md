@@ -6,6 +6,8 @@ Each component is an element with `data-tm="<name>"` whose first child is `<scri
 
 Copy the worked examples in `templates/examples/` before writing from scratch.
 
+Styling follows shadcn/ui and is built in; for figure colours, icons and motion see `design.md`.
+
 ## Page frame (static, no JS)
 
 | Markup | Use |
