@@ -422,6 +422,14 @@ h2::before { content: ""; display: inline-block; width: 8px; height: 8px; border
 .tm-back { background: linear-gradient(160deg, color-mix(in oklab, var(--t) 14%, var(--panel)), var(--panel) 75%); border-color: var(--t-line); }
 @media (max-width: 720px) { .tm-steps { -webkit-mask-image: linear-gradient(to right, #000 85%, transparent); mask-image: linear-gradient(to right, #000 85%, transparent); } }
 
+/* Wrong/right beat the selected-tone ring */
+.tm-opt.tm-right { border-color: color-mix(in oklab, var(--good) 60%, var(--panel)); }
+.tm-opt.tm-right::before { border-color: var(--good); background: var(--good); }
+.tm-opt.tm-wrong { border-color: color-mix(in oklab, var(--bad) 60%, var(--panel)); }
+.tm-opt.tm-wrong::before { border-color: var(--bad); background: var(--bad); }
+/* Free-standing figure labels get a halo so lines and water behind them don't strike through */
+.tm-svg :not(.node) > text { paint-order: stroke; stroke: var(--panel); stroke-width: 3px; stroke-linejoin: round; }
+
 </style>
 <style>
 .tm-svg .lab text { font-size: 18px; fill: var(--muted); paint-order: stroke; stroke: var(--panel); stroke-width: 4px; stroke-linejoin: round; }
@@ -622,7 +630,7 @@ h2::before { content: ""; display: inline-block; width: 8px; height: 8px; border
     constructor(o) {
       this.steps = o.steps; this.onFrame = o.onFrame; this.onState = o.onState || (() => {});
       this.i = -1; this.p = 1; this.playing = false; this.auto = !!o.auto; this.speed = 1;
-      this.hold = 0; this.holdStep = o.holdStep ?? 0.35; this.loopGap = o.loopGap ?? 1.6;
+      this.hold = 0; this.holdStep = o.holdStep ?? 0.35; this.loopGap = o.loopGap ?? 3;
       this.visible = true; this.raf = 0; this.id = o.id;
       tm.players.push(this);
     }
@@ -759,7 +767,15 @@ h2::before { content: ""; display: inline-block; width: 8px; height: 8px; border
       if (!s) { sound.style.opacity = 0; return; }
       sound.textContent = s.text; sound.style.left = (s.x ?? 50) + '%'; sound.style.top = (s.y ?? 20) + '%'; sound.style.opacity = 1;
     };
+    // Reserve the tallest step hint for the current width, so the figure never shifts when hint length changes.
+    let fitW = 0;
+    const fitHint = () => {
+      const keep = hint.innerHTML; let m = 0; hint.style.minHeight = '';
+      for (const t of [restHint, ...steps.map((st) => st.hint || st.label)]) { hint.innerHTML = t; m = Math.max(m, hint.offsetHeight); }
+      hint.innerHTML = keep; hint.style.minHeight = m + 'px'; fitW = hint.offsetWidth;
+    };
     const onFrame = (i, p) => {
+      if (hint.offsetWidth && hint.offsetWidth !== fitW) fitHint();
       const out = def.frame(ctx, i, p) || {};
       chipsInto(chips, out.chips);
       showSound(out.sound ?? (i >= 0 && p < 1 && steps[i].sound ? { text: steps[i].sound, ...(steps[i].soundAt || {}) } : null));
@@ -978,7 +994,7 @@ h2::before { content: ""; display: inline-block; width: 8px; height: 8px; border
     const why = h('div', { class: 'tm-why', hidden: true, 'aria-live': 'polite' });
     const opts = order.map((oi) => h('button', { class: 'tm-opt', type: 'button', 'aria-pressed': 'false', 'data-i': oi, html: cfg.options[oi] }));
     const check = h('button', { class: 'tm-btn tm-primary', type: 'button', text: kind === 'predict' ? 'Lock in my guess' : 'Check', disabled: true });
-    const retry = h('button', { class: 'tm-btn', type: 'button', text: 'Try again', hidden: true });
+    const retry = h('button', { class: 'tm-btn', type: 'button', text: 'Pick again from the rest', hidden: true });
     opts.forEach((b) => (b.onclick = () => { if (b.disabled) return; chosen = +b.dataset.i; opts.forEach((x) => x.setAttribute('aria-pressed', x === b)); check.disabled = false; }));
     const reveal = () => {
       const target = cfg.reveal ? document.querySelector(cfg.reveal) : el.nextElementSibling?.classList.contains('tm-reveal') ? el.nextElementSibling : null;
@@ -1333,12 +1349,12 @@ h2::before { content: ""; display: inline-block; width: 8px; height: 8px; border
       lab('arm', 'Lift arm', 592, 176, 'start', 588, 172, 478, 108);
       lab('chain', 'Chain', 592, 214, 'start', 588, 210, 440, 190);
       lab('flapper', 'Flapper', 592, 258, 'start', 588, 254, 446, 282);
-      lab('tower', 'Overflow tube', 352, 112, 'end', 356, 108, 362, 108);
+      lab('tower', 'Overflow tube', 592, 136, 'start', 588, 132, 368, 132);
       lab('refill', 'Refill tube', 250, 92, 'middle', 250, 82, 250, 75);
       lab('flush', 'Flush valve', 352, 284, 'end', 356, 280, 360, 286);
-      lab('fill', 'Fill valve', 190, 288, 'start', 186, 284, 176, 284);
+      lab('fill', 'Fill valve', 160, 346, 'middle', 176, 334, 176, 304);
       lab('cup', 'Float cup', 190, 0, 'start', 186, 0, 176, 0);
-      lab('water', '↑ water level', 268, 0, 'start');
+      lab('water', '↑ water level', 292, 0, 'start');
       lab('supply', 'Supply line', 4, 224, 'start', 50, 229, 82, 256);
       lab('stop', 'Shut-off', 6, 326, 'start', 50, 312, 50, 280);
       return { water, wbody, wline, flap, rod, cup, cap, chainOut, chainIn, lever, rtFlow, towerFlow, stR, stL, streaks, pipeStreaks, labs, A };

@@ -411,3 +411,11 @@ h2::before { content: ""; display: inline-block; width: 8px; height: 8px; border
 
 .tm-back { background: linear-gradient(160deg, color-mix(in oklab, var(--t) 14%, var(--panel)), var(--panel) 75%); border-color: var(--t-line); }
 @media (max-width: 720px) { .tm-steps { -webkit-mask-image: linear-gradient(to right, #000 85%, transparent); mask-image: linear-gradient(to right, #000 85%, transparent); } }
+
+/* Wrong/right beat the selected-tone ring */
+.tm-opt.tm-right { border-color: color-mix(in oklab, var(--good) 60%, var(--panel)); }
+.tm-opt.tm-right::before { border-color: var(--good); background: var(--good); }
+.tm-opt.tm-wrong { border-color: color-mix(in oklab, var(--bad) 60%, var(--panel)); }
+.tm-opt.tm-wrong::before { border-color: var(--bad); background: var(--bad); }
+/* Free-standing figure labels get a halo so lines and water behind them don't strike through */
+.tm-svg :not(.node) > text { paint-order: stroke; stroke: var(--panel); stroke-width: 3px; stroke-linejoin: round; }

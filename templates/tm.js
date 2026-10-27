@@ -83,7 +83,7 @@
     constructor(o) {
       this.steps = o.steps; this.onFrame = o.onFrame; this.onState = o.onState || (() => {});
       this.i = -1; this.p = 1; this.playing = false; this.auto = !!o.auto; this.speed = 1;
-      this.hold = 0; this.holdStep = o.holdStep ?? 0.35; this.loopGap = o.loopGap ?? 1.6;
+      this.hold = 0; this.holdStep = o.holdStep ?? 0.35; this.loopGap = o.loopGap ?? 3;
       this.visible = true; this.raf = 0; this.id = o.id;
       tm.players.push(this);
     }
@@ -220,7 +220,15 @@
       if (!s) { sound.style.opacity = 0; return; }
       sound.textContent = s.text; sound.style.left = (s.x ?? 50) + '%'; sound.style.top = (s.y ?? 20) + '%'; sound.style.opacity = 1;
     };
+    // Reserve the tallest step hint for the current width, so the figure never shifts when hint length changes.
+    let fitW = 0;
+    const fitHint = () => {
+      const keep = hint.innerHTML; let m = 0; hint.style.minHeight = '';
+      for (const t of [restHint, ...steps.map((st) => st.hint || st.label)]) { hint.innerHTML = t; m = Math.max(m, hint.offsetHeight); }
+      hint.innerHTML = keep; hint.style.minHeight = m + 'px'; fitW = hint.offsetWidth;
+    };
     const onFrame = (i, p) => {
+      if (hint.offsetWidth && hint.offsetWidth !== fitW) fitHint();
       const out = def.frame(ctx, i, p) || {};
       chipsInto(chips, out.chips);
       showSound(out.sound ?? (i >= 0 && p < 1 && steps[i].sound ? { text: steps[i].sound, ...(steps[i].soundAt || {}) } : null));
@@ -439,7 +447,7 @@
     const why = h('div', { class: 'tm-why', hidden: true, 'aria-live': 'polite' });
     const opts = order.map((oi) => h('button', { class: 'tm-opt', type: 'button', 'aria-pressed': 'false', 'data-i': oi, html: cfg.options[oi] }));
     const check = h('button', { class: 'tm-btn tm-primary', type: 'button', text: kind === 'predict' ? 'Lock in my guess' : 'Check', disabled: true });
-    const retry = h('button', { class: 'tm-btn', type: 'button', text: 'Try again', hidden: true });
+    const retry = h('button', { class: 'tm-btn', type: 'button', text: 'Pick again from the rest', hidden: true });
     opts.forEach((b) => (b.onclick = () => { if (b.disabled) return; chosen = +b.dataset.i; opts.forEach((x) => x.setAttribute('aria-pressed', x === b)); check.disabled = false; }));
     const reveal = () => {
       const target = cfg.reveal ? document.querySelector(cfg.reveal) : el.nextElementSibling?.classList.contains('tm-reveal') ? el.nextElementSibling : null;
