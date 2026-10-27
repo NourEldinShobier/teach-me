@@ -720,6 +720,7 @@ h2::before { content: ""; display: inline-block; width: 8px; height: 8px; border
       else if (e.key === 'ArrowLeft') { pl.goto(pl.i - 1); e.preventDefault(); }
       else if (e.key === ' ' || e.key === 'Enter') { if (e.target !== card) return; onSpace(); e.preventDefault(); }
       else if (e.key.toLowerCase() === 'r') pl.reset();
+      else if (/^[1-9]$/.test(e.key)) { const b = card.querySelectorAll('.tm-step')[+e.key - 1]; if (b && !b.disabled) { b.click(); e.preventDefault(); } } // digit = press that step button
     });
   };
   let figN = 0, uidN = 0;
