@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TITLE IN 2-4 WORDS</title>
+<meta name="tm-lesson" content="SLUG">
+<meta name="tm-format" content="micro">
+<meta name="description" content="THE BIG IDEA IN ONE LINE">
+<link rel="stylesheet" href="tm.css" data-tm-inline>
+</head>
+<body>
+<main class="tm">
+  <div class="tm-top"><span class="tm-kicker">Teach Me · FORMAT</span><span class="tm-sp"></span><span>N min</span><button class="tm-iconbtn" type="button" data-tm-theme></button></div>
+  <h1>TITLE</h1>
+  <section class="tm-bigidea">
+    <strong>The big idea</strong>
+    <p>ONE SENTENCE, AT MOST 20 WORDS.</p>
+    <p class="tm-win">You will be able to: ONE CONCRETE WIN.</p>
+  </section>
+
+  <!-- Content: short prose (max 3 sentences per paragraph) between components.
+       Components: scene, diagram, stepper, sim, predict, quiz, spotbug, cards, explain, ask, save.
+       See references/components.md for every config field. -->
+
+  <div data-tm="ask"><script type="application/json">{"prompts": ["Explain this with a different analogy.", "Quiz me harder on this.", "What breaks if this works the other way?"]}</script></div>
+  <div data-tm="save"></div>
+
+  <footer class="tm-sources">
+    <b>Read next:</b> <a href="https://example.com">PRIMARY SOURCE</a>
+    <ol><li><a href="https://example.com">SOURCE TITLE</a></li></ol>
+  </footer>
+</main>
+<script src="tm.js" data-tm-inline></script>
+<!-- Optional: custom figures. Inline <script> after tm.js, or <script src="model.js" data-tm-inline></script> -->
+</body>
+</html>

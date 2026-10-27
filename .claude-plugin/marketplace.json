@@ -1,0 +1,7 @@
+{
+  "name": "teach-me",
+  "owner": { "name": "Nour Shobier" },
+  "plugins": [
+    { "name": "teach-me", "source": "./", "description": "Interactive lessons from any input." }
+  ]
+}

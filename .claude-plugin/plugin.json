@@ -1,0 +1,8 @@
+{
+  "name": "teach-me",
+  "version": "0.1.0",
+  "description": "Turn any input (a topic, tweet thread, URL, book chapter, code, course episode, language goal) into short interactive lessons: driveable figures, auto-playing code traces, request-flow diagrams, predict-first questions and spaced flashcards.",
+  "author": { "name": "Nour Shobier" },
+  "license": "MIT",
+  "keywords": ["learning", "teaching", "education", "flashcards", "interactive", "explorable"]
+}

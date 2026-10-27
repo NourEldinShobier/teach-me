@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Trailing Slash</title>
+<meta name="tm-lesson" content="trailing-slash">
+<meta name="tm-format" content="micro">
+<meta name="description" content="A trailing slash moves the folder that relative links start from.">
+<link rel="stylesheet" href="tm.css" data-tm-inline>
+</head>
+<body>
+<main class="tm">
+  <div class="tm-top"><span class="tm-kicker">Teach Me · micro</span><span class="tm-sp"></span><span>4 min</span><button class="tm-iconbtn" type="button" data-tm-theme></button></div>
+  <h1>/docs vs /docs/</h1>
+  <section class="tm-bigidea">
+    <strong>The big idea</strong>
+    <p>The browser treats everything after the last slash as a file name, so the slash decides which folder relative links start from.</p>
+    <p class="tm-win">You will be able to: predict where <code>./logo.svg</code> loads from, and why servers redirect <code>/docs</code> to <code>/docs/</code>.</p>
+  </section>
+
+  <p>A URL path looks like a file path. The browser follows one rule when it resolves a relative link: drop everything after the last <code>/</code> of the current page, then append the link.</p>
+
+  <div data-tm="predict"><script type="application/json">{
+    "q": "You are on <code>https://site.com/docs</code> and the page contains <code>&lt;img src=\"logo.svg\"&gt;</code>. Which URL does the browser request?",
+    "options": ["<code>https://site.com/logo.svg</code>", "<code>https://site.com/docs/logo.svg</code>"],
+    "answer": 0,
+    "shuffle": false,
+    "why": ["<code>docs</code> comes after the last slash, so the browser treats it as a file and drops it.", "Without a trailing slash, <code>docs</code> counts as a file name, not a folder, so it gets dropped."]
+  }</script></div>
+  <div class="tm-reveal" hidden>
+    <div data-tm="sim"><script type="application/json">{
+      "name": "resolve", "title": "The browser's URL resolver (live, using the real URL API)",
+      "hint": "Change the page URL or the link. The arrow shows what the browser actually fetches.",
+      "inputs": [
+        {"id": "base", "label": "Page URL", "options": ["https://site.com/docs", "https://site.com/docs/", "https://site.com/docs/index.html", "https://site.com/docs/guide/intro"], "value": "https://site.com/docs"},
+        {"id": "href", "label": "Link in the page", "type": "text", "value": "logo.svg"}
+      ]
+    }</script></div>
+  </div>
+
+  <h2>So why does the server redirect?</h2>
+  <p>On disk, <code>docs</code> is a folder holding <code>index.html</code>. If the server returned that file at <code>/docs</code>, every relative link inside it would point one folder too high. So Apache and nginx answer <code>/docs</code> with a 301 redirect to <code>/docs/</code> first.</p>
+
+  <div data-tm="diagram"><script type="application/json">{
+    "title": "GET /docs when docs is a folder", "fig": 2,
+    "nodes": [
+      {"id": "browser", "label": "Browser", "sub": "site.com", "col": 0, "row": 0, "tip": "Resolves relative links against the URL it ends up on."},
+      {"id": "server", "label": "Web server", "sub": "Apache / nginx", "col": 1, "row": 0, "tip": "Maps the URL path onto files and folders on disk."},
+      {"id": "folder", "label": "docs/", "sub": "a folder", "col": 2, "row": 0, "tip": "A folder can't be sent as a page; its index file can."},
+      {"id": "index", "label": "index.html", "sub": "docs/index.html", "col": 2, "row": 1, "tip": "The default file a server serves for a folder URL ending in /."},
+      {"id": "logo", "label": "logo.svg", "sub": "docs/logo.svg", "col": 1, "row": 1, "tip": "Found only if relative links resolve against /docs/."}
+    ],
+    "zones": [{"label": "Disk on the server", "nodes": ["folder", "index", "logo"]}],
+    "edges": [
+      {"from": "browser", "to": "server", "label": "GET"},
+      {"from": "server", "to": "folder"},
+      {"from": "folder", "to": "index"},
+      {"from": "browser", "to": "logo"}
+    ],
+    "steps": [
+      {"label": "Ask for /docs", "hint": "The browser requests <code>GET /docs</code>.", "path": ["browser", "server"]},
+      {"label": "Find a folder", "hint": "The server sees that <code>docs</code> is a folder, not a file.", "path": ["server", "folder"]},
+      {"label": "Redirect to /docs/", "hint": "It answers <b>301 Moved Permanently</b>, <code>Location: /docs/</code>. One extra round trip.", "path": ["server", "browser"], "chips": [{"k": "status", "v": "301", "hot": true}, {"k": "Location", "v": "/docs/"}]},
+      {"label": "Ask again with /", "hint": "The browser requests <code>GET /docs/</code>.", "path": ["browser", "server", "folder"]},
+      {"label": "Serve index.html", "hint": "A folder URL ending in <code>/</code> gets its index file.", "path": ["folder", "index"], "chips": [{"k": "status", "v": "200"}, {"k": "file", "v": "docs/index.html", "hot": true}]},
+      {"label": "Load logo.svg", "hint": "Now <code>logo.svg</code> resolves to <code>/docs/logo.svg</code> and exists.", "path": ["browser", "logo"], "chips": [{"k": "fetch", "v": "/docs/logo.svg", "hot": true}]}
+    ]
+  }</script></div>
+
+  <div data-tm="quiz"><script type="application/json">{
+    "q": "Your API client calls <code>POST /api</code>, the server answers 301 to <code>/api/</code>, and the request arrives as a <code>GET</code> with no body. What is the cleanest fix?",
+    "options": ["Call the exact canonical path", "Retry the request with POST", "Disable redirects on the server", "Send the body as headers"],
+    "answer": 0,
+    "why": ["Calling the path the server expects skips the redirect entirely, so nothing gets rewritten.", "The retry still hits the same 301, and many clients turn the POST into a GET again.", "That hides the mismatch and can break every relative link on folder pages.", "Headers are not a body; this only works around the symptom badly."],
+    "explain": "Clients may change POST to GET on a 301. That is how people lose afternoons to <code>/api</code> vs <code>/api/</code>."
+  }</script></div>
+
+  <div data-tm="quiz"><script type="application/json">{
+    "q": "A page at <code>https://site.com/blog/post-1</code> links to <code>../about</code>. Where does it go?",
+    "options": ["<code>https://site.com/about</code>", "<code>https://site.com/blog/about</code>", "<code>https://site.com/blog/post-1/about</code>"],
+    "answer": 0,
+    "why": ["The base folder is <code>/blog/</code>, and <code>..</code> climbs one level from there to <code>/</code>.", "That would be the result for <code>./about</code>, not <code>../about</code>.", "<code>post-1</code> has no trailing slash, so it counts as a file and gets dropped first."]
+  }</script></div>
+
+  <div data-tm="cards"><script type="application/json">{
+    "deck": "web-urls", "title": "Keep it",
+    "cards": [
+      {"front": "Relative link rule: the browser drops everything after the last ___ of the page URL.", "back": "slash ( / )"},
+      {"front": "Why does a server redirect /docs to /docs/?", "back": "docs is a folder; without the slash, relative links inside its index.html would resolve one level too high."},
+      {"front": "On <code>/a/b</code>, <code>./c</code> resolves to…", "back": "<code>/a/c</code>"}
+    ]
+  }</script></div>
+
+  <div data-tm="ask"><script type="application/json">{"prompts": ["Show me how nginx try_files changes this.", "Quiz me on relative URLs with ../ and ./ mixed.", "Does the trailing slash matter for SEO or caching?"]}</script></div>
+  <div data-tm="save"></div>
+
+  <footer class="tm-sources">
+    <b>Read next:</b> <a href="https://datatracker.ietf.org/doc/html/rfc3986#section-5.2.3">RFC 3986 §5.2.3, Merge Paths</a> (the exact rule, half a page).
+    <ol>
+      <li><a href="https://httpd.apache.org/docs/2.4/mod/mod_dir.html#directoryslash">Apache mod_dir: DirectorySlash</a></li>
+      <li><a href="https://nginx.org/en/docs/http/ngx_http_index_module.html">nginx: ngx_http_index_module</a></li>
+      <li><a href="https://developer.mozilla.org/en-US/docs/Web/API/URL/URL">MDN: URL() constructor</a></li>
+      <li>Prompted by a thread on X by @xuxufuye and replies, Oct 2026.</li>
+    </ol>
+  </footer>
+</main>
+<script src="tm.js" data-tm-inline></script>
+<script>
+tm.sim('resolve', {
+  setup(stage, { svg }) {
+    const s = svg('svg', { viewBox: '0 0 640 170', class: 'tm-svg', role: 'img', 'aria-label': 'URL resolution' }, stage);
+    const row = (y, label) => { svg('text', { x: 10, y, class: 'sub' }, s).textContent = label; const t = svg('text', { x: 130, y, class: 'lbl', style: 'font-family:var(--mono);font-size:15px' }, s); return t; };
+    const page = row(40, 'page'), base = row(85, 'base folder'), out = row(140, 'fetches');
+    svg('path', { d: 'M120 98 L120 128', class: 'edge hot', 'stroke-dasharray': '4 4' }, s);
+    return { page, base, out };
+  },
+  update(c, v) {
+    let url, baseDir;
+    try { url = new URL(v.href, v.base).href; baseDir = new URL('./', v.base).href; } catch { url = 'invalid URL'; baseDir = '?'; }
+    const cut = v.base.slice(v.base.lastIndexOf('/') + 1);
+    c.page.innerHTML = v.base.replace(/[^/]*$/, '') + (cut ? `<tspan style="fill:var(--bad);text-decoration:line-through">${cut}</tspan>` : '');
+    c.base.textContent = baseDir;
+    c.out.innerHTML = `<tspan style="fill:var(--accent);font-weight:600">${url}</tspan>`;
+    return { chips: [{ k: 'dropped', v: cut ? '"' + cut + '"' : 'nothing', hot: !!cut }, { k: 'result', v: new URL(url, 'https://x').pathname || url }],
+      hint: cut ? `The browser treats <code>${cut}</code> as a file name and drops it.` : 'The URL ends in <code>/</code>, so nothing is dropped.' };
+  }
+});
+</script>
+</body>
+</html>
