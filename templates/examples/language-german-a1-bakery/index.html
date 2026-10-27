@@ -204,7 +204,7 @@ input[type=range]:focus-visible { box-shadow: none; }
 .tm-svg .sub:not([fill]) { fill: var(--muted); }
 .tm-svg .ink { stroke: var(--ink); fill: none; stroke-width: 1.4; stroke-linejoin: round; stroke-linecap: round; }
 .tm-svg .box { fill: var(--panel); stroke: var(--line); stroke-width: 1.4; }
-.tm-svg .hot { stroke: var(--accent) !important; }
+.tm-svg :not(g).hot { stroke: var(--accent) !important; }
 .tm-svg .hotfill { fill: var(--accent-soft) !important; }
 .tm-svg .accent { fill: var(--accent); }
 .tm-svg .edge { stroke: var(--muted); stroke-width: 1.4; fill: none; opacity: .7; transition: stroke .2s var(--ease), opacity .2s var(--ease); }
@@ -258,9 +258,9 @@ input[type=range]:focus-visible { box-shadow: none; }
 .tm-opt:hover:not([disabled]) { background: color-mix(in oklab, var(--soft) 70%, transparent); }
 .tm-opt[aria-pressed="true"] { border-color: var(--primary); }
 .tm-opt[aria-pressed="true"]::before { border-color: var(--primary); background: var(--primary); box-shadow: inset 0 0 0 3px var(--panel); }
-.tm-opt.tm-right { border-color: color-mix(in oklab, var(--good) 55%, transparent); background: var(--good-soft); }
+.tm-opt.tm-right { border-color: color-mix(in oklab, var(--good) 60%, var(--panel)); background: var(--good-soft); }
 .tm-opt.tm-right::before { border-color: var(--good); background: var(--good); box-shadow: inset 0 0 0 3px var(--good-soft); }
-.tm-opt.tm-wrong { border-color: color-mix(in oklab, var(--bad) 50%, transparent); background: var(--bad-soft); }
+.tm-opt.tm-wrong { border-color: color-mix(in oklab, var(--bad) 60%, var(--panel)); background: var(--bad-soft); }
 .tm-opt.tm-wrong::before { border-color: var(--bad); background: var(--bad); box-shadow: inset 0 0 0 3px var(--bad-soft); }
 .tm-opt[disabled] { cursor: default; }
 .tm-opt[disabled]:not(.tm-right):not(.tm-wrong) { opacity: .6; }
@@ -356,7 +356,7 @@ table.tm-table tbody tr:hover { background: color-mix(in oklab, var(--soft) 50%,
   --amber: oklch(0.828 0.189 84.429); --rose: oklch(0.712 0.194 13.428); --cyan: oklch(0.789 0.154 211.53);
   --inkpanel: oklch(0.12 0.004 285.823); }
 
-.tm-card { --t: var(--blue); --t-soft: color-mix(in oklab, var(--t) 9%, var(--panel)); --t-line: color-mix(in oklab, var(--t) 28%, var(--line)); border-color: var(--t-line); }
+.tm-card { --t: var(--blue); --t-soft: color-mix(in oklab, var(--t) 9%, var(--panel)); --t-line: color-mix(in oklab, var(--t) 28%, var(--line)); }
 .tm-card:has(.tm-stepper), .tm-card:has(.tm-code) { --t: var(--violet); }
 .tm-card:has(.tm-sim-inputs) { --t: var(--cyan); }
 .tm-card.tm-quiz, .tm-card:has(.tm-explain) { --t: var(--amber); }
@@ -373,7 +373,6 @@ table.tm-table tbody tr:hover { background: color-mix(in oklab, var(--soft) 50%,
 .tm-quiz .tm-qn { color: var(--t); font-weight: 600; }
 
 /* Steps rail: next = filled tone, now = tone, done = green check (unchanged) */
-.tm-steps { background: color-mix(in oklab, var(--t) 4%, var(--panel)); border-right-color: var(--t-line); }
 .tm-step.tm-next:not([disabled]) .tm-num { background: var(--t); color: var(--panel); }
 .tm-step.tm-next:not([disabled]) .tm-num::before { border-color: var(--t); }
 .tm-step.tm-now, .tm-step.tm-next:not([disabled]) { border-color: var(--t-line); }
@@ -415,10 +414,13 @@ h2::before { content: ""; display: inline-block; width: 8px; height: 8px; border
 .tm-svg .node[class*="tone-"] rect { fill: color-mix(in oklab, var(--t) 10%, var(--panel)); stroke: color-mix(in oklab, var(--t) 45%, var(--line)); }
 .tm-svg .node[class*="tone-"] .sub { fill: var(--t); }
 .tm-svg .node[class*="tone-"]:hover rect { stroke: var(--t); }
-.tm-svg .node.hot rect { fill: var(--t) !important; stroke: var(--t) !important; }
-.tm-svg .node.hot text { fill: var(--panel) !important; }
+.tm-svg .node.hot rect { fill: color-mix(in oklab, var(--t) 18%, var(--panel)) !important; stroke: var(--t) !important; stroke-width: 2; filter: drop-shadow(0 0 6px color-mix(in oklab, var(--t) 45%, transparent)); }
+.tm-svg .node.hot text { stroke: none; }
 .tm-svg .zone[class*="tone-"] { fill: color-mix(in oklab, var(--t) 5%, transparent); stroke: color-mix(in oklab, var(--t) 40%, transparent); }
 .tm-svg .packet { fill: var(--rose); filter: drop-shadow(0 0 4px color-mix(in oklab, var(--rose) 60%, transparent)); }
+
+.tm-back { background: linear-gradient(160deg, color-mix(in oklab, var(--t) 14%, var(--panel)), var(--panel) 75%); border-color: var(--t-line); }
+@media (max-width: 720px) { .tm-steps { -webkit-mask-image: linear-gradient(to right, #000 85%, transparent); mask-image: linear-gradient(to right, #000 85%, transparent); } }
 
 </style>
 </head>
@@ -780,7 +782,7 @@ h2::before { content: ""; display: inline-block; width: 8px; height: 8px; border
     const onState = () => {
       stepBtns.forEach((b, k) => {
         const done = k < pl.i || (k === pl.i && pl.p >= 1);
-        const now = k === pl.i && (pl.p < 1 || pl.playing);
+        const now = k === pl.i && pl.p < 1;
         const isNext = !pl.playing && ((pl.i === -1 && k === 0) || (k === pl.i + 1 && pl.p >= 1));
         b.classList.toggle('tm-done', done && !now); b.classList.toggle('tm-now', now); b.classList.toggle('tm-next', isNext);
         b.disabled = pl.auto ? false : !isNext;
@@ -1144,7 +1146,7 @@ h2::before { content: ""; display: inline-block; width: 8px; height: 8px; border
   applyTheme(Q.get('theme') || store.get('tm:theme', 'auto'));
   function mountTheme(btn) {
     const order = ['auto', 'light', 'dark'];
-    const label = () => { const t = store.get('tm:theme', 'auto'); btn.innerHTML = icon(t) + { auto: 'Auto', light: 'Light', dark: 'Dark' }[t]; btn.title = 'Theme: ' + t; };
+    const label = () => { const t = store.get('tm:theme', 'auto'); btn.innerHTML = icon(t) + { auto: 'Auto', light: 'Light', dark: 'Dark' }[t]; btn.title = 'Theme: ' + t; btn.setAttribute('aria-label', 'Theme: ' + t + '. Click to change.'); };
     btn.onclick = () => { const t = order[(order.indexOf(store.get('tm:theme', 'auto')) + 1) % 3]; store.set('tm:theme', t); applyTheme(t); label(); };
     label();
   }

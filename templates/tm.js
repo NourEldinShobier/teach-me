@@ -238,7 +238,7 @@
     const onState = () => {
       stepBtns.forEach((b, k) => {
         const done = k < pl.i || (k === pl.i && pl.p >= 1);
-        const now = k === pl.i && (pl.p < 1 || pl.playing);
+        const now = k === pl.i && pl.p < 1;
         const isNext = !pl.playing && ((pl.i === -1 && k === 0) || (k === pl.i + 1 && pl.p >= 1));
         b.classList.toggle('tm-done', done && !now); b.classList.toggle('tm-now', now); b.classList.toggle('tm-next', isNext);
         b.disabled = pl.auto ? false : !isNext;
@@ -602,7 +602,7 @@
   applyTheme(Q.get('theme') || store.get('tm:theme', 'auto'));
   function mountTheme(btn) {
     const order = ['auto', 'light', 'dark'];
-    const label = () => { const t = store.get('tm:theme', 'auto'); btn.innerHTML = icon(t) + { auto: 'Auto', light: 'Light', dark: 'Dark' }[t]; btn.title = 'Theme: ' + t; };
+    const label = () => { const t = store.get('tm:theme', 'auto'); btn.innerHTML = icon(t) + { auto: 'Auto', light: 'Light', dark: 'Dark' }[t]; btn.title = 'Theme: ' + t; btn.setAttribute('aria-label', 'Theme: ' + t + '. Click to change.'); };
     btn.onclick = () => { const t = order[(order.indexOf(store.get('tm:theme', 'auto')) + 1) % 3]; store.set('tm:theme', t); applyTheme(t); label(); };
     label();
   }
