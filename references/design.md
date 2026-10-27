@@ -55,3 +55,10 @@ Pages are not all white. Colour comes from three places, all automatic:
 
 Mix colours with `color-mix(in oklab, …)`, never `in oklch`: oklch mixes with white or grey swing the hue toward pink.
 - Labels that sit over lines, water or bars: add `class="halo"` to the `<text>` for a panel-coloured outline. Never on text over light shapes (it smears in dark mode).
+
+## Width and phones
+
+- Every block in `main.tm` fills the content column (max 960px). Never put a `max-width` on paragraphs, callouts, cards or inner widgets; mismatched widths look broken. `check.ts` fails any top-level block narrower than the column.
+- Draw SVG figures at their real size: text 11px or more in viewBox units, and a viewBox width of 560–760. On phones (≤720px) the runtime keeps each `.tm-stage` figure at its drawn size and lets it scroll sideways instead of shrinking. Don't fight this with fixed widths.
+- `check.ts` fails if any figure text renders under 9.5px at 1280px or 500px; fix it by raising the font size, not by shrinking the figure.
+- Build layouts with flex/grid that wrap; no fixed pixel widths on containers. Check the 500px screenshot every time.

@@ -637,6 +637,8 @@
     document.querySelectorAll('[data-say]').forEach(mountSay);
     document.querySelectorAll('.tm-term[data-def]').forEach((t) => (t.tabIndex = 0));
     document.querySelectorAll('[data-tm-theme]').forEach(mountTheme);
+    // Phones: a figure never shrinks below its drawn size; .tm-stage scrolls instead (see tm.css).
+    document.querySelectorAll('.tm-stage svg[viewBox]').forEach((v) => v.style.setProperty('--vbw', v.viewBox.baseVal.width));
     tm.ready = true; document.documentElement.dataset.tmReady = '1';
     if (Q.get('check') === '1') setTimeout(writeReport, 60);
   }
@@ -654,7 +656,12 @@
       const got = tm.stepperStdout?.[id]?.() ?? '';
       return { id, ok: got === cfg.expectStdout, expect: cfg.expectStdout, got };
     });
-    const report = { width: vw, components: all.length, ready: all.filter((e) => e.dataset.tmReady).length, errors: [...tm.errors, ...tm.pageErrors], overflowX: document.documentElement.scrollWidth > vw + 1, wide, scans, stdout };
+    const main = document.querySelector('main'); const cs = main && getComputedStyle(main);
+    const col = main ? main.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight) : vw;
+    const short = main ? [...main.children].filter((e) => !e.hidden && e.offsetWidth && e.offsetWidth < col - 2 && !e.matches('.tm-top, .tm-nav, .tm-save, script, pre')).map((e) => e.tagName.toLowerCase() + (typeof e.className === 'string' && e.className ? '.' + e.className.split(' ')[0] : '') + ' ' + e.offsetWidth + '/' + Math.round(col)).slice(0, 5) : [];
+    const sizes = [...document.querySelectorAll('.tm-card svg text')].filter((t) => t.textContent.trim() && t.getScreenCTM()).map((t) => parseFloat(getComputedStyle(t).fontSize) * t.getScreenCTM().a);
+    const minText = sizes.length ? +Math.min(...sizes).toFixed(1) : null;
+    const report = { short, minText, width: vw, components: all.length, ready: all.filter((e) => e.dataset.tmReady).length, errors: [...tm.errors, ...tm.pageErrors], overflowX: document.documentElement.scrollWidth > vw + 1, wide, scans, stdout };
     const pre = document.createElement('pre'); pre.id = 'tm-check'; pre.hidden = true; pre.textContent = JSON.stringify(report);
     document.body.append(pre);
   }

@@ -35,7 +35,7 @@ Ask at most two short questions only if the answer changes the lesson (the user'
 
 - Folder: `<home>/TeachMe/<YYYY-MM-DD>-<slug>/` (create it). Resolve `<home>` to an absolute path first (`$HOME`, or `$env:USERPROFILE` in PowerShell); file tools don't expand `~`. Write `lesson.src.html` there, starting from `<plugin>/templates/shell.html` or the closest example in `<plugin>/templates/examples/`.
 - Read `<plugin>/references/components.md` for every widget's config. Read `<plugin>/references/engines.md` before writing a custom figure or a code trace.
-- Read `<plugin>/references/design.md` before drawing a custom figure or adding styles: zinc tokens only (no hex), one accent per figure, lucide icons via `tm.icon`, no overlapping labels, check both themes.
+- Read `<plugin>/references/design.md` before drawing a custom figure or adding styles: zinc tokens only (no hex), one accent per figure, lucide icons via `tm.icon`, no overlapping labels, check both themes, fill the full width and keep figure text >= 11px (see "Width and phones").
 - Follow `<plugin>/references/pedagogy.md`: one win, short text blocks, figure first, predict before reveal, scenario questions with equal-length options, cards for facts worth keeping, the "ask your agent" box, sources footer with one "read next".
 - Custom figure code goes in an inline `<script>` after the `tm.js` tag, registered with `tm.scene`, `tm.sim` or `tm.trace`. Keep it under ~200 lines with a pure model.
 - Also write `notes.md` in the folder: the big idea, 3-6 key points, the mistakes table, sources. It's the quick-reread version.

@@ -142,6 +142,8 @@ if (!noBrowser && browser) {
     const r = JSON.parse(raw.replace(/&quot;/g, '"').replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&"));
     if (r.ready < r.components) err(`browser ${w}px: ${r.components - r.ready} of ${r.components} components failed to mount`);
     for (const e of r.errors) err(`browser ${w}px: ${e}`);
+    if (r.short?.length) err(`browser ${w}px: blocks narrower than the content column: ${r.short.join(", ")}; let them fill the width`);
+    if (r.minText != null && r.minText < 9.5) err(`browser ${w}px: figure text renders at ${r.minText}px; keep SVG text >= 10px (raise the font size or let the figure scroll)`);
     if (r.overflowX) err(`browser ${w}px: horizontal page scroll${r.wide.length ? " (" + r.wide.join(", ") + ")" : ""}`);
     if (w === 1280) {
       for (const s of r.scans) {

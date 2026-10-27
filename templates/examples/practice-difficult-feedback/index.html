@@ -75,7 +75,6 @@
 html { -webkit-text-size-adjust: 100%; }
 body { margin: 0; background: var(--paper); color: var(--ink); font: 16px/1.65 var(--sans); -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
 main.tm { max-width: 960px; margin: 0 auto; padding: 32px 16px 96px; }
-main.tm > :where(p, ul, ol, h2, h3, blockquote, .tm-prose) { max-width: 68ch; }
 h1, h2, h3 { line-height: 1.15; font-weight: 600; letter-spacing: -.025em; text-wrap: balance; }
 h1 { font-size: clamp(30px, 5vw, 40px); font-weight: 700; margin: 10px 0 14px; }
 h2 { font-size: 24px; margin: 48px 0 8px; padding-bottom: 6px; border-bottom: 1px solid var(--line); }
@@ -124,7 +123,7 @@ a:focus-visible { border-radius: 4px; }
 .tm-fig { border: 1px solid var(--line); background: transparent; }
 
 /* Big idea */
-.tm-bigidea { position: relative; background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); box-shadow: var(--shadow-xs); padding: 18px 20px 18px 24px; margin: 18px 0 32px; max-width: 68ch; overflow: hidden; }
+.tm-bigidea { position: relative; background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); box-shadow: var(--shadow-xs); padding: 18px 20px 18px 24px; margin: 18px 0 32px; overflow: hidden; }
 .tm-bigidea::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 4px; background: var(--accent); }
 .tm-bigidea strong:first-child { display: block; font-size: 12px; font-weight: 500; color: var(--muted); margin-bottom: 4px; }
 .tm-bigidea p { margin: 0; font-size: 20px; font-weight: 600; letter-spacing: -.015em; line-height: 1.35; }
@@ -274,7 +273,7 @@ input[type=range]:focus-visible { box-shadow: none; }
 
 /* Flashcards */
 .tm-cards { padding: 18px; }
-.tm-flash { perspective: 1200px; margin: 6px auto 16px; max-width: 520px; cursor: pointer; }
+.tm-flash { perspective: 1200px; margin: 6px 0 16px; cursor: pointer; }
 .tm-flash-inner { display: grid; min-height: 190px; transition: transform .5s cubic-bezier(.3, .7, .2, 1); transform-style: preserve-3d; }
 .tm-flash.tm-flipped .tm-flash-inner { transform: rotateY(180deg); }
 .tm-face { grid-area: 1 / 1; display: grid; place-items: center; text-align: center; padding: 24px; border: 1px solid var(--line); border-radius: var(--r); background: var(--panel); box-shadow: var(--shadow); backface-visibility: hidden; font-size: 20px; font-weight: 600; letter-spacing: -.015em; line-height: 1.35; }
@@ -300,7 +299,7 @@ input[type=range]:focus-visible { box-shadow: none; }
 @keyframes tm-pop { from { opacity: 0; transform: translateY(-2px) scale(.96); } }
 
 /* Callouts (shadcn Alert), tables, mistakes */
-.tm-callout { border: 1px solid var(--line); background: var(--panel); border-radius: var(--radius); padding: 12px 16px; margin: 20px 0; max-width: 68ch; font-size: 14px; line-height: 1.6; box-shadow: var(--shadow-xs); }
+.tm-callout { border: 1px solid var(--line); background: var(--panel); border-radius: var(--radius); padding: 12px 16px; margin: 20px 0; font-size: 14px; line-height: 1.6; box-shadow: var(--shadow-xs); }
 .tm-callout > b:first-child { display: block; font-weight: 600; margin-bottom: 2px; }
 .tm-callout.tm-warn { border-color: color-mix(in oklab, var(--warn) 40%, transparent); background: var(--warn-soft); }
 table.tm-table { border-collapse: collapse; width: 100%; font-size: 14px; margin: 18px 0; }
@@ -429,6 +428,14 @@ h2::before { content: ""; display: inline-block; width: 8px; height: 8px; border
 .tm-opt.tm-wrong::before { border-color: var(--bad); background: var(--bad); }
 /* Opt-in halo for labels that sit over lines, water or bars: <text class="halo">. Not global: on light shapes in dark mode a panel-coloured halo smears. */
 .tm-svg text.halo { paint-order: stroke; stroke: var(--panel); stroke-width: 3px; stroke-linejoin: round; }
+
+/* Responsive: every block fills the content column; on phones wide figures scroll sideways
+   instead of shrinking, so figure text never drops below ~10px. */
+@media (max-width: 720px) {
+  .tm-stage { display: block; overflow-x: auto; overscroll-behavior-x: contain; padding: 12px; }
+  .tm-stage svg { min-width: calc(var(--vbw, 560) * 1px); max-height: none; }
+  .tm-stage::-webkit-scrollbar { height: 6px; } .tm-stage::-webkit-scrollbar-thumb { background: var(--line); border-radius: 3px; }
+}
 
 </style>
 </head>
@@ -1195,6 +1202,8 @@ h2::before { content: ""; display: inline-block; width: 8px; height: 8px; border
     document.querySelectorAll('[data-say]').forEach(mountSay);
     document.querySelectorAll('.tm-term[data-def]').forEach((t) => (t.tabIndex = 0));
     document.querySelectorAll('[data-tm-theme]').forEach(mountTheme);
+    // Phones: a figure never shrinks below its drawn size; .tm-stage scrolls instead (see tm.css).
+    document.querySelectorAll('.tm-stage svg[viewBox]').forEach((v) => v.style.setProperty('--vbw', v.viewBox.baseVal.width));
     tm.ready = true; document.documentElement.dataset.tmReady = '1';
     if (Q.get('check') === '1') setTimeout(writeReport, 60);
   }
@@ -1212,7 +1221,12 @@ h2::before { content: ""; display: inline-block; width: 8px; height: 8px; border
       const got = tm.stepperStdout?.[id]?.() ?? '';
       return { id, ok: got === cfg.expectStdout, expect: cfg.expectStdout, got };
     });
-    const report = { width: vw, components: all.length, ready: all.filter((e) => e.dataset.tmReady).length, errors: [...tm.errors, ...tm.pageErrors], overflowX: document.documentElement.scrollWidth > vw + 1, wide, scans, stdout };
+    const main = document.querySelector('main'); const cs = main && getComputedStyle(main);
+    const col = main ? main.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight) : vw;
+    const short = main ? [...main.children].filter((e) => !e.hidden && e.offsetWidth && e.offsetWidth < col - 2 && !e.matches('.tm-top, .tm-nav, .tm-save, script, pre')).map((e) => e.tagName.toLowerCase() + (typeof e.className === 'string' && e.className ? '.' + e.className.split(' ')[0] : '') + ' ' + e.offsetWidth + '/' + Math.round(col)).slice(0, 5) : [];
+    const sizes = [...document.querySelectorAll('.tm-card svg text')].filter((t) => t.textContent.trim() && t.getScreenCTM()).map((t) => parseFloat(getComputedStyle(t).fontSize) * t.getScreenCTM().a);
+    const minText = sizes.length ? +Math.min(...sizes).toFixed(1) : null;
+    const report = { short, minText, width: vw, components: all.length, ready: all.filter((e) => e.dataset.tmReady).length, errors: [...tm.errors, ...tm.pageErrors], overflowX: document.documentElement.scrollWidth > vw + 1, wide, scans, stdout };
     const pre = document.createElement('pre'); pre.id = 'tm-check'; pre.hidden = true; pre.textContent = JSON.stringify(report);
     document.body.append(pre);
   }
@@ -1346,7 +1360,7 @@ h2::before { content: ""; display: inline-block; width: 8px; height: 8px; border
           E('circle', { cx: 0, cy: 76, r: 2.4, style: 'fill:#fff;stroke:var(--ink);stroke-width:1' }, g);
           P('M-9 34 Q0 70 9 34', 'stroke:#8a9099;stroke-width:1;fill:none', g); // lanyard
           E('rect', { x: 14, y: 54, width: 22, height: 15, rx: 2, style: K + 'fill:#fff' }, g);
-          E('text', { x: 25, y: 65, 'text-anchor': 'middle', style: 'font:700 8px var(--sans);fill:#333' }, g).textContent = 'MAYA';
+          E('text', { x: 25, y: 65, 'text-anchor': 'middle', style: 'font:700 11px var(--sans);fill:#333' }, g).textContent = 'MAYA';
         } else {
           P('M-30 36 Q-34 18 -14 22 Q0 42 14 22 Q34 18 30 36 Q0 62 -30 36 Z', K + 'fill:#4d6642', g);
           E('line', { x1: -6, y1: 40, x2: -7, y2: 56, style: 'stroke:#e9e4d6;stroke-width:1.6' }, g);
