@@ -126,7 +126,7 @@ a:focus-visible { border-radius: 4px; }
 .tm-card-head b { color: var(--ink); font-weight: 600; font-size: 14px; letter-spacing: -.01em; }
 .tm-card-head .tm-sp { flex: 1; }
 .tm-card-body { padding: 16px; }
-.tm-hint { min-height: 1.6em; font-size: 14px; line-height: 1.55; padding: 11px 16px; color: var(--ink); background: color-mix(in oklab, var(--soft) 55%, transparent); border-bottom: 1px solid var(--line); }
+.tm-hint { min-height: calc(2 * 1.55em + 22px); font-size: 14px; line-height: 1.55; padding: 11px 16px; color: var(--ink); background: color-mix(in oklab, var(--soft) 55%, transparent); border-bottom: 1px solid var(--line); }
 .tm-hint b { font-weight: 600; }
 
 /* Player controls */
