@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Late Binding</title>
+<meta name="tm-lesson" content="python-closures-late-binding">
+<meta name="tm-format" content="trace">
+<meta name="description" content="A Python lambda looks up a loop variable when it is called, not when it is created.">
+<link rel="stylesheet" href="tm.css" data-tm-inline>
+</head>
+<body>
+<main class="tm">
+  <div class="tm-top"><span class="tm-kicker">Teach Me · trace</span><span class="tm-sp"></span><span>10 min</span><button class="tm-iconbtn" type="button" data-tm-theme></button></div>
+  <h1>Why every lambda prints 2</h1>
+  <section class="tm-bigidea">
+    <strong>The big idea</strong>
+    <p>A function stores the name <code>i</code>, not its value. It reads the name when called.</p>
+    <p class="tm-win">You will be able to: predict what lambdas built in a loop return, and fix them with a default argument.</p>
+  </section>
+
+  <p>Python looks up a variable that a function does not define itself at the moment the function runs. Lambdas made in a loop all share the loop's one variable.</p>
+
+  <div data-tm="predict"><script type="application/json">{
+    "q": "What does this program print?<pre><code>funcs = []\nfor i in range(3):\n    funcs.append(lambda: i)\nprint(i)\nfor f in funcs:\n    print(f())</code></pre>",
+    "options": ["<code>2 2 2 2</code>", "<code>2 0 1 2</code>", "<code>3 3 3 3</code>"],
+    "answer": 0,
+    "shuffle": true,
+    "why": ["Right: <code>print(i)</code> shows 2, and so does every call.", "The 0 1 2 hope is natural, but the lambdas never saved 0 or 1.", "<code>range(3)</code> stops at 2, so <code>i</code> never becomes 3."],
+    "explain": "Run it below and watch where each 2 comes from."
+  }</script></div>
+  <div class="tm-reveal" hidden>
+    <div data-tm="stepper"><script type="application/json">{"title": "Late binding, run for real", "lang": "python", "code": "funcs = []\nfor i in range(3):\n    funcs.append(lambda: i)\nprint(i)\nfor f in funcs:\n    print(f())\n", "frames": [{"line": 1, "vars": {}, "note": "An empty list. It will hold the three functions."}, {"line": 2, "vars": {"funcs": "[]"}, "note": "<code>for</code> takes the first number from <code>range(3)</code> and binds it to the name <code>i</code>."}, {"line": 3, "vars": {"funcs": "[]", "i": 0}, "note": "The lambda is created with the body <code>i</code>. It stores no number, only the instruction to look up <code>i</code> later (i is 0 right now)."}, {"line": 2, "vars": {"funcs": "[λ0]", "i": 0}, "note": "Next pass. <code>for</code> rebinds the <b>same</b> name <code>i</code> to 1; the old value 0 is gone."}, {"line": 3, "vars": {"funcs": "[λ0]", "i": 1}, "note": "The lambda is created with the body <code>i</code>. It stores no number, only the instruction to look up <code>i</code> later (i is 1 right now)."}, {"line": 2, "vars": {"funcs": "[λ0, λ1]", "i": 1}, "note": "Next pass. <code>for</code> rebinds the <b>same</b> name <code>i</code> to 2; the old value 1 is gone."}, {"line": 3, "vars": {"funcs": "[λ0, λ1]", "i": 2}, "note": "The lambda is created with the body <code>i</code>. It stores no number, only the instruction to look up <code>i</code> later (i is 2 right now)."}, {"line": 2, "vars": {"funcs": "[λ0, λ1, λ2]", "i": 2}, "note": "<code>range(3)</code> is used up and the loop ends. <code>i</code> keeps its last value, 2."}, {"line": 4, "vars": {"funcs": "[λ0, λ1, λ2]", "i": 2}, "out": "2\n", "note": "<code>print(i)</code> shows the loop variable's final value: 2."}, {"line": 5, "vars": {"funcs": "[λ0, λ1, λ2]", "i": 2}, "note": "Start calling the stored functions, one by one."}, {"line": 6, "vars": {"funcs": "[λ0, λ1, λ2]", "i": 2, "f": "λ0"}, "out": "2\n", "note": "<code>f()</code> looks up <code>i</code> <b>now</b>, at call time. It finds 2, whichever function this is."}, {"line": 5, "vars": {"funcs": "[λ0, λ1, λ2]", "i": 2, "f": "λ0"}, "note": "Next function."}, {"line": 6, "vars": {"funcs": "[λ0, λ1, λ2]", "i": 2, "f": "λ1"}, "out": "2\n", "note": "<code>f()</code> looks up <code>i</code> <b>now</b>, at call time. It finds 2, whichever function this is."}, {"line": 5, "vars": {"funcs": "[λ0, λ1, λ2]", "i": 2, "f": "λ1"}, "note": "Next function."}, {"line": 6, "vars": {"funcs": "[λ0, λ1, λ2]", "i": 2, "f": "λ2"}, "out": "2\n", "note": "<code>f()</code> looks up <code>i</code> <b>now</b>, at call time. It finds 2, whichever function this is."}, {"line": 5, "vars": {"funcs": "[λ0, λ1, λ2]", "i": 2, "f": "λ2"}, "note": "All three have been called."}], "expectStdout": "2\n2\n2\n2\n", "stepMs": 1100, "autoplay": false}</script></div>
+  </div>
+
+  <h2>One name, many readers</h2>
+  <p>Each lambda holds code that says "return <code>i</code>". It does not hold a number. Change the settings and watch which cell each lambda reads.</p>
+
+  <div data-tm="sim"><script type="application/json">{
+    "name": "late", "title": "Who reads the variable i?",
+    "hint": "Drag the loop length, then compare the two lambda styles.",
+    "inputs": [
+      {"id": "n", "label": "Loop length", "min": 1, "max": 6, "step": 1, "value": 3},
+      {"id": "mode", "label": "Lambda", "options": ["lambda: i", "lambda i=i: i"], "value": "lambda: i"},
+      {"id": "call", "label": "Called", "options": ["after the loop", "during the loop"], "value": "after the loop"}
+    ]
+  }</script></div>
+
+  <h2>The fix, traced</h2>
+  <p>The default <code>i=i</code> is evaluated once, when the lambda is created. The value is then stored inside the function.</p>
+  <div data-tm="stepper"><script type="application/json">{"title": "The fix, run for real", "lang": "python", "code": "funcs = []\nfor i in range(3):\n    funcs.append(lambda i=i: i)\nprint(i)\nfor f in funcs:\n    print(f())\n", "frames": [{"line": 1, "vars": {}, "note": "An empty list. It will hold the three functions."}, {"line": 2, "vars": {"funcs": "[]"}, "note": "<code>for</code> takes the first number from <code>range(3)</code> and binds it to the name <code>i</code>."}, {"line": 3, "vars": {"funcs": "[]", "i": 0}, "note": "<code>lambda i=i: i</code> runs the default <code>i=i</code> <b>now</b>: this function stores its own private copy, 0."}, {"line": 2, "vars": {"funcs": "[λ0(i=0)]", "i": 0}, "note": "Next pass. <code>for</code> rebinds the <b>same</b> name <code>i</code> to 1; the old value 0 is gone."}, {"line": 3, "vars": {"funcs": "[λ0(i=0)]", "i": 1}, "note": "<code>lambda i=i: i</code> runs the default <code>i=i</code> <b>now</b>: this function stores its own private copy, 1."}, {"line": 2, "vars": {"funcs": "[λ0(i=0), λ1(i=1)]", "i": 1}, "note": "Next pass. <code>for</code> rebinds the <b>same</b> name <code>i</code> to 2; the old value 1 is gone."}, {"line": 3, "vars": {"funcs": "[λ0(i=0), λ1(i=1)]", "i": 2}, "note": "<code>lambda i=i: i</code> runs the default <code>i=i</code> <b>now</b>: this function stores its own private copy, 2."}, {"line": 2, "vars": {"funcs": "[λ0(i=0), λ1(i=1), λ2(i=2)]", "i": 2}, "note": "<code>range(3)</code> is used up and the loop ends. <code>i</code> keeps its last value, 2."}, {"line": 4, "vars": {"funcs": "[λ0(i=0), λ1(i=1), λ2(i=2)]", "i": 2}, "out": "2\n", "note": "<code>print(i)</code> shows the loop variable's final value: 2."}, {"line": 5, "vars": {"funcs": "[λ0(i=0), λ1(i=1), λ2(i=2)]", "i": 2}, "note": "Start calling the stored functions, one by one."}, {"line": 6, "vars": {"funcs": "[λ0(i=0), λ1(i=1), λ2(i=2)]", "i": 2, "f": "λ0(i=0)"}, "out": "0\n", "note": "<code>f()</code> uses its own stored 0; it never looks at the loop variable."}, {"line": 5, "vars": {"funcs": "[λ0(i=0), λ1(i=1), λ2(i=2)]", "i": 2, "f": "λ0(i=0)"}, "note": "Next function."}, {"line": 6, "vars": {"funcs": "[λ0(i=0), λ1(i=1), λ2(i=2)]", "i": 2, "f": "λ1(i=1)"}, "out": "1\n", "note": "<code>f()</code> uses its own stored 1; it never looks at the loop variable."}, {"line": 5, "vars": {"funcs": "[λ0(i=0), λ1(i=1), λ2(i=2)]", "i": 2, "f": "λ1(i=1)"}, "note": "Next function."}, {"line": 6, "vars": {"funcs": "[λ0(i=0), λ1(i=1), λ2(i=2)]", "i": 2, "f": "λ2(i=2)"}, "out": "2\n", "note": "<code>f()</code> uses its own stored 2; it never looks at the loop variable."}, {"line": 5, "vars": {"funcs": "[λ0(i=0), λ1(i=1), λ2(i=2)]", "i": 2, "f": "λ2(i=2)"}, "note": "All three have been called."}], "expectStdout": "2\n0\n1\n2\n", "stepMs": 1100}</script></div>
+
+  <div data-tm="spotbug"><script type="application/json">{
+    "q": "A menu builder prints <code>clicked quit</code> for <b>every</b> item, even <code>save</code>. Click the line to change.",
+    "code": "handlers = {}\nfor name in [\"save\", \"open\", \"quit\"]:\n    handlers[name] = lambda: print(\"clicked\", name)\nhandlers[\"save\"]()",
+    "bug": 3,
+    "why": "The lambda reads <code>name</code> when called, after the loop ended on \"quit\". Writing <code>lambda name=name: print(\"clicked\", name)</code> stores each value.",
+    "wrong": {"1": "An empty dict is fine. The problem is what the stored functions remember.", "2": "The loop itself is fine; it just leaves <code>name</code> at \"quit\".", "4": "Calling <code>save</code> is correct. It exposes the bug but does not cause it."}
+  }</script></div>
+
+  <div data-tm="quiz"><script type="application/json">{
+    "q": "What does this print?<pre><code>adders = [lambda x: x + n for n in range(3)]\nprint(adders[0](10))</code></pre>",
+    "options": ["<code>10</code>", "<code>11</code>", "<code>12</code>"],
+    "answer": 2,
+    "why": ["That would need <code>n</code> to be 0 at call time, but the loop finished.", "That would need <code>n</code> to be 1, a value the comprehension passed through.", "A comprehension is still a loop: all three lambdas read the final <code>n</code>, which is 2."]
+  }</script></div>
+
+  <div data-tm="quiz"><script type="application/json">{
+    "q": "A loop builds a lambda and calls it immediately.<pre><code>for i in range(3):\n    f = lambda: i\n    print(f())</code></pre>What prints?",
+    "options": ["<code>0 1 2</code>", "<code>2 2 2</code>", "<code>0 0 0</code>"],
+    "answer": 0,
+    "why": ["Right: each call runs while <code>i</code> still holds that pass's value.", "That needs the calls to wait until the loop is over.", "<code>i</code> is rebound each pass, so it is never stuck at 0."],
+    "explain": "This is why the bug often hides in tests that call callbacks at once, then appears when they run later."
+  }</script></div>
+
+  <div data-tm="quiz"><script type="application/json">{
+    "q": "After the fix <code>funcs.append(lambda i=i: i)</code>, a teammate calls <code>funcs[0](99)</code>. What does it return?",
+    "options": ["<code>99</code>", "<code>0</code>", "<code>2</code>"],
+    "answer": 0,
+    "why": ["Right: <code>i=i</code> only sets a default, so a passed argument replaces it.", "The stored 0 is used only when no argument is given.", "2 is the loop's final value, which this lambda no longer reads."],
+    "explain": "The default-argument fix lets callers override the saved value by accident."
+  }</script></div>
+
+  <div data-tm="cards"><script type="application/json">{
+    "deck": "python-late-binding", "title": "Keep it",
+    "cards": [
+      {"front": "<code>[lambda: i for i in range(3)]</code>, each called after the list is built, returns…", "back": "2, 2, 2: every lambda reads the one shared <code>i</code>."},
+      {"front": "A function looks up a free variable when it is {{c1::called}}, not when it is defined.", "back": ""},
+      {"front": "Why does <code>lambda i=i: i</code> fix the loop bug?", "back": "A default value is evaluated once, at definition, so each lambda stores its own copy."},
+      {"front": "A weakness of the default-argument fix?", "back": "A caller can pass an argument and replace the saved value."}
+    ]
+  }</script></div>
+
+  <div data-tm="explain"><script type="application/json">{"prompt": "Explain in two sentences why three lambdas made in a loop all return 2, and what <code>i=i</code> changes."}</script></div>
+  <div data-tm="ask"><script type="application/json">{"prompts": ["Show the same bug with regular functions and with closures inside a function.", "When is functools.partial better than a default argument?", "Does JavaScript have this bug with var, let and const?"]}</script></div>
+  <div data-tm="save"></div>
+
+  <footer class="tm-sources">
+    <b>Read next:</b> <a href="https://docs.python.org/3/faq/programming.html#why-do-lambdas-defined-in-a-loop-with-different-values-all-return-the-same-result">Python FAQ: lambdas defined in a loop</a> (one section).
+    <ol>
+      <li><a href="https://docs.python.org/3/reference/executionmodel.html#resolution-of-names">Python reference: Execution model, resolution of names</a> (free variables resolve at runtime)</li>
+      <li>Traces generated by running the shown programs under <code>sys.settrace</code> (Python 3.14.7).</li>
+    </ol>
+  </footer>
+</main>
+<script src="tm.js" data-tm-inline></script>
+<script>
+// check: n=3 late/after -> 2 2 2; late/during -> 0 1 2; default -> 0 1 2
+const model = (n, mode, call) => {
+  const late = mode === 'lambda: i', during = call.startsWith('during');
+  const res = Array.from({ length: n }, (_, k) => (late ? (during ? k : n - 1) : k));
+  return { late, during, res, slots: late && during ? n : 1 };
+};
+tm.sim('late', {
+  setup(stage, { svg }) {
+    const s = svg('svg', { viewBox: '0 0 640 290', class: 'tm-svg', role: 'img', 'aria-label': 'Lambdas reading the variable i' }, stage);
+    const T = 'transition:transform .45s ease,opacity .3s';
+    const mk = svg('marker', { id: 'late-arw', viewBox: '0 0 10 10', refX: 9, refY: 5, markerWidth: 11, markerHeight: 11, markerUnits: 'userSpaceOnUse', orient: 'auto' }, svg('defs', {}, s));
+    svg('path', { d: 'M0 0 L10 5 L0 10z', style: 'fill:var(--accent)' }, mk);
+    svg('rect', { x: 10, y: 8, width: 620, height: 96, rx: 10, class: 'zone' }, s);
+    svg('text', { x: 24, y: 28, class: 'sub', style: 'font-size:14px' }, s).textContent = 'Global names: one shelf that every function can read';
+    const arrows = [], slots = [], cards = [];
+    for (let k = 0; k < 6; k++) arrows.push(svg('path', { class: 'edge hot', 'marker-end': 'url(#late-arw)', style: 'transition:d .45s ease,opacity .3s' }, s));
+    for (let k = 0; k < 6; k++) {
+      const g = svg('g', { style: T }, s);
+      const box = svg('rect', { x: -31, y: 0, width: 62, height: 44, rx: 6, class: 'box' }, g);
+      const lab = svg('text', { x: -26, y: 14, class: 'sub', style: 'font-size:13px' }, g);
+      const val = svg('text', { x: 0, y: 36, 'text-anchor': 'middle', style: 'font:600 24px var(--mono)' }, g);
+      slots.push({ g, box, lab, val });
+    }
+    for (let k = 0; k < 6; k++) {
+      const g = svg('g', { style: T }, s);
+      const box = svg('rect', { x: -46, y: 0, width: 92, height: 98, rx: 8, class: 'box' }, g);
+      svg('text', { x: 0, y: 20, 'text-anchor': 'middle', class: 'lbl', style: 'font:600 15px var(--sans)' }, g).textContent = 'λ' + k;
+      const own = svg('rect', { x: -24, y: 32, width: 48, height: 32, rx: 5, class: 'box' }, g);
+      const ownv = svg('text', { x: 0, y: 56, 'text-anchor': 'middle', style: 'font:600 20px var(--mono)' }, g);
+      svg('text', { x: 0, y: 86, 'text-anchor': 'middle', style: 'font:14px var(--mono)' }, g).textContent = 'return i';
+      const res = svg('text', { x: 0, y: 132, 'text-anchor': 'middle', style: 'font:600 26px var(--mono)' }, g);
+      cards.push({ g, box, own, ownv, res });
+    }
+    return { arrows, slots, cards };
+  },
+  update(c, v) {
+    const n = +v.n, m = model(n, v.mode, v.call);
+    const sp = 600 / n, w = Math.min(92, Math.floor(sp) - 8);
+    const slotX = (j) => 320 + (j - (m.slots - 1) / 2) * 76;
+    c.slots.forEach((o, j) => {
+      const on = j < m.slots;
+      o.g.style.transform = `translate(${on ? slotX(j) : 320}px,52px)`;
+      o.g.style.opacity = on ? (m.late ? 1 : 0.4) : 0;
+      o.val.textContent = m.slots > 1 ? j : n - 1;
+      o.lab.textContent = m.slots > 1 ? 'i then' : 'i';
+      o.box.classList.toggle('hotfill', m.late && on);
+    });
+    c.cards.forEach((o, k) => {
+      const on = k < n, cx = 20 + sp * (k + 0.5);
+      o.g.style.transform = `translate(${on ? cx : 320}px,140px)`;
+      o.g.style.opacity = on ? 1 : 0;
+      o.box.setAttribute('width', w); o.box.setAttribute('x', -w / 2);
+      o.own.setAttribute('stroke-dasharray', m.late ? '3 3' : '0');
+      o.ownv.textContent = m.late ? '' : k;
+      o.res.textContent = '→ ' + m.res[k];
+      o.res.style.fill = on && m.res[k] === k ? 'var(--good)' : 'var(--bad)';
+      const a = c.arrows[k], tx = slotX(m.slots > 1 ? k : 0);
+      a.style.opacity = on && m.late ? 1 : 0;
+      a.style.d = `path("M ${on ? cx : 320} 138 C ${on ? cx : 320} 116 ${tx} 120 ${tx} 98")`;
+    });
+    const last = n - 1, same = new Set(m.res).size === 1 && n > 1;
+    return {
+      chips: [{ k: 'i after loop', v: String(last) }, { k: 'calls return', v: m.res.join(', '), hot: same }, { k: 'wanted', v: Array.from({ length: n }, (_, k) => k).join(', ') }],
+      hint: !m.late ? 'Each lambda <b>copied</b> its own <code>i</code> when it was made. The shelf\'s <code>i</code> ends at ' + last + ', but nobody reads it.'
+        : m.during ? 'Every lambda is called before the next pass, while <code>i</code> still holds that pass\'s value. The shared name hides the bug.'
+        : 'All ' + n + ' lambdas read the <b>same</b> <code>i</code>. By the time they run it holds ' + last + (n > 1 ? ', so they all answer ' + last + '.' : '.')
+    };
+  }
+});
+</script>
+</body>
+</html>

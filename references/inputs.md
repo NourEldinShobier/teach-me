@@ -14,7 +14,7 @@ Read with the available browser or fetch tool (BrowserOS neo `read`, deepseek `f
 
 - PDF: read the outline/table of contents first (`anthropic-skills:pdf` if installed, else the Read tool with page ranges). Read only the chapter asked for.
 - EPUB: it is a zip. Extract to a scratch folder (`tar -xf book.epub -C <dir>` works on Windows 10+, macOS and Linux), read `META-INF/container.xml` → the OPF file → the spine order, then read the chapter's XHTML files.
-- A whole book is a course: use the `course` skill and queue one chapter (or one section of a long chapter) per lesson.
+- One chapter is one lesson (the `learn` skill). Working through a whole book is a course: the user runs `/teach-me:course`, which queues one chapter (or one section of a long chapter) per lesson.
 - Teach the author's argument faithfully and cite page or section numbers. Mark your own additions as such. Don't reproduce long passages: quote at most a sentence or two.
 - Soft-skill and life books: the lesson is the `practice` format. The win is a behaviour the learner can try this week, not a summary.
 

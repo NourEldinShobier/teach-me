@@ -102,9 +102,11 @@ button { font: inherit; color: inherit; }
 }
 
 /* SVG helpers used by scenes and diagrams */
-.tm-svg text { font-family: var(--sans); fill: var(--ink); }
+.tm-svg text { font-family: var(--sans); }
+.tm-svg text:not([fill]) { fill: var(--ink); }
 .tm-svg .lbl { font-size: 13px; }
-.tm-svg .sub { font-size: 11px; fill: var(--muted); }
+.tm-svg .sub { font-size: 11px; }
+.tm-svg .sub:not([fill]) { fill: var(--muted); }
 .tm-svg .ink { stroke: var(--ink); fill: none; stroke-width: 1.4; stroke-linejoin: round; stroke-linecap: round; }
 .tm-svg .box { fill: var(--panel); stroke: var(--line); stroke-width: 1.4; }
 .tm-svg .hot { stroke: var(--accent) !important; }
@@ -167,15 +169,15 @@ button { font: inherit; color: inherit; }
 /* Flashcards */
 .tm-cards { padding: 16px; }
 .tm-flash { perspective: 1200px; margin: 6px auto 14px; max-width: 520px; cursor: pointer; }
-.tm-flash-inner { position: relative; min-height: 190px; transition: transform .45s; transform-style: preserve-3d; }
+.tm-flash-inner { display: grid; min-height: 190px; transition: transform .45s; transform-style: preserve-3d; }
 .tm-flash.tm-flipped .tm-flash-inner { transform: rotateY(180deg); }
-.tm-face { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; padding: 20px; border: 1px solid var(--line); border-radius: var(--r); background: var(--panel); backface-visibility: hidden; font-size: 22px; font-family: var(--serif); }
+.tm-face { grid-area: 1 / 1; display: grid; place-items: center; text-align: center; padding: 20px; border: 1px solid var(--line); border-radius: var(--r); background: var(--panel); backface-visibility: hidden; font-size: 22px; font-family: var(--serif); }
 .tm-face small { display: block; font: 14px var(--sans); color: var(--muted); margin-top: 8px; }
 .tm-back { transform: rotateY(180deg); background: var(--soft); }
 .tm-grades { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
 .tm-deckbar { display: flex; gap: 12px; align-items: center; font-size: 13px; color: var(--muted); margin-bottom: 4px; }
 .tm-deckbar .tm-sp { flex: 1; }
-@media (prefers-reduced-motion: reduce) { .tm-flash-inner { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .tm-flash-inner { transition: none; } .tm-step.tm-next:not([disabled]) { animation: none; } }
 
 /* Gender colouring for language lessons */
 .g-m { color: var(--m); font-weight: 600; } .g-f { color: var(--f); font-weight: 600; } .g-n { color: var(--n); font-weight: 600; }

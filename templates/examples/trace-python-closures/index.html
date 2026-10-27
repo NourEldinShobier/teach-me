@@ -1,0 +1,1033 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Late Binding</title>
+<meta name="tm-lesson" content="python-closures-late-binding">
+<meta name="tm-format" content="trace">
+<meta name="description" content="A Python lambda looks up a loop variable when it is called, not when it is created.">
+<style>
+/* Teach Me runtime styles. Shipped with the plugin; lessons never rewrite this file. */
+:root {
+  --paper: #fbfaf7; --panel: #ffffff; --ink: #1b1b1f; --muted: #6b6b73; --line: #e4e1da;
+  --soft: #f2efe8; --accent: #2f5bff; --accent-soft: #e6ecff; --good: #1f8a4c; --good-soft: #e3f4ea;
+  --bad: #b5532a; --bad-soft: #fbeae2; --warn: #b7850b; --code-bg: #f6f4ef;
+  --m: #2f6fde; --f: #d0435b; --n: #2f9a5a; /* German gender colours */
+  --serif: ui-serif, "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: ui-monospace, "Cascadia Code", "SF Mono", Consolas, monospace;
+  --r: 12px; --shadow: 0 1px 2px rgba(20,20,30,.05), 0 4px 16px rgba(20,20,30,.05);
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #15161a; --panel: #1c1d22; --ink: #ececef; --muted: #9c9ca6; --line: #2e2f36;
+    --soft: #23242a; --accent: #7d97ff; --accent-soft: #252c4a; --good: #4cc27f; --good-soft: #1b3326;
+    --bad: #f08a5d; --bad-soft: #3a2219; --warn: #e2b23c; --code-bg: #1a1b20;
+    --m: #6f9cff; --f: #ff7d92; --n: #5fd08d; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #15161a; --panel: #1c1d22; --ink: #ececef; --muted: #9c9ca6; --line: #2e2f36;
+  --soft: #23242a; --accent: #7d97ff; --accent-soft: #252c4a; --good: #4cc27f; --good-soft: #1b3326;
+  --bad: #f08a5d; --bad-soft: #3a2219; --warn: #e2b23c; --code-bg: #1a1b20;
+  --m: #6f9cff; --f: #ff7d92; --n: #5fd08d; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 17px/1.6 var(--sans); }
+main.tm { max-width: 960px; margin: 0 auto; padding: 32px 16px 80px; }
+main.tm > :where(p, ul, ol, h2, h3, blockquote, .tm-prose) { max-width: 68ch; }
+h1, h2, h3 { font-family: var(--serif); line-height: 1.2; font-weight: 600; letter-spacing: -.01em; }
+h1 { font-size: clamp(30px, 5vw, 44px); margin: 8px 0 12px; }
+h2 { font-size: 26px; margin: 48px 0 8px; }
+h3 { font-size: 19px; margin: 28px 0 6px; }
+a { color: var(--accent); }
+code, kbd { font-family: var(--mono); font-size: .88em; background: var(--code-bg); border: 1px solid var(--line); border-radius: 5px; padding: .05em .35em; }
+pre { font-family: var(--mono); font-size: 14px; background: var(--code-bg); border: 1px solid var(--line); border-radius: var(--r); padding: 14px 16px; overflow-x: auto; }
+pre code { background: none; border: 0; padding: 0; }
+hr { border: 0; border-top: 1px solid var(--line); margin: 40px 0; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.tm-muted { color: var(--muted); }
+
+/* Top bar */
+.tm-top { display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--muted); }
+.tm-top .tm-kicker { text-transform: uppercase; letter-spacing: .08em; font-weight: 600; }
+.tm-top .tm-sp { flex: 1; }
+.tm-iconbtn { border: 1px solid var(--line); background: var(--panel); border-radius: 999px; padding: 4px 10px; cursor: pointer; font-size: 13px; }
+
+/* Big idea */
+.tm-bigidea { border-left: 4px solid var(--accent); background: var(--accent-soft); border-radius: 0 var(--r) var(--r) 0; padding: 14px 18px; margin: 18px 0 28px; max-width: 68ch; }
+.tm-bigidea strong:first-child { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--accent); margin-bottom: 2px; }
+.tm-bigidea p { margin: 0; font-family: var(--serif); font-size: 21px; line-height: 1.35; }
+.tm-bigidea .tm-win { font-family: var(--sans); font-size: 15px; color: var(--muted); margin-top: 6px; }
+
+/* Card frame for figures and widgets */
+.tm-card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); box-shadow: var(--shadow); margin: 24px 0; overflow: hidden; }
+.tm-card-head { display: flex; gap: 12px; align-items: baseline; padding: 10px 16px; border-bottom: 1px solid var(--line); font-size: 13px; color: var(--muted); }
+.tm-card-head b { color: var(--ink); font-weight: 600; }
+.tm-card-head .tm-sp { flex: 1; }
+.tm-card-body { padding: 16px; }
+.tm-hint { min-height: 1.6em; font-size: 15px; padding: 10px 16px; background: var(--soft); border-bottom: 1px solid var(--line); }
+.tm-hint b { color: var(--accent); }
+
+/* Player controls */
+.tm-controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 10px 16px; border-top: 1px solid var(--line); font-size: 14px; }
+.tm-btn { border: 1px solid var(--line); background: var(--panel); border-radius: 8px; padding: 6px 12px; cursor: pointer; line-height: 1.2; }
+.tm-btn:hover { border-color: var(--muted); }
+.tm-btn[disabled] { opacity: .4; cursor: default; }
+.tm-btn.tm-primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+.tm-seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.tm-seg button { border: 0; background: transparent; padding: 6px 10px; cursor: pointer; }
+.tm-seg button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+.tm-scrub { flex: 1; min-width: 120px; accent-color: var(--accent); }
+.tm-badge { font: 600 12px var(--mono); border-radius: 999px; padding: 2px 8px; background: var(--soft); color: var(--muted); }
+.tm-controls .tm-sp { flex: 1; }
+
+/* Step buttons (scene / machine) */
+.tm-scene { display: grid; grid-template-columns: 210px 1fr; }
+.tm-steps { display: flex; flex-direction: column; gap: 8px; padding: 16px; border-right: 1px solid var(--line); }
+.tm-step { display: flex; gap: 10px; align-items: center; text-align: left; border: 1px solid var(--line); background: var(--panel); border-radius: 999px; padding: 6px 14px 6px 6px; cursor: pointer; font-size: 14px; transition: opacity .2s, border-color .2s; }
+.tm-step .tm-num { flex: none; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; background: var(--soft); font: 600 13px var(--mono); }
+.tm-step[disabled] { cursor: default; opacity: .45; }
+.tm-step.tm-done { opacity: .55; }
+.tm-step.tm-now { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); opacity: 1; }
+.tm-step.tm-now .tm-num { background: var(--accent); color: #fff; }
+.tm-step.tm-next:not([disabled]) { animation: tm-pulse 1.6s ease-in-out infinite; }
+@keyframes tm-pulse { 50% { box-shadow: 0 0 0 5px var(--accent-soft); } }
+.tm-stage { position: relative; min-height: 260px; display: grid; place-items: center; padding: 12px; }
+.tm-stage svg { width: 100%; height: auto; max-height: 520px; overflow: visible; }
+.tm-chips { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 16px 14px; }
+.tm-chip { font: 13px var(--mono); border: 1px solid var(--line); border-radius: 8px; padding: 4px 10px; background: var(--soft); }
+.tm-chip b { font-weight: 600; color: var(--ink); }
+.tm-chip.tm-hot { border-color: var(--accent); background: var(--accent-soft); }
+.tm-sound { position: absolute; font: italic 700 20px var(--serif); color: var(--accent); pointer-events: none; transform: rotate(-6deg); opacity: 0; transition: opacity .2s; }
+@media (max-width: 720px) {
+  .tm-scene { grid-template-columns: 1fr; }
+  .tm-steps { flex-direction: row; overflow-x: auto; border-right: 0; border-bottom: 1px solid var(--line); }
+  .tm-step { flex: none; }
+}
+
+/* SVG helpers used by scenes and diagrams */
+.tm-svg text { font-family: var(--sans); }
+.tm-svg text:not([fill]) { fill: var(--ink); }
+.tm-svg .lbl { font-size: 13px; }
+.tm-svg .sub { font-size: 11px; }
+.tm-svg .sub:not([fill]) { fill: var(--muted); }
+.tm-svg .ink { stroke: var(--ink); fill: none; stroke-width: 1.4; stroke-linejoin: round; stroke-linecap: round; }
+.tm-svg .box { fill: var(--panel); stroke: var(--line); stroke-width: 1.4; }
+.tm-svg .hot { stroke: var(--accent) !important; }
+.tm-svg .hotfill { fill: var(--accent-soft) !important; }
+.tm-svg .accent { fill: var(--accent); }
+.tm-svg .edge { stroke: var(--muted); stroke-width: 1.5; fill: none; }
+.tm-svg .edge.hot { stroke-width: 2.5; }
+.tm-svg .zone { fill: var(--soft); stroke: var(--line); stroke-dasharray: 5 4; }
+.tm-svg .node { cursor: pointer; }
+.tm-svg .node rect { fill: var(--panel); stroke: var(--line); stroke-width: 1.5; transition: stroke .2s, fill .2s; }
+.tm-svg .node.hot rect { stroke: var(--accent); fill: var(--accent-soft); stroke-width: 2; }
+.tm-svg .packet { fill: var(--accent); }
+
+/* Code stepper */
+.tm-stepper { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); }
+.tm-code { position: relative; font: 14px/1.65 var(--mono); background: var(--code-bg); border-right: 1px solid var(--line); overflow: auto; max-height: 460px; padding: 10px 0; counter-reset: ln; }
+.tm-code .ln { display: block; white-space: pre; padding: 0 14px 0 52px; position: relative; transition: background .15s; }
+.tm-code .ln::before { counter-increment: ln; content: counter(ln); position: absolute; left: 0; width: 38px; text-align: right; color: var(--muted); opacity: .6; }
+.tm-code .ln.tm-cur { background: var(--accent-soft); box-shadow: inset 3px 0 var(--accent); }
+.tm-code .ln.tm-click { cursor: pointer; }
+.tm-code .ln.tm-click:hover { background: var(--soft); }
+.tm-code .ln.tm-right { background: var(--good-soft); }
+.tm-code .ln.tm-wrong { background: var(--bad-soft); }
+.tm-side { display: flex; flex-direction: column; min-width: 0; }
+.tm-side h4 { margin: 0; padding: 8px 14px; font: 600 11px var(--sans); text-transform: uppercase; letter-spacing: .08em; color: var(--muted); border-bottom: 1px solid var(--line); }
+.tm-vars { width: 100%; border-collapse: collapse; font: 13px var(--mono); }
+.tm-vars td { padding: 4px 14px; border-bottom: 1px solid var(--line); vertical-align: top; word-break: break-word; }
+.tm-vars td:first-child { color: var(--muted); width: 40%; }
+.tm-vars tr.tm-changed td:last-child { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+.tm-console { flex: 1; min-height: 90px; margin: 0; border: 0; border-radius: 0; background: #111216; color: #d8f5d8; font-size: 13px; white-space: pre-wrap; }
+.tm-note { padding: 10px 14px; font-size: 14px; border-top: 1px solid var(--line); background: var(--soft); min-height: 3.2em; }
+.tm-params { display: flex; flex-wrap: wrap; gap: 10px; padding: 10px 16px; border-top: 1px solid var(--line); font-size: 14px; align-items: center; }
+.tm-params label { display: inline-flex; gap: 6px; align-items: center; }
+.tm-params input { font: 13px var(--mono); width: 7em; padding: 3px 6px; border: 1px solid var(--accent); border-radius: 6px; background: var(--accent-soft); color: var(--ink); }
+@media (max-width: 720px) { .tm-stepper { grid-template-columns: 1fr; } .tm-code { border-right: 0; border-bottom: 1px solid var(--line); } }
+
+/* Sim */
+.tm-sim-inputs { display: grid; gap: 10px; padding: 12px 16px; border-top: 1px solid var(--line); }
+.tm-sim-inputs label { display: grid; grid-template-columns: minmax(110px, 180px) 1fr 90px; gap: 12px; align-items: center; font-size: 14px; }
+.tm-sim-inputs input[type=range] { accent-color: var(--accent); width: 100%; }
+.tm-sim-inputs output { font: 600 13px var(--mono); text-align: right; }
+
+/* Quiz and predict */
+.tm-quiz { padding: 18px; }
+.tm-quiz .tm-q { font-weight: 600; margin: 0 0 12px; }
+.tm-quiz .tm-qn { font: 600 12px var(--mono); color: var(--muted); display: block; margin-bottom: 4px; }
+.tm-opts { display: grid; gap: 8px; }
+.tm-opt { text-align: left; border: 1px solid var(--line); background: var(--panel); border-radius: 10px; padding: 10px 14px; cursor: pointer; }
+.tm-opt:hover:not([disabled]) { border-color: var(--muted); }
+.tm-opt[aria-pressed="true"] { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
+.tm-opt.tm-right { border-color: var(--good); background: var(--good-soft); }
+.tm-opt.tm-wrong { border-color: var(--bad); background: var(--bad-soft); }
+.tm-opt[disabled] { cursor: default; }
+.tm-why { margin-top: 12px; padding: 12px 14px; border-radius: 10px; font-size: 15px; background: var(--soft); }
+.tm-why.tm-good { background: var(--good-soft); }
+.tm-why.tm-bad { background: var(--bad-soft); }
+.tm-quiz .tm-actions { margin-top: 12px; display: flex; gap: 8px; }
+.tm-reveal[hidden] { display: none; }
+
+/* Flashcards */
+.tm-cards { padding: 16px; }
+.tm-flash { perspective: 1200px; margin: 6px auto 14px; max-width: 520px; cursor: pointer; }
+.tm-flash-inner { display: grid; min-height: 190px; transition: transform .45s; transform-style: preserve-3d; }
+.tm-flash.tm-flipped .tm-flash-inner { transform: rotateY(180deg); }
+.tm-face { grid-area: 1 / 1; display: grid; place-items: center; text-align: center; padding: 20px; border: 1px solid var(--line); border-radius: var(--r); background: var(--panel); backface-visibility: hidden; font-size: 22px; font-family: var(--serif); }
+.tm-face small { display: block; font: 14px var(--sans); color: var(--muted); margin-top: 8px; }
+.tm-back { transform: rotateY(180deg); background: var(--soft); }
+.tm-grades { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+.tm-deckbar { display: flex; gap: 12px; align-items: center; font-size: 13px; color: var(--muted); margin-bottom: 4px; }
+.tm-deckbar .tm-sp { flex: 1; }
+@media (prefers-reduced-motion: reduce) { .tm-flash-inner { transition: none; } .tm-step.tm-next:not([disabled]) { animation: none; } }
+
+/* Gender colouring for language lessons */
+.g-m { color: var(--m); font-weight: 600; } .g-f { color: var(--f); font-weight: 600; } .g-n { color: var(--n); font-weight: 600; }
+
+/* Speak button */
+.tm-say { border: 1px solid var(--line); background: var(--panel); border-radius: 999px; width: 28px; height: 28px; padding: 0; cursor: pointer; vertical-align: middle; margin-left: 4px; font-size: 13px; line-height: 1; }
+.tm-say.tm-speaking { border-color: var(--accent); background: var(--accent-soft); }
+
+/* Glossary term */
+.tm-term { border-bottom: 1px dashed var(--accent); cursor: help; position: relative; }
+.tm-term:hover::after, .tm-term:focus::after { content: attr(data-def); position: absolute; left: 0; top: 1.6em; z-index: 20; width: max-content; max-width: min(320px, 80vw); background: var(--ink); color: var(--paper); font-size: 14px; line-height: 1.45; padding: 8px 10px; border-radius: 8px; font-weight: 400; }
+
+/* Callouts, tables, mistakes */
+.tm-callout { border: 1px solid var(--line); background: var(--soft); border-radius: var(--r); padding: 12px 16px; margin: 20px 0; max-width: 68ch; }
+.tm-callout.tm-warn { border-color: var(--warn); }
+table.tm-table { border-collapse: collapse; width: 100%; font-size: 15px; margin: 16px 0; }
+table.tm-table th, table.tm-table td { border-bottom: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+table.tm-table th { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+.tm-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+
+/* Explain-back, ask, save, sources */
+.tm-explain textarea { width: 100%; min-height: 110px; font: inherit; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); color: var(--ink); }
+.tm-ask { list-style: none; padding: 0; display: grid; gap: 8px; }
+.tm-ask li { display: flex; gap: 10px; align-items: center; border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; background: var(--panel); }
+.tm-ask li span { flex: 1; }
+.tm-sources { font-size: 14px; color: var(--muted); border-top: 1px solid var(--line); margin-top: 56px; padding-top: 16px; }
+.tm-sources ol { padding-left: 20px; }
+.tm-nav { display: flex; justify-content: space-between; gap: 12px; margin-top: 24px; font-size: 15px; }
+.tm-toast { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); background: var(--ink); color: var(--paper); padding: 8px 14px; border-radius: 999px; font-size: 14px; z-index: 50; }
+
+@media print {
+  .tm-controls, .tm-top button, .tm-save, .tm-ask button { display: none !important; }
+  body { background: #fff; }
+  .tm-card { box-shadow: none; break-inside: avoid; }
+}
+
+</style>
+</head>
+<body>
+<main class="tm">
+  <div class="tm-top"><span class="tm-kicker">Teach Me · trace</span><span class="tm-sp"></span><span>10 min</span><button class="tm-iconbtn" type="button" data-tm-theme></button></div>
+  <h1>Why every lambda prints 2</h1>
+  <section class="tm-bigidea">
+    <strong>The big idea</strong>
+    <p>A function stores the name <code>i</code>, not its value. It reads the name when called.</p>
+    <p class="tm-win">You will be able to: predict what lambdas built in a loop return, and fix them with a default argument.</p>
+  </section>
+
+  <p>Python looks up a variable that a function does not define itself at the moment the function runs. Lambdas made in a loop all share the loop's one variable.</p>
+
+  <div data-tm="predict"><script type="application/json">{
+    "q": "What does this program print?<pre><code>funcs = []\nfor i in range(3):\n    funcs.append(lambda: i)\nprint(i)\nfor f in funcs:\n    print(f())</code></pre>",
+    "options": ["<code>2 2 2 2</code>", "<code>2 0 1 2</code>", "<code>3 3 3 3</code>"],
+    "answer": 0,
+    "shuffle": true,
+    "why": ["Right: <code>print(i)</code> shows 2, and so does every call.", "The 0 1 2 hope is natural, but the lambdas never saved 0 or 1.", "<code>range(3)</code> stops at 2, so <code>i</code> never becomes 3."],
+    "explain": "Run it below and watch where each 2 comes from."
+  }</script></div>
+  <div class="tm-reveal" hidden>
+    <div data-tm="stepper"><script type="application/json">{"title": "Late binding, run for real", "lang": "python", "code": "funcs = []\nfor i in range(3):\n    funcs.append(lambda: i)\nprint(i)\nfor f in funcs:\n    print(f())\n", "frames": [{"line": 1, "vars": {}, "note": "An empty list. It will hold the three functions."}, {"line": 2, "vars": {"funcs": "[]"}, "note": "<code>for</code> takes the first number from <code>range(3)</code> and binds it to the name <code>i</code>."}, {"line": 3, "vars": {"funcs": "[]", "i": 0}, "note": "The lambda is created with the body <code>i</code>. It stores no number, only the instruction to look up <code>i</code> later (i is 0 right now)."}, {"line": 2, "vars": {"funcs": "[λ0]", "i": 0}, "note": "Next pass. <code>for</code> rebinds the <b>same</b> name <code>i</code> to 1; the old value 0 is gone."}, {"line": 3, "vars": {"funcs": "[λ0]", "i": 1}, "note": "The lambda is created with the body <code>i</code>. It stores no number, only the instruction to look up <code>i</code> later (i is 1 right now)."}, {"line": 2, "vars": {"funcs": "[λ0, λ1]", "i": 1}, "note": "Next pass. <code>for</code> rebinds the <b>same</b> name <code>i</code> to 2; the old value 1 is gone."}, {"line": 3, "vars": {"funcs": "[λ0, λ1]", "i": 2}, "note": "The lambda is created with the body <code>i</code>. It stores no number, only the instruction to look up <code>i</code> later (i is 2 right now)."}, {"line": 2, "vars": {"funcs": "[λ0, λ1, λ2]", "i": 2}, "note": "<code>range(3)</code> is used up and the loop ends. <code>i</code> keeps its last value, 2."}, {"line": 4, "vars": {"funcs": "[λ0, λ1, λ2]", "i": 2}, "out": "2\n", "note": "<code>print(i)</code> shows the loop variable's final value: 2."}, {"line": 5, "vars": {"funcs": "[λ0, λ1, λ2]", "i": 2}, "note": "Start calling the stored functions, one by one."}, {"line": 6, "vars": {"funcs": "[λ0, λ1, λ2]", "i": 2, "f": "λ0"}, "out": "2\n", "note": "<code>f()</code> looks up <code>i</code> <b>now</b>, at call time. It finds 2, whichever function this is."}, {"line": 5, "vars": {"funcs": "[λ0, λ1, λ2]", "i": 2, "f": "λ0"}, "note": "Next function."}, {"line": 6, "vars": {"funcs": "[λ0, λ1, λ2]", "i": 2, "f": "λ1"}, "out": "2\n", "note": "<code>f()</code> looks up <code>i</code> <b>now</b>, at call time. It finds 2, whichever function this is."}, {"line": 5, "vars": {"funcs": "[λ0, λ1, λ2]", "i": 2, "f": "λ1"}, "note": "Next function."}, {"line": 6, "vars": {"funcs": "[λ0, λ1, λ2]", "i": 2, "f": "λ2"}, "out": "2\n", "note": "<code>f()</code> looks up <code>i</code> <b>now</b>, at call time. It finds 2, whichever function this is."}, {"line": 5, "vars": {"funcs": "[λ0, λ1, λ2]", "i": 2, "f": "λ2"}, "note": "All three have been called."}], "expectStdout": "2\n2\n2\n2\n", "stepMs": 1100, "autoplay": false}</script></div>
+  </div>
+
+  <h2>One name, many readers</h2>
+  <p>Each lambda holds code that says "return <code>i</code>". It does not hold a number. Change the settings and watch which cell each lambda reads.</p>
+
+  <div data-tm="sim"><script type="application/json">{
+    "name": "late", "title": "Who reads the variable i?",
+    "hint": "Drag the loop length, then compare the two lambda styles.",
+    "inputs": [
+      {"id": "n", "label": "Loop length", "min": 1, "max": 6, "step": 1, "value": 3},
+      {"id": "mode", "label": "Lambda", "options": ["lambda: i", "lambda i=i: i"], "value": "lambda: i"},
+      {"id": "call", "label": "Called", "options": ["after the loop", "during the loop"], "value": "after the loop"}
+    ]
+  }</script></div>
+
+  <h2>The fix, traced</h2>
+  <p>The default <code>i=i</code> is evaluated once, when the lambda is created. The value is then stored inside the function.</p>
+  <div data-tm="stepper"><script type="application/json">{"title": "The fix, run for real", "lang": "python", "code": "funcs = []\nfor i in range(3):\n    funcs.append(lambda i=i: i)\nprint(i)\nfor f in funcs:\n    print(f())\n", "frames": [{"line": 1, "vars": {}, "note": "An empty list. It will hold the three functions."}, {"line": 2, "vars": {"funcs": "[]"}, "note": "<code>for</code> takes the first number from <code>range(3)</code> and binds it to the name <code>i</code>."}, {"line": 3, "vars": {"funcs": "[]", "i": 0}, "note": "<code>lambda i=i: i</code> runs the default <code>i=i</code> <b>now</b>: this function stores its own private copy, 0."}, {"line": 2, "vars": {"funcs": "[λ0(i=0)]", "i": 0}, "note": "Next pass. <code>for</code> rebinds the <b>same</b> name <code>i</code> to 1; the old value 0 is gone."}, {"line": 3, "vars": {"funcs": "[λ0(i=0)]", "i": 1}, "note": "<code>lambda i=i: i</code> runs the default <code>i=i</code> <b>now</b>: this function stores its own private copy, 1."}, {"line": 2, "vars": {"funcs": "[λ0(i=0), λ1(i=1)]", "i": 1}, "note": "Next pass. <code>for</code> rebinds the <b>same</b> name <code>i</code> to 2; the old value 1 is gone."}, {"line": 3, "vars": {"funcs": "[λ0(i=0), λ1(i=1)]", "i": 2}, "note": "<code>lambda i=i: i</code> runs the default <code>i=i</code> <b>now</b>: this function stores its own private copy, 2."}, {"line": 2, "vars": {"funcs": "[λ0(i=0), λ1(i=1), λ2(i=2)]", "i": 2}, "note": "<code>range(3)</code> is used up and the loop ends. <code>i</code> keeps its last value, 2."}, {"line": 4, "vars": {"funcs": "[λ0(i=0), λ1(i=1), λ2(i=2)]", "i": 2}, "out": "2\n", "note": "<code>print(i)</code> shows the loop variable's final value: 2."}, {"line": 5, "vars": {"funcs": "[λ0(i=0), λ1(i=1), λ2(i=2)]", "i": 2}, "note": "Start calling the stored functions, one by one."}, {"line": 6, "vars": {"funcs": "[λ0(i=0), λ1(i=1), λ2(i=2)]", "i": 2, "f": "λ0(i=0)"}, "out": "0\n", "note": "<code>f()</code> uses its own stored 0; it never looks at the loop variable."}, {"line": 5, "vars": {"funcs": "[λ0(i=0), λ1(i=1), λ2(i=2)]", "i": 2, "f": "λ0(i=0)"}, "note": "Next function."}, {"line": 6, "vars": {"funcs": "[λ0(i=0), λ1(i=1), λ2(i=2)]", "i": 2, "f": "λ1(i=1)"}, "out": "1\n", "note": "<code>f()</code> uses its own stored 1; it never looks at the loop variable."}, {"line": 5, "vars": {"funcs": "[λ0(i=0), λ1(i=1), λ2(i=2)]", "i": 2, "f": "λ1(i=1)"}, "note": "Next function."}, {"line": 6, "vars": {"funcs": "[λ0(i=0), λ1(i=1), λ2(i=2)]", "i": 2, "f": "λ2(i=2)"}, "out": "2\n", "note": "<code>f()</code> uses its own stored 2; it never looks at the loop variable."}, {"line": 5, "vars": {"funcs": "[λ0(i=0), λ1(i=1), λ2(i=2)]", "i": 2, "f": "λ2(i=2)"}, "note": "All three have been called."}], "expectStdout": "2\n0\n1\n2\n", "stepMs": 1100}</script></div>
+
+  <div data-tm="spotbug"><script type="application/json">{
+    "q": "A menu builder prints <code>clicked quit</code> for <b>every</b> item, even <code>save</code>. Click the line to change.",
+    "code": "handlers = {}\nfor name in [\"save\", \"open\", \"quit\"]:\n    handlers[name] = lambda: print(\"clicked\", name)\nhandlers[\"save\"]()",
+    "bug": 3,
+    "why": "The lambda reads <code>name</code> when called, after the loop ended on \"quit\". Writing <code>lambda name=name: print(\"clicked\", name)</code> stores each value.",
+    "wrong": {"1": "An empty dict is fine. The problem is what the stored functions remember.", "2": "The loop itself is fine; it just leaves <code>name</code> at \"quit\".", "4": "Calling <code>save</code> is correct. It exposes the bug but does not cause it."}
+  }</script></div>
+
+  <div data-tm="quiz"><script type="application/json">{
+    "q": "What does this print?<pre><code>adders = [lambda x: x + n for n in range(3)]\nprint(adders[0](10))</code></pre>",
+    "options": ["<code>10</code>", "<code>11</code>", "<code>12</code>"],
+    "answer": 2,
+    "why": ["That would need <code>n</code> to be 0 at call time, but the loop finished.", "That would need <code>n</code> to be 1, a value the comprehension passed through.", "A comprehension is still a loop: all three lambdas read the final <code>n</code>, which is 2."]
+  }</script></div>
+
+  <div data-tm="quiz"><script type="application/json">{
+    "q": "A loop builds a lambda and calls it immediately.<pre><code>for i in range(3):\n    f = lambda: i\n    print(f())</code></pre>What prints?",
+    "options": ["<code>0 1 2</code>", "<code>2 2 2</code>", "<code>0 0 0</code>"],
+    "answer": 0,
+    "why": ["Right: each call runs while <code>i</code> still holds that pass's value.", "That needs the calls to wait until the loop is over.", "<code>i</code> is rebound each pass, so it is never stuck at 0."],
+    "explain": "This is why the bug often hides in tests that call callbacks at once, then appears when they run later."
+  }</script></div>
+
+  <div data-tm="quiz"><script type="application/json">{
+    "q": "After the fix <code>funcs.append(lambda i=i: i)</code>, a teammate calls <code>funcs[0](99)</code>. What does it return?",
+    "options": ["<code>99</code>", "<code>0</code>", "<code>2</code>"],
+    "answer": 0,
+    "why": ["Right: <code>i=i</code> only sets a default, so a passed argument replaces it.", "The stored 0 is used only when no argument is given.", "2 is the loop's final value, which this lambda no longer reads."],
+    "explain": "The default-argument fix lets callers override the saved value by accident."
+  }</script></div>
+
+  <div data-tm="cards"><script type="application/json">{
+    "deck": "python-late-binding", "title": "Keep it",
+    "cards": [
+      {"front": "<code>[lambda: i for i in range(3)]</code>, each called after the list is built, returns…", "back": "2, 2, 2: every lambda reads the one shared <code>i</code>."},
+      {"front": "A function looks up a free variable when it is {{c1::called}}, not when it is defined.", "back": ""},
+      {"front": "Why does <code>lambda i=i: i</code> fix the loop bug?", "back": "A default value is evaluated once, at definition, so each lambda stores its own copy."},
+      {"front": "A weakness of the default-argument fix?", "back": "A caller can pass an argument and replace the saved value."}
+    ]
+  }</script></div>
+
+  <div data-tm="explain"><script type="application/json">{"prompt": "Explain in two sentences why three lambdas made in a loop all return 2, and what <code>i=i</code> changes."}</script></div>
+  <div data-tm="ask"><script type="application/json">{"prompts": ["Show the same bug with regular functions and with closures inside a function.", "When is functools.partial better than a default argument?", "Does JavaScript have this bug with var, let and const?"]}</script></div>
+  <div data-tm="save"></div>
+
+  <footer class="tm-sources">
+    <b>Read next:</b> <a href="https://docs.python.org/3/faq/programming.html#why-do-lambdas-defined-in-a-loop-with-different-values-all-return-the-same-result">Python FAQ: lambdas defined in a loop</a> (one section).
+    <ol>
+      <li><a href="https://docs.python.org/3/reference/executionmodel.html#resolution-of-names">Python reference: Execution model, resolution of names</a> (free variables resolve at runtime)</li>
+      <li>Traces generated by running the shown programs under <code>sys.settrace</code> (Python 3.14.7).</li>
+    </ol>
+  </footer>
+</main>
+<script>
+/* Teach Me runtime. Shipped with the plugin; lessons never rewrite this file.
+   Components are elements with data-tm="<name>" holding one <script type="application/json"> config.
+   Custom figures register with tm.scene(), tm.sim() or tm.trace() before DOMContentLoaded. */
+(() => {
+  'use strict';
+  const tm = (window.tm = window.tm || {});
+  const Q = new URLSearchParams(location.search);
+  const REDUCED = Q.get('reduced') === '1' || matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const NS = 'http://www.w3.org/2000/svg';
+  tm.scenes = tm.scenes || {}; tm.sims = tm.sims || {}; tm.traces = tm.traces || {};
+  tm.scene = (name, def) => (tm.scenes[name] = def);
+  tm.sim = (name, def) => (tm.sims[name] = def);
+  tm.trace = (name, fn) => (tm.traces[name] = fn);
+  tm.players = [];
+  tm.reduced = REDUCED;
+  tm.pageErrors = [];
+  addEventListener('error', (e) => tm.pageErrors.push(String(e.message || e.error)));
+  addEventListener('unhandledrejection', (e) => tm.pageErrors.push('unhandled rejection: ' + (e.reason?.message || e.reason)));
+
+  /* ---------- small helpers ---------- */
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const ease = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+  const h = (tag, attrs = {}, ...kids) => {
+    const el = document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs)) {
+      if (v == null || v === false) continue;
+      if (k === 'class') el.className = v;
+      else if (k === 'text') el.textContent = v;
+      else if (k === 'html') el.innerHTML = v;
+      else if (k.startsWith('on')) el.addEventListener(k.slice(2), v);
+      else el.setAttribute(k, v === true ? '' : v);
+    }
+    for (const kid of kids.flat()) if (kid != null) el.append(kid.nodeType ? kid : document.createTextNode(String(kid)));
+    return el;
+  };
+  const svg = (tag, attrs = {}, parent) => {
+    const el = document.createElementNS(NS, tag);
+    for (const [k, v] of Object.entries(attrs)) if (v != null) el.setAttribute(k, v);
+    if (parent) parent.append(el);
+    return el;
+  };
+  // Isometric projection: x right-down, y left-down, z up. Unit = px.
+  const iso = (x, y, z = 0) => [(x - y) * 0.866, (x + y) * 0.5 - z];
+  const hash = (s) => { let x = 2166136261; for (const c of String(s)) x = Math.imul(x ^ c.charCodeAt(0), 16777619); return x >>> 0; };
+  const shuffleIdx = (n, seed) => { const a = [...Array(n).keys()]; let s = seed || 1; for (let i = n - 1; i > 0; i--) { s = Math.imul(s ^ (s >>> 15), 2246822507) >>> 0; const j = s % (i + 1); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const toast = (msg) => { const t = h('div', { class: 'tm-toast', role: 'status', text: msg }); document.body.append(t); setTimeout(() => t.remove(), 1800); };
+  const copy = async (text) => { try { await navigator.clipboard.writeText(text); toast('Copied'); } catch { prompt('Copy this:', text); } };
+  const download = (name, text, type = 'application/json') => { const a = h('a', { href: URL.createObjectURL(new Blob([text], { type })), download: name }); document.body.append(a); a.click(); a.remove(); };
+  Object.assign(tm, { h, svg, iso, clamp, lerp, ease, hash, copy, toast });
+
+  /* ---------- storage (page must work without it) ---------- */
+  const store = {
+    get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch { return d; } },
+    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
+  };
+  const lessonId = document.querySelector('meta[name="tm-lesson"]')?.content
+    || (document.title || 'lesson').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  const PKEY = 'tm:' + lessonId;
+  const progress = store.get(PKEY, null) || { v: 1, lessonId, title: document.title, steps: {}, quiz: {}, predictions: {}, cards: {}, explain: {} };
+  const saveProgress = () => { progress.updated = new Date().toISOString(); store.set(PKEY, progress); };
+  tm.progress = progress;
+  tm.store = store;
+
+  /* ---------- Player: one clock for steps (scenes, diagrams, steppers) ---------- */
+  class Player {
+    constructor(o) {
+      this.steps = o.steps; this.onFrame = o.onFrame; this.onState = o.onState || (() => {});
+      this.i = -1; this.p = 1; this.playing = false; this.auto = !!o.auto; this.speed = 1;
+      this.hold = 0; this.holdStep = o.holdStep ?? 0.35; this.loopGap = o.loopGap ?? 1.6;
+      this.visible = true; this.raf = 0; this.id = o.id;
+      tm.players.push(this);
+    }
+    get n() { return this.steps.length; }
+    dur(i) { return REDUCED ? 0.001 : Math.max(0.001, this.steps[i]?.dur ?? 1); }
+    total() { return this.steps.reduce((s, st) => s + (st.dur ?? 1), 0); }
+    render() { this.onFrame(this.i, this.p); this.onState(); }
+    goto(i, p = 1) { this.stop(); this.restarting = false; this.hold = 0; this.i = clamp(i, -1, this.n - 1); this.p = p; this.render(); }
+    reset() { this.goto(-1, 1); }
+    run(i) { this.i = i; this.p = 0; this.hold = 0; this.playing = true; this.render(); this.loop(); }
+    next() { if (this.i < this.n - 1) this.run(this.i + 1); }
+    play() { this.auto = true; if (this.i >= this.n - 1 && this.p >= 1) this.i = -1, this.p = 1; this.playing = true; this.hold = 0; this.loop(); this.onState(); }
+    stop() { this.playing = false; this.onState(); }
+    loop() {
+      if (this.raf) return;
+      let last = performance.now();
+      const tick = (now) => {
+        const dt = clamp((now - last) / 1000, 0, 1 / 30) * this.speed; last = now;
+        if (!this.playing) { this.raf = 0; return; }
+        if (this.visible) this.advance(dt);
+        this.raf = requestAnimationFrame(tick);
+      };
+      this.raf = requestAnimationFrame(tick);
+    }
+    advance(dt) {
+      if (this.hold > 0) { this.hold -= dt; return; }
+      if (this.i === -1 || (this.p >= 1 && this.auto)) {
+        if (this.i >= this.n - 1) { // finished the loop: rest, then start over
+          if (this.restarting) { this.restarting = false; this.i = -1; this.p = 1; this.render(); this.hold = 0.5; return; }
+          this.restarting = true; this.hold = this.loopGap; return;
+        }
+        this.i += 1; this.p = 0; this.render();
+        return;
+      }
+      this.p = Math.min(1, this.p + dt / this.dur(this.i));
+      this.render();
+      if (this.p >= 1) {
+        if (this.auto) this.hold = REDUCED ? 1.2 : this.holdStep + (this.steps[this.i]?.hold ?? 0);
+        else this.stop();
+      }
+    }
+    seek(t) { // replay the timeline from zero to time t (seconds, real playback time at speed 1)
+      this.stop(); let acc = 0;
+      for (let i = 0; i < this.n; i++) {
+        const d = this.steps[i].dur ?? 1;
+        if (t <= acc + d) { this.i = i; this.p = d ? clamp((t - acc) / d, 0, 1) : 1; this.render(); return; }
+        acc += d;
+      }
+      this.i = this.n - 1; this.p = 1; this.render();
+    }
+  }
+  tm.Player = Player;
+  tm.seek = (t, idx = 0) => tm.players[idx]?.seek(t);
+  // Jump detection for the critic: scrub at dt steps, flag frames whose motion is far above their neighbours.
+  tm.scan = (idx = 0, dt = 0.1) => {
+    const pl = tm.players[idx]; if (!pl) return { error: 'no player' };
+    const root = pl.stage || document;
+    let els = [...root.querySelectorAll('[data-track]')];
+    if (!els.length) els = [...root.querySelectorAll('svg g, svg circle, svg rect, svg path')].slice(0, 200);
+    // Hidden parts don't count: something that fades out and reappears elsewhere is a cut, not a jump.
+    const shown = (e) => { const cs = getComputedStyle(e); return cs.display !== 'none' && cs.visibility !== 'hidden' && +cs.opacity > 0.05 && e.getAttribute('opacity') !== '0'; };
+    const pos = () => els.map((e) => { if (!shown(e)) return null; const r = e.getBoundingClientRect(); return [r.x, r.y, r.width, r.height]; });
+    const deltas = []; let prev = null;
+    for (let t = 0; t <= pl.total() + 1e-9; t += dt) {
+      pl.seek(t); const cur = pos();
+      if (prev) deltas.push({ t: +t.toFixed(2), d: cur.reduce((s, c, i) => (c && prev[i] ? s + Math.abs(c[0] - prev[i][0]) + Math.abs(c[1] - prev[i][1]) + Math.abs(c[2] - prev[i][2]) + Math.abs(c[3] - prev[i][3]) : s), 0) });
+      prev = cur;
+    }
+    const jumps = deltas.filter((f, i) => {
+      const nb = deltas.slice(Math.max(0, i - 3), i).concat(deltas.slice(i + 1, i + 4)).map((x) => x.d).sort((a, b) => a - b);
+      const med = nb[Math.floor(nb.length / 2)] || 0;
+      return f.d > 40 && f.d > 3 * Math.max(med, 4);
+    });
+    pl.reset();
+    return { frames: deltas.length, tracked: els.length, jumps };
+  };
+
+  const watchVisible = (el, pl) => {
+    if (!('IntersectionObserver' in window)) return;
+    new IntersectionObserver(([e]) => { pl.visible = e.isIntersecting; if (e.isIntersecting && pl.autoStartWhenVisible) { pl.autoStartWhenVisible = false; pl.play(); } }, { threshold: 0.25 }).observe(el);
+  };
+  const cardKeys = (card, pl, onSpace) => {
+    card.tabIndex = 0;
+    card.addEventListener('keydown', (e) => {
+      if (e.target.closest('input, textarea, select') || e.altKey || e.ctrlKey || e.metaKey) return;
+      if (e.key === 'ArrowRight') { pl.goto(pl.i + 1); e.preventDefault(); }
+      else if (e.key === 'ArrowLeft') { pl.goto(pl.i - 1); e.preventDefault(); }
+      else if (e.key === ' ' || e.key === 'Enter') { if (e.target !== card) return; onSpace(); e.preventDefault(); }
+      else if (e.key.toLowerCase() === 'r') pl.reset();
+    });
+  };
+  let figN = 0, uidN = 0;
+  const figNum = (cfg) => { if (typeof cfg.fig === 'number') figN = Math.max(figN, cfg.fig); return cfg.fig || ++figN; };
+  const cardHead = (cfg, extra = []) => h('div', { class: 'tm-card-head' }, h('span', { text: 'Fig ' + figNum(cfg) }), h('b', { text: cfg.title || '' }), h('span', { class: 'tm-sp' }), ...extra);
+  const modeKey = (kind) => 'tm:mode:' + kind;
+  const modeToggle = (kind, pl, def) => {
+    const forced = Q.get('auto'); let auto = forced != null ? forced === '1' : store.get(modeKey(kind), def) === 'auto';
+    const bM = h('button', { type: 'button', text: 'Manual' }), bA = h('button', { type: 'button', text: 'Auto' });
+    const seg = h('span', { class: 'tm-seg', role: 'group', 'aria-label': 'Play mode' }, bM, bA);
+    const set = (a, persist) => { auto = a; pl.auto = a; bM.setAttribute('aria-pressed', !a); bA.setAttribute('aria-pressed', a); if (persist) store.set(modeKey(kind), a ? 'auto' : 'manual'); if (a) pl.play(); else pl.goto(pl.i, 1); };
+    bM.onclick = () => set(false, true); bA.onclick = () => set(true, true);
+    bM.setAttribute('aria-pressed', !auto); bA.setAttribute('aria-pressed', auto); pl.auto = auto;
+    return { seg, get auto() { return auto; } };
+  };
+  const speedSeg = (pl) => {
+    const opts = [0.5, 1, 2]; const btns = opts.map((s) => h('button', { type: 'button', text: s + '×', 'aria-pressed': s === 1, onclick: () => { pl.speed = s; btns.forEach((b, i) => b.setAttribute('aria-pressed', opts[i] === s)); } }));
+    return h('span', { class: 'tm-seg', role: 'group', 'aria-label': 'Speed' }, ...btns);
+  };
+  const chipsInto = (box, chips) => {
+    box.replaceChildren(...(chips || []).map((c) => h('span', { class: 'tm-chip' + (c.hot ? ' tm-hot' : '') }, (c.k ?? c.label) + ' ', h('b', { text: c.v ?? c.value }))));
+  };
+  const recordStep = (id, i, n) => { const s = (progress.steps[id] ||= { reached: -1, total: n }); if (i > s.reached) { s.reached = i; s.total = n; saveProgress(); } };
+
+  /* ---------- scene: step buttons, manual/auto, hint, chips, speed badge ---------- */
+  function mountScene(el, cfg, def) {
+    def = def || tm.scenes[cfg.name];
+    if (!def) throw new Error('scene "' + cfg.name + '" is not registered (tm.scene)');
+    const id = cfg.id || 'scene-' + (cfg.name || cfg.title || ++uidN);
+    const steps = cfg.steps.map((s) => ({ ...s, dur: s.dur ?? 1.2 }));
+    const stage = h('div', { class: 'tm-stage' });
+    const hint = h('div', { class: 'tm-hint', 'aria-live': 'polite' });
+    const chips = h('div', { class: 'tm-chips', 'aria-live': 'polite' });
+    const badge = h('span', { class: 'tm-badge', hidden: true });
+    const startOver = h('button', { class: 'tm-iconbtn', type: 'button', text: 'Start over' });
+    const sound = h('div', { class: 'tm-sound', 'aria-hidden': 'true' });
+    stage.append(sound);
+    const stepBtns = steps.map((s, k) => h('button', { class: 'tm-step', type: 'button' }, h('span', { class: 'tm-num', text: k + 1 }), h('span', { text: s.label })));
+    const col = h('div', { class: 'tm-steps', role: 'group', 'aria-label': 'Steps' }, ...stepBtns);
+    let pl;
+    const ctx = def.setup(stage, { svg, iso, h, cfg });
+    const restHint = cfg.restHint || 'Press <b>1</b> to start.';
+    const showSound = (s) => {
+      if (!s) { sound.style.opacity = 0; return; }
+      sound.textContent = s.text; sound.style.left = (s.x ?? 50) + '%'; sound.style.top = (s.y ?? 20) + '%'; sound.style.opacity = 1;
+    };
+    const onFrame = (i, p) => {
+      const out = def.frame(ctx, i, p) || {};
+      chipsInto(chips, out.chips);
+      showSound(out.sound ?? (i >= 0 && p < 1 && steps[i].sound ? { text: steps[i].sound, ...(steps[i].soundAt || {}) } : null));
+      const s = steps[i];
+      hint.innerHTML = out.hint ?? (i < 0 ? restHint : (s.hint || s.label));
+      if (s && s.seconds && s.dur && !REDUCED) {
+        const r = s.seconds / s.dur;
+        badge.textContent = r >= 1 ? '×' + (r >= 10 ? Math.round(r) : +r.toFixed(1)) : '×1/' + Math.round(1 / r);
+        badge.hidden = badge.textContent === '×1' || badge.textContent === '×1/1';
+        badge.title = 'Real time ' + s.seconds + ' s, shown in ' + s.dur + ' s';
+      } else badge.hidden = true;
+      if (i >= 0) recordStep(id, i, steps.length);
+    };
+    const onState = () => {
+      stepBtns.forEach((b, k) => {
+        const done = k < pl.i || (k === pl.i && pl.p >= 1);
+        const now = k === pl.i && (pl.p < 1 || pl.playing);
+        const isNext = !pl.playing && ((pl.i === -1 && k === 0) || (k === pl.i + 1 && pl.p >= 1));
+        b.classList.toggle('tm-done', done && !now); b.classList.toggle('tm-now', now); b.classList.toggle('tm-next', isNext);
+        b.disabled = pl.auto ? false : !isNext;
+        b.setAttribute('aria-current', now ? 'step' : 'false');
+      });
+    };
+    pl = new Player({ steps, onFrame, onState, id, loopGap: cfg.loopGap });
+    pl.stage = stage;
+    stepBtns.forEach((b, k) => (b.onclick = () => { if (mode.auto) { pl.stop(); mode.seg.children[0].click(); } pl.goto(k - 1); pl.run(k); }));
+    startOver.onclick = () => pl.reset();
+    const mode = modeToggle('scene', pl, cfg.mode || 'manual');
+    const card = h('div', { class: 'tm-card tm-scene-card' },
+      cardHead(cfg, [badge, mode.seg, startOver]), hint,
+      h('div', { class: 'tm-scene' }, col, stage), chips);
+    el.replaceChildren(card);
+    cardKeys(card, pl, () => pl.next());
+    watchVisible(card, pl);
+    const qs = Q.get('step');
+    if (qs != null) pl.goto(+qs - 1, 1); else pl.reset();
+    if (mode.auto && qs == null) pl.autoStartWhenVisible = true;
+    pl.autoOnReveal = () => mode.auto;
+    return pl;
+  }
+
+  /* ---------- diagram: JSON spec -> SVG boxes and arrows, with a step-through trace ---------- */
+  function mountDiagram(el, cfg) {
+    const CW = cfg.cellW || 190, CH = cfg.cellH || 110, NW = cfg.nodeW || 150, NH = cfg.nodeH || 56, PAD = 30;
+    const nodes = Object.fromEntries(cfg.nodes.map((n) => [n.id, { ...n, cx: PAD + n.col * CW + CW / 2, cy: PAD + 20 + n.row * CH + CH / 2 }]));
+    const cols = Math.max(...cfg.nodes.map((n) => n.col)) + 1, rows = Math.max(...cfg.nodes.map((n) => n.row)) + 1;
+    const W = PAD * 2 + cols * CW, H = PAD * 2 + 20 + rows * CH;
+    const edgeKey = (a, b) => a + '>' + b;
+    const def = {
+      setup(stage) {
+        const s = svg('svg', { viewBox: `0 0 ${W} ${H}`, class: 'tm-svg', role: 'img', 'aria-label': cfg.title || 'diagram' }, stage);
+        const defs = svg('defs', {}, s);
+        const mk = (id, cls) => { const m = svg('marker', { id, viewBox: '0 0 10 10', refX: 9, refY: 5, markerWidth: 7, markerHeight: 7, orient: 'auto-start-reverse' }, defs); svg('path', { d: 'M0,0 L10,5 L0,10 z', class: cls }, m); };
+        const uid = 'd' + hash(cfg.title + Math.random()); mk(uid + 'a', 'tm-arrow'); mk(uid + 'h', 'tm-arrow-hot');
+        const st = document.createElement('style'); st.textContent = `.tm-arrow{fill:var(--muted)}.tm-arrow-hot{fill:var(--accent)}`; s.append(st);
+        for (const z of cfg.zones || []) {
+          const ns = z.nodes.map((id) => nodes[id]);
+          const x0 = Math.min(...ns.map((n) => n.cx)) - NW / 2 - 16, x1 = Math.max(...ns.map((n) => n.cx)) + NW / 2 + 16;
+          const y0 = Math.min(...ns.map((n) => n.cy)) - NH / 2 - 30, y1 = Math.max(...ns.map((n) => n.cy)) + NH / 2 + 14;
+          svg('rect', { x: x0 - (z.pad || 0), y: y0 - (z.pad || 0), width: x1 - x0 + 2 * (z.pad || 0), height: y1 - y0 + 2 * (z.pad || 0), rx: 14, class: 'zone ' + (z.class || '') }, s);
+          svg('text', { x: x0 - (z.pad || 0) + 12, y: y0 - (z.pad || 0) + 18, class: 'sub' }, s).textContent = z.label;
+        }
+        const edges = {};
+        const border = (n, tx, ty) => { const dx = tx - n.cx, dy = ty - n.cy; const k = Math.min((NW / 2 + 4) / Math.abs(dx || 1e-9), (NH / 2 + 4) / Math.abs(dy || 1e-9)); return [n.cx + dx * k, n.cy + dy * k]; };
+        for (const e of cfg.edges || []) {
+          const a = nodes[e.from], b = nodes[e.to];
+          const [x1, y1] = border(a, b.cx, b.cy), [x2, y2] = border(b, a.cx, a.cy);
+          const g = svg('g', {}, s);
+          const line = svg('path', { d: `M${x1},${y1} L${x2},${y2}`, class: 'edge', 'marker-end': `url(#${uid}a)` }, g);
+          if (e.label) { const t = svg('text', { x: (x1 + x2) / 2 + (x1 === x2 ? 8 : 0), y: (y1 + y2) / 2 - (y1 === y2 ? 8 : 0), 'text-anchor': x1 === x2 ? 'start' : 'middle', class: 'sub' }, g); t.textContent = e.label; }
+          edges[edgeKey(e.from, e.to)] = { line, x1, y1, x2, y2, uid };
+        }
+        const nodeEls = {};
+        for (const n of Object.values(nodes)) {
+          const g = svg('g', { class: 'node', tabindex: 0, role: 'button', 'aria-label': n.label + (n.tip ? ': ' + n.tip.replace(/<[^>]+>/g, '') : '') }, s);
+          svg('rect', { x: n.cx - NW / 2, y: n.cy - NH / 2, width: NW, height: NH, rx: 10 }, g);
+          svg('text', { x: n.cx, y: n.cy + (n.sub ? -3 : 5), 'text-anchor': 'middle', class: 'lbl' }, g).textContent = n.label;
+          if (n.sub) svg('text', { x: n.cx, y: n.cy + 14, 'text-anchor': 'middle', class: 'sub' }, g).textContent = n.sub;
+          const show = () => { if (n.tip && hintEl) hintEl.innerHTML = `<b>${esc(n.label)}</b> ${n.tip}`; };
+          g.addEventListener('click', show); g.addEventListener('keydown', (e) => { if (e.key === 'Enter') show(); });
+          nodeEls[n.id] = g;
+        }
+        const packet = svg('circle', { r: 7, class: 'packet', 'data-track': '', opacity: 0 }, s);
+        return { s, edges, nodeEls, packet };
+      },
+      frame(c, i, p) {
+        Object.values(c.nodeEls).forEach((g) => g.classList.remove('hot'));
+        Object.values(c.edges).forEach((e) => { e.line.classList.remove('hot'); e.line.setAttribute('marker-end', `url(#${e.uid}a)`); });
+        c.packet.setAttribute('opacity', 0);
+        if (i < 0) return { chips: cfg.restChips };
+        const st = cfg.steps[i];
+        (st.nodes || []).forEach((id) => c.nodeEls[id]?.classList.add('hot'));
+        const path = st.path || [];
+        const segs = [];
+        for (let k = 0; k < path.length - 1; k++) {
+          const e = c.edges[edgeKey(path[k], path[k + 1])], r = c.edges[edgeKey(path[k + 1], path[k])];
+          if (e) segs.push([e.x1, e.y1, e.x2, e.y2, e]); else if (r) segs.push([r.x2, r.y2, r.x1, r.y1, r]);
+        }
+        segs.forEach(([, , , , e]) => { e.line.classList.add('hot'); e.line.setAttribute('marker-end', `url(#${e.uid}h)`); });
+        path.forEach((id) => c.nodeEls[id]?.classList.add('hot'));
+        if (segs.length && p > 0.04 && p < 0.96) { // hidden at the ends: it is "inside" a box between steps
+          const f = ease(p) * segs.length, k = Math.min(segs.length - 1, Math.floor(f)), t = f - k, [x1, y1, x2, y2] = segs[k];
+          c.packet.setAttribute('cx', lerp(x1, x2, t)); c.packet.setAttribute('cy', lerp(y1, y2, t)); c.packet.setAttribute('opacity', t > 0.06 && t < 0.94 ? 1 : 0);
+        }
+        return { chips: st.chips };
+      },
+    };
+    let hintEl;
+    const steps = cfg.steps && cfg.steps.length ? cfg.steps : [{ label: 'Explore', hint: 'Click any box to see what it does.', dur: 0.01 }];
+    const pl = mountScene(el, { ...cfg, steps: steps.map((s) => ({ dur: 1.6, ...s })), restHint: cfg.restHint || 'Click a box to see what it does, or press <b>1</b> to trace a request.' }, def);
+    hintEl = el.querySelector('.tm-hint');
+    return pl;
+  }
+
+  /* ---------- code stepper: real trace frames, line highlight, variables, console ---------- */
+  function mountStepper(el, cfg) {
+    const id = cfg.id || 'stepper-' + hash(cfg.code || cfg.trace);
+    let params = Object.fromEntries((cfg.params || []).map((p) => [p.id, p.value]));
+    const fill = (code) => code.replace(/\{\{(\w+)\}\}/g, (_, k) => (k in params ? params[k] : `{{${k}}}`));
+    let frames = cfg.frames || [], lastI = null;
+    const recompute = () => {
+      lastI = null; if (!cfg.trace) return;
+      try { const r = tm.traces[cfg.trace](params); frames = (r.frames || r).slice(0, 400); }
+      catch (e) { frames = [{ line: 0, vars: {}, note: 'This value breaks the trace: ' + esc(e.message) }]; }
+    };
+    recompute();
+    const codeBox = h('div', { class: 'tm-code', role: 'region', 'aria-label': 'Code' });
+    const vars = h('table', { class: 'tm-vars' });
+    const out = h('pre', { class: 'tm-console', 'aria-live': 'polite', 'aria-label': 'Output' });
+    const note = h('div', { class: 'tm-note', 'aria-live': 'polite' });
+    const side = h('div', { class: 'tm-side' }, h('h4', { text: cfg.varsTitle || 'Variables' }), vars, h('h4', { text: 'Output' }), out);
+    let lines = [];
+    const drawCode = () => { lines = fill(cfg.code).replace(/\n$/, '').split('\n').map((t) => h('span', { class: 'ln', text: t || ' ' })); codeBox.replaceChildren(...lines); };
+    drawCode();
+    const counter = h('span', { class: 'tm-badge' });
+    const scrub = h('input', { type: 'range', class: 'tm-scrub', min: 0, max: frames.length, value: 0, 'aria-label': 'Step' });
+    const onFrame = (i) => {
+      if (i === lastI) return; lastI = i;
+      const f = frames[i] || { line: 0, vars: {}, note: cfg.restNote || 'Press ▶ to run the code one step at a time.' };
+      const prev = frames[i - 1]?.vars || {};
+      lines.forEach((l, k) => l.classList.toggle('tm-cur', k + 1 === f.line));
+      const cur = lines[f.line - 1]; // scroll only the code panel, never the page
+      if (cur && (cur.offsetTop < codeBox.scrollTop || cur.offsetTop > codeBox.scrollTop + codeBox.clientHeight - 30)) codeBox.scrollTop = cur.offsetTop - codeBox.clientHeight / 3;
+      vars.replaceChildren(...Object.entries(f.vars || {}).map(([k, v]) => h('tr', { class: i >= 0 && JSON.stringify(prev[k]) !== JSON.stringify(v) ? 'tm-changed' : '' }, h('td', { text: k }), h('td', { text: typeof v === 'string' ? v : JSON.stringify(v) }))));
+      out.textContent = frames.slice(0, i + 1).map((x) => x.out || '').join('');
+      note.innerHTML = f.note || '';
+      counter.textContent = (i + 1) + ' / ' + frames.length;
+      scrub.max = frames.length; scrub.value = i + 1;
+      if (i >= 0) recordStep(id, i, frames.length);
+    };
+    const pl = new Player({ steps: frames.map(() => ({ dur: (cfg.stepMs || 900) / 1000 })), onFrame, id, holdStep: 0, loopGap: 2 });
+    const bPrev = h('button', { class: 'tm-btn', type: 'button', text: '◀', 'aria-label': 'Previous step', onclick: () => pl.goto(pl.i - 1) });
+    const bPlay = h('button', { class: 'tm-btn tm-primary', type: 'button', text: '▶', 'aria-label': 'Play' });
+    const bNext = h('button', { class: 'tm-btn', type: 'button', text: '▶|', 'aria-label': 'Next step', onclick: () => pl.goto(pl.i + 1) });
+    const bReset = h('button', { class: 'tm-btn', type: 'button', text: '↺', 'aria-label': 'Reset', onclick: () => pl.reset() });
+    bPlay.onclick = () => (pl.playing ? pl.stop() : pl.play());
+    pl.onState = () => { bPlay.textContent = pl.playing ? '❚❚' : '▶'; bPlay.setAttribute('aria-label', pl.playing ? 'Pause' : 'Play'); };
+    scrub.oninput = () => pl.goto(+scrub.value - 1);
+    const paramBox = cfg.params?.length ? h('div', { class: 'tm-params' }, h('span', { class: 'tm-muted', text: 'Try changing:' }), ...cfg.params.map((p) => {
+      const inp = h('input', { value: p.value, 'aria-label': p.label || p.id });
+      inp.onchange = () => { params[p.id] = isNaN(+inp.value) || inp.value === '' ? inp.value : +inp.value; recompute(); drawCode(); pl.steps = frames.map(() => ({ dur: (cfg.stepMs || 900) / 1000 })); pl.reset(); if (pl.auto) pl.play(); };
+      return h('label', {}, (p.label || p.id) + ' =', inp);
+    })) : null;
+    const card = h('div', { class: 'tm-card tm-stepper-card' }, cardHead(cfg, [h('span', { class: 'tm-badge', text: cfg.lang || 'code' })]),
+      h('div', { class: 'tm-stepper' }, codeBox, side), note, paramBox,
+      h('div', { class: 'tm-controls' }, bReset, bPrev, bPlay, bNext, scrub, counter, speedSeg(pl)));
+    el.replaceChildren(card);
+    pl.stage = card;
+    cardKeys(card, pl, () => (pl.playing ? pl.stop() : pl.play()));
+    watchVisible(card, pl);
+    const qs = Q.get('step');
+    if (qs != null) pl.goto(+qs - 1); else pl.reset();
+    if (cfg.autoplay !== false && Q.get('auto') !== '0' && qs == null) pl.autoStartWhenVisible = true;
+    pl.autoOnReveal = () => cfg.autoplay !== false;
+    (tm.stepperCfg ||= {})[id] = cfg; el.dataset.tmId = id;
+    tm.stepperStdout = tm.stepperStdout || {}; tm.stepperStdout[id] = () => frames.map((x) => x.out || '').join('');
+    return pl;
+  }
+
+  /* ---------- sim: sliders wired to a pure model ---------- */
+  function mountSim(el, cfg) {
+    const def = tm.sims[cfg.name];
+    if (!def) throw new Error('sim "' + cfg.name + '" is not registered (tm.sim)');
+    const stage = h('div', { class: 'tm-stage' });
+    const hint = h('div', { class: 'tm-hint', 'aria-live': 'polite' });
+    const chips = h('div', { class: 'tm-chips', 'aria-live': 'polite' });
+    const values = Object.fromEntries(cfg.inputs.map((i) => [i.id, i.value]));
+    const ctx = def.setup(stage, { svg, iso, h, cfg });
+    const fmt = (inp, v) => (inp.format ? inp.format.replace('{}', v) : v + (inp.unit ? ' ' + inp.unit : ''));
+    const update = () => { const r = def.update(ctx, { ...values }) || {}; chipsInto(chips, r.chips); hint.innerHTML = r.hint || cfg.hint || 'Drag the slider.'; };
+    const inputs = h('div', { class: 'tm-sim-inputs' }, ...cfg.inputs.map((inp) => {
+      if (inp.options || inp.type === 'text') { // select or text input instead of a slider
+        const ctl = inp.options ? h('select', { 'aria-label': inp.label }, ...inp.options.map((o) => h('option', { value: o, text: o, selected: o === inp.value }))) : h('input', { value: inp.value, 'aria-label': inp.label, spellcheck: 'false' });
+        ctl.style.cssText = 'font:14px var(--mono);padding:5px 8px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--ink);width:100%';
+        ctl.oninput = () => { values[inp.id] = ctl.value; update(); };
+        return h('label', { style: 'grid-template-columns:minmax(110px,180px) 1fr' }, h('span', { text: inp.label }), ctl);
+      }
+      const o = h('output', { text: fmt(inp, inp.value) });
+      const r = h('input', { type: 'range', min: inp.min, max: inp.max, step: inp.step || 1, value: inp.value, 'aria-label': inp.label });
+      r.oninput = () => { values[inp.id] = +r.value; o.textContent = fmt(inp, r.value); r.setAttribute('aria-valuetext', o.textContent); update(); };
+      return h('label', {}, h('span', { text: inp.label }), r, o);
+    }));
+    el.replaceChildren(h('div', { class: 'tm-card' }, cardHead(cfg), hint, stage, chips, inputs));
+    update();
+  }
+
+  /* ---------- quiz and predict ---------- */
+  let quizN = 0;
+  function mountQuiz(el, cfg, kind) {
+    const qid = cfg.id || 'q' + hash(cfg.q);
+    const n = kind === 'predict' ? 0 : ++quizN;
+    const order = cfg.shuffle === false ? cfg.options.map((_, i) => i) : shuffleIdx(cfg.options.length, hash(cfg.q));
+    let chosen = null, attempts = 0;
+    const why = h('div', { class: 'tm-why', hidden: true, 'aria-live': 'polite' });
+    const opts = order.map((oi) => h('button', { class: 'tm-opt', type: 'button', 'aria-pressed': 'false', 'data-i': oi, html: cfg.options[oi] }));
+    const check = h('button', { class: 'tm-btn tm-primary', type: 'button', text: kind === 'predict' ? 'Lock in my guess' : 'Check', disabled: true });
+    const retry = h('button', { class: 'tm-btn', type: 'button', text: 'Try again', hidden: true });
+    opts.forEach((b) => (b.onclick = () => { if (b.disabled) return; chosen = +b.dataset.i; opts.forEach((x) => x.setAttribute('aria-pressed', x === b)); check.disabled = false; }));
+    const reveal = () => {
+      const target = cfg.reveal ? document.querySelector(cfg.reveal) : el.nextElementSibling?.classList.contains('tm-reveal') ? el.nextElementSibling : null;
+      if (target) { target.hidden = false; target.querySelectorAll('.tm-card').forEach((c) => { const pl = tm.players.find((p) => p.stage && c.contains(p.stage)); if (pl && pl.autoOnReveal?.()) pl.play(); }); }
+    };
+    check.onclick = () => {
+      if (chosen == null) return; attempts++;
+      const ok = cfg.answer == null || chosen === cfg.answer; // predict without an answer: any guess counts
+      opts.forEach((b) => { b.disabled = true; const i = +b.dataset.i; if (cfg.answer != null && i === cfg.answer && (ok || kind === 'predict' || attempts >= 2)) b.classList.add('tm-right'); if (i === chosen && !ok) b.classList.add('tm-wrong'); });
+      const w = (cfg.why && cfg.why[chosen]) || '';
+      why.className = 'tm-why ' + (cfg.answer == null ? '' : ok ? 'tm-good' : 'tm-bad');
+      why.innerHTML = (kind === 'predict' ? (ok ? '<b>Your guess holds.</b> ' : '<b>Not quite — watch what happens.</b> ') : (ok ? '<b>Right.</b> ' : '<b>Not this one.</b> ')) + w + (cfg.explain && (ok || kind === 'predict' || attempts >= 2) ? ' ' + cfg.explain : '');
+      why.hidden = false; check.hidden = true; retry.hidden = ok || kind === 'predict' || attempts >= 2;
+      (kind === 'predict' ? progress.predictions : progress.quiz)[qid] = { q: cfg.q.replace(/<[^>]+>/g, ''), chosen: cfg.options[chosen].replace(/<[^>]+>/g, ''), correct: ok, attempts, ts: Date.now() };
+      saveProgress();
+      if (kind === 'predict') reveal();
+    };
+    retry.onclick = () => { chosen = null; opts.forEach((b) => { b.disabled = b.classList.contains('tm-wrong'); b.setAttribute('aria-pressed', 'false'); }); why.hidden = true; retry.hidden = true; check.hidden = false; check.disabled = true; };
+    const label = kind === 'predict' ? 'Predict first' : 'Check yourself · ' + n;
+    el.replaceChildren(h('div', { class: 'tm-card tm-quiz' }, h('span', { class: 'tm-qn', text: label }), h('p', { class: 'tm-q', html: cfg.q }), h('div', { class: 'tm-opts' }, ...opts), h('div', { class: 'tm-actions' }, check, retry), why));
+  }
+
+  /* ---------- spot the bug: click the faulty line ---------- */
+  function mountSpotbug(el, cfg) {
+    const bugs = [].concat(cfg.bug);
+    const why = h('div', { class: 'tm-why', hidden: true, 'aria-live': 'polite' });
+    let tries = 0;
+    const lines = cfg.code.replace(/\n$/, '').split('\n').map((t, k) => {
+      const ln = h('span', { class: 'ln tm-click', text: t || ' ', role: 'button', tabindex: 0 });
+      const pick = () => {
+        if (why.dataset.done) return; tries++;
+        const ok = bugs.includes(k + 1);
+        ln.classList.add(ok ? 'tm-right' : 'tm-wrong');
+        why.className = 'tm-why ' + (ok ? 'tm-good' : 'tm-bad'); why.hidden = false;
+        why.innerHTML = ok ? '<b>Found it.</b> ' + (cfg.why || '') : (cfg.wrong?.[k + 1] || 'This line is fine. Look again.');
+        if (ok) { why.dataset.done = 1; progress.quiz['bug-' + hash(cfg.code)] = { q: cfg.q, correct: true, attempts: tries, ts: Date.now() }; saveProgress(); }
+      };
+      ln.onclick = pick; ln.onkeydown = (e) => { if (e.key === 'Enter') pick(); };
+      return ln;
+    });
+    el.replaceChildren(h('div', { class: 'tm-card' }, h('div', { class: 'tm-quiz' }, h('span', { class: 'tm-qn', text: 'Spot the bug' }), h('p', { class: 'tm-q', html: cfg.q || 'Click the line that causes the problem.' })), h('div', { class: 'tm-code', style: 'border-right:0' }, ...lines), h('div', { class: 'tm-quiz' }, why)));
+  }
+
+  /* ---------- flashcards with simple spaced repetition ---------- */
+  // shortcut: SM-2 style intervals, not FSRS; swap in ts-fsrs if long-term accuracy matters.
+  const DAY = 864e5;
+  function schedule(c, grade) { // grade 0 again, 1 hard, 2 good, 3 easy
+    const s = { ivl: 0, ease: 2.5, reps: 0, lapses: 0, ...c };
+    if (grade === 0) { s.lapses++; s.reps = 0; s.ivl = 0; s.ease = Math.max(1.3, s.ease - 0.2); s.due = Date.now() + 60e3; }
+    else {
+      s.reps++; s.ease = clamp(s.ease + [0, -0.15, 0, 0.15][grade], 1.3, 3);
+      s.ivl = s.reps === 1 ? [0, 0.5, 1, 3][grade] : s.reps === 2 ? [0, 2, 3, 6][grade] : Math.round(s.ivl * (grade === 1 ? 1.2 : s.ease * (grade === 3 ? 1.3 : 1)));
+      s.due = Date.now() + Math.max(s.ivl, 0.007) * DAY;
+    }
+    s.last = Date.now(); return s;
+  }
+  tm.schedule = schedule;
+  const cloze = (t, show) => t.replace(/\{\{c\d+::(.+?)\}\}/g, (_, x) => (show ? `<mark>${esc(x)}</mark>` : '[…]'));
+  function mountCards(el, cfg) {
+    const deck = cfg.deck || 'deck';
+    const cards = cfg.cards.map((c) => ({ ...c, id: deck + ':' + (c.id || hash(c.front)) }));
+    const flip = h('div', { class: 'tm-flash', role: 'button', tabindex: 0, 'aria-label': 'Flip card' });
+    const inner = h('div', { class: 'tm-flash-inner' }); flip.append(inner);
+    const front = h('div', { class: 'tm-face' }), back = h('div', { class: 'tm-face tm-back' }); inner.append(front, back);
+    const bar = h('div', { class: 'tm-deckbar', 'aria-live': 'polite' });
+    const labels = ['Again', 'Hard', 'Good', 'Easy'];
+    const grades = h('div', { class: 'tm-grades' }, ...labels.map((l, g) => h('button', { class: 'tm-btn' + (g === 2 ? ' tm-primary' : ''), type: 'button', text: l, onclick: () => grade(g) })));
+    let cur = null;
+    // Card schedules live in one shared key, so the same card on a course review page keeps its history.
+    const sched = (id) => store.get("tm:cards", {})[id] || progress.cards[id];
+    const queue = () => cards.filter((c) => !sched(c.id) || sched(c.id).due <= Date.now()).sort((a, b) => (sched(a.id)?.due || 0) - (sched(b.id)?.due || 0));
+    const sayBtn = (text, lang = cfg.lang) => (lang && text ? h('button', { class: 'tm-say', type: 'button', 'aria-label': 'Listen', text: '🔊', onclick: (e) => { e.stopPropagation(); speak(text, lang, e.currentTarget); } }) : null);
+    const show = () => {
+      const q = queue(); const nNew = cards.filter((c) => !sched(c.id)).length;
+      bar.replaceChildren(h('span', { text: `${q.length} to review · ${nNew} new · ${cards.length} total` }), h('span', { class: 'tm-sp' }),
+        h('button', { class: 'tm-iconbtn', type: 'button', text: 'Export TSV', onclick: () => download(deck + '.tsv', cards.map((c) => [cloze(c.front, true).replace(/<\/?mark>/g, ''), c.back || ''].map((x) => x.replace(/\t|\n/g, ' ')).join('\t')).join('\n'), 'text/tab-separated-values') }));
+      flip.classList.remove('tm-flipped'); grades.hidden = true;
+      cur = q[0];
+      if (!cur) {
+        const next = Math.min(...cards.map((c) => sched(c.id)?.due || Infinity));
+        front.innerHTML = 'All done for now.<small>Next review ' + (isFinite(next) ? new Date(next).toLocaleString() : 'later') + '</small>'; back.innerHTML = ''; return;
+      }
+      front.innerHTML = cloze(cur.front, false) + (cur.hint ? `<small>${cur.hint}</small>` : '');
+      back.innerHTML = ''; // filled on flip, so the next answer never shows during the flip-back
+    };
+    const fillBack = () => {
+      const isCloze = cur.front.includes('{{c');
+      back.innerHTML = (isCloze ? cloze(cur.front, true) + (cur.back ? '<small>' + cur.back + '</small>' : '') : cur.back || '') + (cur.note ? `<small>${cur.note}</small>` : '');
+      const text = (cur.say || (isCloze ? cloze(cur.front, true) : cur.back) || '').replace(/<[^>]+>/g, '');
+      const sb = cur.say !== false ? sayBtn(text, cur.lang || cfg.lang) : null; if (sb) back.append(sb);
+    };
+    const doFlip = () => { if (!cur) return; if (!flip.classList.contains('tm-flipped')) fillBack(); flip.classList.toggle('tm-flipped'); grades.hidden = !flip.classList.contains('tm-flipped'); };
+    const grade = (g) => { if (!cur) return; const s = schedule(sched(cur.id), g); const all = store.get("tm:cards", {}); all[cur.id] = s; store.set("tm:cards", all); progress.cards[cur.id] = s; saveProgress(); show(); };
+    flip.onclick = doFlip;
+    flip.onkeydown = (e) => { if (e.key === ' ' || e.key === 'Enter') { doFlip(); e.preventDefault(); } else if (/^[1-4]$/.test(e.key) && !grades.hidden) grade(+e.key - 1); };
+    el.replaceChildren(h('div', { class: 'tm-card' }, cardHead({ ...cfg, title: cfg.title || 'Flashcards' }), h('div', { class: 'tm-cards' }, bar, flip, grades, h('p', { class: 'tm-muted', style: 'font-size:13px;text-align:center;margin:10px 0 0', text: 'Click the card or press Space to flip. Keys 1–4 grade it.' }))));
+    show();
+  }
+
+  /* ---------- text to speech (on click only) ---------- */
+  let voicesP;
+  const voices = () => (voicesP ||= new Promise((res) => {
+    const done = (v) => { if (!v.length) voicesP = null; res(v); }; // don't cache an empty list
+    const v = speechSynthesis.getVoices(); if (v.length) return res(v);
+    const t = setTimeout(() => done(speechSynthesis.getVoices()), 1500);
+    speechSynthesis.addEventListener('voiceschanged', () => { clearTimeout(t); done(speechSynthesis.getVoices()); }, { once: true });
+  }));
+  async function speak(text, lang, btn, rate = 0.92) {
+    if (!('speechSynthesis' in window)) return toast('This browser cannot speak.');
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text); u.lang = lang; u.rate = rate;
+    const all = await voices(); const base = lang.slice(0, 2).toLowerCase();
+    const v = all.find((x) => x.lang === lang && /natural|online|neural/i.test(x.name)) || all.find((x) => x.lang === lang) || all.find((x) => x.lang.toLowerCase().startsWith(base));
+    if (v) u.voice = v; else toast('No ' + lang + ' voice installed; using the default voice.');
+    btn?.classList.add('tm-speaking'); u.onend = u.onerror = () => btn?.classList.remove('tm-speaking');
+    tm._utterance = u; // keep a reference so Chrome fires onend
+    speechSynthesis.speak(u);
+  }
+  tm.speak = speak;
+  function mountSay(el) {
+    const lang = el.dataset.say; const text = el.dataset.sayText || el.textContent.trim();
+    const b = h('button', { class: 'tm-say', type: 'button', 'aria-label': 'Listen: ' + text, title: 'Listen (Shift+click: slow)', text: '🔊' });
+    b.onclick = (e) => speak(text, lang, b, e.shiftKey ? 0.65 : 0.92);
+    el.after(b);
+  }
+
+  /* ---------- explain-back, ask, save ---------- */
+  function mountExplain(el, cfg) {
+    const id = cfg.id || 'x' + hash(cfg.prompt);
+    const ta = h('textarea', { 'aria-label': cfg.prompt, placeholder: 'Write it in your own words…' });
+    ta.value = progress.explain[id]?.text || '';
+    ta.oninput = () => { progress.explain[id] = { prompt: cfg.prompt, text: ta.value }; saveProgress(); };
+    el.replaceChildren(h('div', { class: 'tm-card tm-quiz tm-explain' }, h('span', { class: 'tm-qn', text: 'Explain it back' }), h('p', { class: 'tm-q', html: cfg.prompt }), ta,
+      h('div', { class: 'tm-actions' }, h('button', { class: 'tm-btn tm-primary', type: 'button', text: 'Copy for Claude', onclick: () => copy(`Here is my explanation for "${cfg.prompt.replace(/<[^>]+>/g, '')}" (lesson: ${document.title}):\n\n${ta.value}\n\nFind the one or two smallest gaps and ask me a question about each. Don't rewrite it for me.`) }))));
+  }
+  function mountAsk(el, cfg) {
+    const prompts = cfg.prompts || ['Explain this with a different analogy.', 'Quiz me harder on this lesson.', 'What would break if this worked the other way?'];
+    el.replaceChildren(h('div', { class: 'tm-callout' }, h('b', { text: 'Stuck or curious? Ask your agent.' }), h('p', { class: 'tm-muted', style: 'margin:4px 0 10px', text: 'Claude is your teacher here. Copy a prompt or ask your own.' }),
+      h('ul', { class: 'tm-ask' }, ...prompts.map((p) => h('li', {}, h('span', { text: p }), h('button', { class: 'tm-iconbtn', type: 'button', text: 'Copy', onclick: () => copy(`${p} (lesson: ${document.title})`) }))))));
+  }
+  const summary = () => {
+    const q = Object.values(progress.quiz), pr = Object.values(progress.predictions);
+    const lines = [`Progress for lesson "${document.title}" (${lessonId}):`];
+    q.forEach((x) => lines.push(`- Quiz: ${x.q} -> chose "${x.chosen ?? ''}" (${x.correct ? 'correct' : 'wrong'}, ${x.attempts} attempt${x.attempts > 1 ? 's' : ''})`));
+    pr.forEach((x) => lines.push(`- Prediction: ${x.q} -> guessed "${x.chosen}" (${x.correct ? 'right' : 'wrong'})`));
+    Object.values(progress.explain).forEach((x) => x.text && lines.push(`- Explained "${x.prompt.replace(/<[^>]+>/g, '')}": ${x.text}`));
+    const cards = Object.values(progress.cards); if (cards.length) lines.push(`- Flashcards reviewed: ${cards.length}, lapses: ${cards.reduce((s, c) => s + (c.lapses || 0), 0)}`);
+    lines.push('Treat this as data about my progress. Update my learning records only where it shows understanding or a misconception.');
+    return lines.join('\n');
+  };
+  function mountSave(el) {
+    el.replaceChildren(h('div', { class: 'tm-save tm-actions', style: 'display:flex;gap:8px;flex-wrap:wrap' },
+      h('button', { class: 'tm-btn', type: 'button', text: 'Copy my progress for Claude', onclick: () => copy(summary()) }),
+      h('button', { class: 'tm-btn', type: 'button', text: 'Download progress (.json)', onclick: () => download('tm-progress-' + lessonId + '.json', JSON.stringify(progress, null, 2)) }),
+      h('button', { class: 'tm-btn', type: 'button', text: 'Reset this lesson', onclick: () => { if (confirm('Clear your answers and cards for this lesson?')) { try { localStorage.removeItem(PKEY); const all = store.get('tm:cards', {}); for (const k of Object.keys(progress.cards)) delete all[k]; store.set('tm:cards', all); } catch {} location.reload(); } } })));
+  }
+
+  /* ---------- theme toggle ---------- */
+  const applyTheme = (t) => { if (t === 'auto') delete document.documentElement.dataset.theme; else document.documentElement.dataset.theme = t; };
+  applyTheme(Q.get('theme') || store.get('tm:theme', 'auto'));
+  function mountTheme(btn) {
+    const order = ['auto', 'light', 'dark'];
+    const label = () => (btn.textContent = { auto: '◐ Auto', light: '☀ Light', dark: '☾ Dark' }[store.get('tm:theme', 'auto')]);
+    btn.onclick = () => { const t = order[(order.indexOf(store.get('tm:theme', 'auto')) + 1) % 3]; store.set('tm:theme', t); applyTheme(t); label(); };
+    label();
+  }
+
+  /* ---------- boot ---------- */
+  const MOUNT = { scene: mountScene, diagram: mountDiagram, stepper: mountStepper, sim: mountSim, quiz: (e, c) => mountQuiz(e, c, 'quiz'), predict: (e, c) => mountQuiz(e, c, 'predict'), spotbug: mountSpotbug, cards: mountCards, explain: mountExplain, ask: mountAsk, save: mountSave };
+  tm.errors = [];
+  function boot() {
+    if (Q.get('reveal') === '1') document.querySelectorAll('.tm-reveal[hidden]').forEach((r) => (r.hidden = false)); // test hook
+    document.querySelectorAll('[data-tm]').forEach((el) => {
+      const kind = el.dataset.tm; const fn = MOUNT[kind];
+      try {
+        if (!fn) throw new Error('unknown component data-tm="' + kind + '"');
+        const js = el.querySelector(':scope > script[type="application/json"]');
+        const cfg = js ? JSON.parse(js.textContent) : {};
+        fn(el, cfg);
+        el.dataset.tmReady = '1';
+      } catch (err) {
+        tm.errors.push(kind + ': ' + err.message); console.error('[teach-me]', kind, err);
+        el.replaceChildren(h('div', { class: 'tm-callout tm-warn', text: 'This widget failed to load: ' + err.message }));
+      }
+    });
+    document.querySelectorAll('[data-say]').forEach(mountSay);
+    document.querySelectorAll('.tm-term[data-def]').forEach((t) => (t.tabIndex = 0));
+    document.querySelectorAll('[data-tm-theme]').forEach(mountTheme);
+    tm.ready = true; document.documentElement.dataset.tmReady = '1';
+    if (Q.get('check') === '1') setTimeout(writeReport, 60);
+  }
+
+  /* ---------- self-check report for scripts/check.ts (headless --dump-dom reads #tm-check) ---------- */
+  function writeReport() {
+    const all = [...document.querySelectorAll('[data-tm]')];
+    const vw = document.documentElement.clientWidth;
+    const wide = [...document.querySelectorAll('main *')].filter((e) => e.getBoundingClientRect().right > vw + 1 && !e.closest('.tm-code, pre, .tm-steps, svg')).slice(0, 5)
+      .map((e) => e.tagName.toLowerCase() + (e.className && typeof e.className === 'string' ? '.' + e.className.trim().split(/\s+/).join('.') : ''));
+    const scans = tm.players.map((p, i) => (p.stage?.querySelector('svg') ? { player: i, id: p.id, ...tm.scan(i) } : null)).filter(Boolean);
+    const stdout = [...document.querySelectorAll('[data-tm="stepper"]')].map((el) => {
+      const id = el.dataset.tmId; const cfg = tm.stepperCfg?.[id] || {};
+      if (cfg.expectStdout == null) return { id, expect: null };
+      const got = tm.stepperStdout?.[id]?.() ?? '';
+      return { id, ok: got === cfg.expectStdout, expect: cfg.expectStdout, got };
+    });
+    const report = { width: vw, components: all.length, ready: all.filter((e) => e.dataset.tmReady).length, errors: [...tm.errors, ...tm.pageErrors], overflowX: document.documentElement.scrollWidth > vw + 1, wide, scans, stdout };
+    const pre = document.createElement('pre'); pre.id = 'tm-check'; pre.hidden = true; pre.textContent = JSON.stringify(report);
+    document.body.append(pre);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else queueMicrotask(boot);
+})();
+
+</script>
+<script>
+// check: n=3 late/after -> 2 2 2; late/during -> 0 1 2; default -> 0 1 2
+const model = (n, mode, call) => {
+  const late = mode === 'lambda: i', during = call.startsWith('during');
+  const res = Array.from({ length: n }, (_, k) => (late ? (during ? k : n - 1) : k));
+  return { late, during, res, slots: late && during ? n : 1 };
+};
+tm.sim('late', {
+  setup(stage, { svg }) {
+    const s = svg('svg', { viewBox: '0 0 640 290', class: 'tm-svg', role: 'img', 'aria-label': 'Lambdas reading the variable i' }, stage);
+    const T = 'transition:transform .45s ease,opacity .3s';
+    const mk = svg('marker', { id: 'late-arw', viewBox: '0 0 10 10', refX: 9, refY: 5, markerWidth: 11, markerHeight: 11, markerUnits: 'userSpaceOnUse', orient: 'auto' }, svg('defs', {}, s));
+    svg('path', { d: 'M0 0 L10 5 L0 10z', style: 'fill:var(--accent)' }, mk);
+    svg('rect', { x: 10, y: 8, width: 620, height: 96, rx: 10, class: 'zone' }, s);
+    svg('text', { x: 24, y: 28, class: 'sub', style: 'font-size:14px' }, s).textContent = 'Global names: one shelf that every function can read';
+    const arrows = [], slots = [], cards = [];
+    for (let k = 0; k < 6; k++) arrows.push(svg('path', { class: 'edge hot', 'marker-end': 'url(#late-arw)', style: 'transition:d .45s ease,opacity .3s' }, s));
+    for (let k = 0; k < 6; k++) {
+      const g = svg('g', { style: T }, s);
+      const box = svg('rect', { x: -31, y: 0, width: 62, height: 44, rx: 6, class: 'box' }, g);
+      const lab = svg('text', { x: -26, y: 14, class: 'sub', style: 'font-size:13px' }, g);
+      const val = svg('text', { x: 0, y: 36, 'text-anchor': 'middle', style: 'font:600 24px var(--mono)' }, g);
+      slots.push({ g, box, lab, val });
+    }
+    for (let k = 0; k < 6; k++) {
+      const g = svg('g', { style: T }, s);
+      const box = svg('rect', { x: -46, y: 0, width: 92, height: 98, rx: 8, class: 'box' }, g);
+      svg('text', { x: 0, y: 20, 'text-anchor': 'middle', class: 'lbl', style: 'font:600 15px var(--sans)' }, g).textContent = 'λ' + k;
+      const own = svg('rect', { x: -24, y: 32, width: 48, height: 32, rx: 5, class: 'box' }, g);
+      const ownv = svg('text', { x: 0, y: 56, 'text-anchor': 'middle', style: 'font:600 20px var(--mono)' }, g);
+      svg('text', { x: 0, y: 86, 'text-anchor': 'middle', style: 'font:14px var(--mono)' }, g).textContent = 'return i';
+      const res = svg('text', { x: 0, y: 132, 'text-anchor': 'middle', style: 'font:600 26px var(--mono)' }, g);
+      cards.push({ g, box, own, ownv, res });
+    }
+    return { arrows, slots, cards };
+  },
+  update(c, v) {
+    const n = +v.n, m = model(n, v.mode, v.call);
+    const sp = 600 / n, w = Math.min(92, Math.floor(sp) - 8);
+    const slotX = (j) => 320 + (j - (m.slots - 1) / 2) * 76;
+    c.slots.forEach((o, j) => {
+      const on = j < m.slots;
+      o.g.style.transform = `translate(${on ? slotX(j) : 320}px,52px)`;
+      o.g.style.opacity = on ? (m.late ? 1 : 0.4) : 0;
+      o.val.textContent = m.slots > 1 ? j : n - 1;
+      o.lab.textContent = m.slots > 1 ? 'i then' : 'i';
+      o.box.classList.toggle('hotfill', m.late && on);
+    });
+    c.cards.forEach((o, k) => {
+      const on = k < n, cx = 20 + sp * (k + 0.5);
+      o.g.style.transform = `translate(${on ? cx : 320}px,140px)`;
+      o.g.style.opacity = on ? 1 : 0;
+      o.box.setAttribute('width', w); o.box.setAttribute('x', -w / 2);
+      o.own.setAttribute('stroke-dasharray', m.late ? '3 3' : '0');
+      o.ownv.textContent = m.late ? '' : k;
+      o.res.textContent = '→ ' + m.res[k];
+      o.res.style.fill = on && m.res[k] === k ? 'var(--good)' : 'var(--bad)';
+      const a = c.arrows[k], tx = slotX(m.slots > 1 ? k : 0);
+      a.style.opacity = on && m.late ? 1 : 0;
+      a.style.d = `path("M ${on ? cx : 320} 138 C ${on ? cx : 320} 116 ${tx} 120 ${tx} 98")`;
+    });
+    const last = n - 1, same = new Set(m.res).size === 1 && n > 1;
+    return {
+      chips: [{ k: 'i after loop', v: String(last) }, { k: 'calls return', v: m.res.join(', '), hot: same }, { k: 'wanted', v: Array.from({ length: n }, (_, k) => k).join(', ') }],
+      hint: !m.late ? 'Each lambda <b>copied</b> its own <code>i</code> when it was made. The shelf\'s <code>i</code> ends at ' + last + ', but nobody reads it.'
+        : m.during ? 'Every lambda is called before the next pass, while <code>i</code> still holds that pass\'s value. The shared name hides the bug.'
+        : 'All ' + n + ' lambdas read the <b>same</b> <code>i</code>. By the time they run it holds ' + last + (n > 1 ? ', so they all answer ' + last + '.' : '.')
+    };
+  }
+});
+</script>
+</body>
+</html>

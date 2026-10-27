@@ -112,9 +112,11 @@ button { font: inherit; color: inherit; }
 }
 
 /* SVG helpers used by scenes and diagrams */
-.tm-svg text { font-family: var(--sans); fill: var(--ink); }
+.tm-svg text { font-family: var(--sans); }
+.tm-svg text:not([fill]) { fill: var(--ink); }
 .tm-svg .lbl { font-size: 13px; }
-.tm-svg .sub { font-size: 11px; fill: var(--muted); }
+.tm-svg .sub { font-size: 11px; }
+.tm-svg .sub:not([fill]) { fill: var(--muted); }
 .tm-svg .ink { stroke: var(--ink); fill: none; stroke-width: 1.4; stroke-linejoin: round; stroke-linecap: round; }
 .tm-svg .box { fill: var(--panel); stroke: var(--line); stroke-width: 1.4; }
 .tm-svg .hot { stroke: var(--accent) !important; }
@@ -177,15 +179,15 @@ button { font: inherit; color: inherit; }
 /* Flashcards */
 .tm-cards { padding: 16px; }
 .tm-flash { perspective: 1200px; margin: 6px auto 14px; max-width: 520px; cursor: pointer; }
-.tm-flash-inner { position: relative; min-height: 190px; transition: transform .45s; transform-style: preserve-3d; }
+.tm-flash-inner { display: grid; min-height: 190px; transition: transform .45s; transform-style: preserve-3d; }
 .tm-flash.tm-flipped .tm-flash-inner { transform: rotateY(180deg); }
-.tm-face { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; padding: 20px; border: 1px solid var(--line); border-radius: var(--r); background: var(--panel); backface-visibility: hidden; font-size: 22px; font-family: var(--serif); }
+.tm-face { grid-area: 1 / 1; display: grid; place-items: center; text-align: center; padding: 20px; border: 1px solid var(--line); border-radius: var(--r); background: var(--panel); backface-visibility: hidden; font-size: 22px; font-family: var(--serif); }
 .tm-face small { display: block; font: 14px var(--sans); color: var(--muted); margin-top: 8px; }
 .tm-back { transform: rotateY(180deg); background: var(--soft); }
 .tm-grades { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
 .tm-deckbar { display: flex; gap: 12px; align-items: center; font-size: 13px; color: var(--muted); margin-bottom: 4px; }
 .tm-deckbar .tm-sp { flex: 1; }
-@media (prefers-reduced-motion: reduce) { .tm-flash-inner { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .tm-flash-inner { transition: none; } .tm-step.tm-next:not([disabled]) { animation: none; } }
 
 /* Gender colouring for language lessons */
 .g-m { color: var(--m); font-weight: 600; } .g-f { color: var(--f); font-weight: 600; } .g-n { color: var(--n); font-weight: 600; }
@@ -396,10 +398,10 @@ table.tm-table th { font-size: 12px; text-transform: uppercase; letter-spacing: 
       tm.players.push(this);
     }
     get n() { return this.steps.length; }
-    dur(i) { return REDUCED ? 0 : Math.max(0.001, this.steps[i]?.dur ?? 1); }
+    dur(i) { return REDUCED ? 0.001 : Math.max(0.001, this.steps[i]?.dur ?? 1); }
     total() { return this.steps.reduce((s, st) => s + (st.dur ?? 1), 0); }
     render() { this.onFrame(this.i, this.p); this.onState(); }
-    goto(i, p = 1) { this.stop(); this.i = clamp(i, -1, this.n - 1); this.p = p; this.render(); }
+    goto(i, p = 1) { this.stop(); this.restarting = false; this.hold = 0; this.i = clamp(i, -1, this.n - 1); this.p = p; this.render(); }
     reset() { this.goto(-1, 1); }
     run(i) { this.i = i; this.p = 0; this.hold = 0; this.playing = true; this.render(); this.loop(); }
     next() { if (this.i < this.n - 1) this.run(this.i + 1); }
@@ -409,7 +411,7 @@ table.tm-table th { font-size: 12px; text-transform: uppercase; letter-spacing: 
       if (this.raf) return;
       let last = performance.now();
       const tick = (now) => {
-        const dt = Math.min((now - last) / 1000, 1 / 30) * this.speed; last = now;
+        const dt = clamp((now - last) / 1000, 0, 1 / 30) * this.speed; last = now;
         if (!this.playing) { this.raf = 0; return; }
         if (this.visible) this.advance(dt);
         this.raf = requestAnimationFrame(tick);
@@ -476,21 +478,22 @@ table.tm-table th { font-size: 12px; text-transform: uppercase; letter-spacing: 
   const cardKeys = (card, pl, onSpace) => {
     card.tabIndex = 0;
     card.addEventListener('keydown', (e) => {
-      if (e.target.closest('input, textarea, select')) return;
+      if (e.target.closest('input, textarea, select') || e.altKey || e.ctrlKey || e.metaKey) return;
       if (e.key === 'ArrowRight') { pl.goto(pl.i + 1); e.preventDefault(); }
       else if (e.key === 'ArrowLeft') { pl.goto(pl.i - 1); e.preventDefault(); }
       else if (e.key === ' ' || e.key === 'Enter') { if (e.target !== card) return; onSpace(); e.preventDefault(); }
       else if (e.key.toLowerCase() === 'r') pl.reset();
     });
   };
-  let figN = 0;
-  const cardHead = (cfg, extra = []) => h('div', { class: 'tm-card-head' }, h('span', { text: 'Fig ' + (cfg.fig || ++figN) }), h('b', { text: cfg.title || '' }), h('span', { class: 'tm-sp' }), ...extra);
+  let figN = 0, uidN = 0;
+  const figNum = (cfg) => { if (typeof cfg.fig === 'number') figN = Math.max(figN, cfg.fig); return cfg.fig || ++figN; };
+  const cardHead = (cfg, extra = []) => h('div', { class: 'tm-card-head' }, h('span', { text: 'Fig ' + figNum(cfg) }), h('b', { text: cfg.title || '' }), h('span', { class: 'tm-sp' }), ...extra);
   const modeKey = (kind) => 'tm:mode:' + kind;
   const modeToggle = (kind, pl, def) => {
     const forced = Q.get('auto'); let auto = forced != null ? forced === '1' : store.get(modeKey(kind), def) === 'auto';
     const bM = h('button', { type: 'button', text: 'Manual' }), bA = h('button', { type: 'button', text: 'Auto' });
     const seg = h('span', { class: 'tm-seg', role: 'group', 'aria-label': 'Play mode' }, bM, bA);
-    const set = (a, persist) => { auto = a; pl.auto = a; bM.setAttribute('aria-pressed', !a); bA.setAttribute('aria-pressed', a); if (persist) store.set(modeKey(kind), a ? 'auto' : 'manual'); if (a) pl.play(); else pl.stop(); };
+    const set = (a, persist) => { auto = a; pl.auto = a; bM.setAttribute('aria-pressed', !a); bA.setAttribute('aria-pressed', a); if (persist) store.set(modeKey(kind), a ? 'auto' : 'manual'); if (a) pl.play(); else pl.goto(pl.i, 1); };
     bM.onclick = () => set(false, true); bA.onclick = () => set(true, true);
     bM.setAttribute('aria-pressed', !auto); bA.setAttribute('aria-pressed', auto); pl.auto = auto;
     return { seg, get auto() { return auto; } };
@@ -508,7 +511,7 @@ table.tm-table th { font-size: 12px; text-transform: uppercase; letter-spacing: 
   function mountScene(el, cfg, def) {
     def = def || tm.scenes[cfg.name];
     if (!def) throw new Error('scene "' + cfg.name + '" is not registered (tm.scene)');
-    const id = cfg.id || 'scene-' + (cfg.name || figN);
+    const id = cfg.id || 'scene-' + (cfg.name || cfg.title || ++uidN);
     const steps = cfg.steps.map((s) => ({ ...s, dur: s.dur ?? 1.2 }));
     const stage = h('div', { class: 'tm-stage' });
     const hint = h('div', { class: 'tm-hint', 'aria-live': 'polite' });
@@ -533,8 +536,9 @@ table.tm-table th { font-size: 12px; text-transform: uppercase; letter-spacing: 
       const s = steps[i];
       hint.innerHTML = out.hint ?? (i < 0 ? restHint : (s.hint || s.label));
       if (s && s.seconds && s.dur && !REDUCED) {
-        const r = s.seconds / s.dur; badge.hidden = Math.abs(r - 1) < 0.15;
+        const r = s.seconds / s.dur;
         badge.textContent = r >= 1 ? '×' + (r >= 10 ? Math.round(r) : +r.toFixed(1)) : '×1/' + Math.round(1 / r);
+        badge.hidden = badge.textContent === '×1' || badge.textContent === '×1/1';
         badge.title = 'Real time ' + s.seconds + ' s, shown in ' + s.dur + ' s';
       } else badge.hidden = true;
       if (i >= 0) recordStep(id, i, steps.length);
@@ -563,6 +567,7 @@ table.tm-table th { font-size: 12px; text-transform: uppercase; letter-spacing: 
     const qs = Q.get('step');
     if (qs != null) pl.goto(+qs - 1, 1); else pl.reset();
     if (mode.auto && qs == null) pl.autoStartWhenVisible = true;
+    pl.autoOnReveal = () => mode.auto;
     return pl;
   }
 
@@ -584,8 +589,8 @@ table.tm-table th { font-size: 12px; text-transform: uppercase; letter-spacing: 
           const ns = z.nodes.map((id) => nodes[id]);
           const x0 = Math.min(...ns.map((n) => n.cx)) - NW / 2 - 16, x1 = Math.max(...ns.map((n) => n.cx)) + NW / 2 + 16;
           const y0 = Math.min(...ns.map((n) => n.cy)) - NH / 2 - 30, y1 = Math.max(...ns.map((n) => n.cy)) + NH / 2 + 14;
-          svg('rect', { x: x0, y: y0, width: x1 - x0, height: y1 - y0, rx: 14, class: 'zone' }, s);
-          svg('text', { x: x0 + 12, y: y0 + 18, class: 'sub' }, s).textContent = z.label;
+          svg('rect', { x: x0 - (z.pad || 0), y: y0 - (z.pad || 0), width: x1 - x0 + 2 * (z.pad || 0), height: y1 - y0 + 2 * (z.pad || 0), rx: 14, class: 'zone ' + (z.class || '') }, s);
+          svg('text', { x: x0 - (z.pad || 0) + 12, y: y0 - (z.pad || 0) + 18, class: 'sub' }, s).textContent = z.label;
         }
         const edges = {};
         const border = (n, tx, ty) => { const dx = tx - n.cx, dy = ty - n.cy; const k = Math.min((NW / 2 + 4) / Math.abs(dx || 1e-9), (NH / 2 + 4) / Math.abs(dy || 1e-9)); return [n.cx + dx * k, n.cy + dy * k]; };
@@ -594,16 +599,16 @@ table.tm-table th { font-size: 12px; text-transform: uppercase; letter-spacing: 
           const [x1, y1] = border(a, b.cx, b.cy), [x2, y2] = border(b, a.cx, a.cy);
           const g = svg('g', {}, s);
           const line = svg('path', { d: `M${x1},${y1} L${x2},${y2}`, class: 'edge', 'marker-end': `url(#${uid}a)` }, g);
-          if (e.label) { const t = svg('text', { x: (x1 + x2) / 2 + 6, y: (y1 + y2) / 2 - 6, class: 'sub' }, g); t.textContent = e.label; }
+          if (e.label) { const t = svg('text', { x: (x1 + x2) / 2 + (x1 === x2 ? 8 : 0), y: (y1 + y2) / 2 - (y1 === y2 ? 8 : 0), 'text-anchor': x1 === x2 ? 'start' : 'middle', class: 'sub' }, g); t.textContent = e.label; }
           edges[edgeKey(e.from, e.to)] = { line, x1, y1, x2, y2, uid };
         }
         const nodeEls = {};
         for (const n of Object.values(nodes)) {
-          const g = svg('g', { class: 'node', tabindex: 0, role: 'button', 'aria-label': n.label + (n.tip ? ': ' + n.tip : '') }, s);
+          const g = svg('g', { class: 'node', tabindex: 0, role: 'button', 'aria-label': n.label + (n.tip ? ': ' + n.tip.replace(/<[^>]+>/g, '') : '') }, s);
           svg('rect', { x: n.cx - NW / 2, y: n.cy - NH / 2, width: NW, height: NH, rx: 10 }, g);
           svg('text', { x: n.cx, y: n.cy + (n.sub ? -3 : 5), 'text-anchor': 'middle', class: 'lbl' }, g).textContent = n.label;
           if (n.sub) svg('text', { x: n.cx, y: n.cy + 14, 'text-anchor': 'middle', class: 'sub' }, g).textContent = n.sub;
-          const show = () => { if (n.tip && hintEl) hintEl.innerHTML = `<b>${esc(n.label)}</b> ${esc(n.tip)}`; };
+          const show = () => { if (n.tip && hintEl) hintEl.innerHTML = `<b>${esc(n.label)}</b> ${n.tip}`; };
           g.addEventListener('click', show); g.addEventListener('keydown', (e) => { if (e.key === 'Enter') show(); });
           nodeEls[n.id] = g;
         }
@@ -645,7 +650,11 @@ table.tm-table th { font-size: 12px; text-transform: uppercase; letter-spacing: 
     let params = Object.fromEntries((cfg.params || []).map((p) => [p.id, p.value]));
     const fill = (code) => code.replace(/\{\{(\w+)\}\}/g, (_, k) => (k in params ? params[k] : `{{${k}}}`));
     let frames = cfg.frames || [], lastI = null;
-    const recompute = () => { lastI = null; if (cfg.trace) { const r = tm.traces[cfg.trace](params); frames = r.frames || r; } };
+    const recompute = () => {
+      lastI = null; if (!cfg.trace) return;
+      try { const r = tm.traces[cfg.trace](params); frames = (r.frames || r).slice(0, 400); }
+      catch (e) { frames = [{ line: 0, vars: {}, note: 'This value breaks the trace: ' + esc(e.message) }]; }
+    };
     recompute();
     const codeBox = h('div', { class: 'tm-code', role: 'region', 'aria-label': 'Code' });
     const vars = h('table', { class: 'tm-vars' });
@@ -694,6 +703,8 @@ table.tm-table th { font-size: 12px; text-transform: uppercase; letter-spacing: 
     const qs = Q.get('step');
     if (qs != null) pl.goto(+qs - 1); else pl.reset();
     if (cfg.autoplay !== false && Q.get('auto') !== '0' && qs == null) pl.autoStartWhenVisible = true;
+    pl.autoOnReveal = () => cfg.autoplay !== false;
+    (tm.stepperCfg ||= {})[id] = cfg; el.dataset.tmId = id;
     tm.stepperStdout = tm.stepperStdout || {}; tm.stepperStdout[id] = () => frames.map((x) => x.out || '').join('');
     return pl;
   }
@@ -729,7 +740,7 @@ table.tm-table th { font-size: 12px; text-transform: uppercase; letter-spacing: 
   let quizN = 0;
   function mountQuiz(el, cfg, kind) {
     const qid = cfg.id || 'q' + hash(cfg.q);
-    const n = ++quizN;
+    const n = kind === 'predict' ? 0 : ++quizN;
     const order = cfg.shuffle === false ? cfg.options.map((_, i) => i) : shuffleIdx(cfg.options.length, hash(cfg.q));
     let chosen = null, attempts = 0;
     const why = h('div', { class: 'tm-why', hidden: true, 'aria-live': 'polite' });
@@ -739,7 +750,7 @@ table.tm-table th { font-size: 12px; text-transform: uppercase; letter-spacing: 
     opts.forEach((b) => (b.onclick = () => { if (b.disabled) return; chosen = +b.dataset.i; opts.forEach((x) => x.setAttribute('aria-pressed', x === b)); check.disabled = false; }));
     const reveal = () => {
       const target = cfg.reveal ? document.querySelector(cfg.reveal) : el.nextElementSibling?.classList.contains('tm-reveal') ? el.nextElementSibling : null;
-      if (target) { target.hidden = false; target.querySelectorAll('.tm-card').forEach((c) => { const pl = tm.players.find((p) => p.stage && c.contains(p.stage)); if (pl) pl.play(); }); }
+      if (target) { target.hidden = false; target.querySelectorAll('.tm-card').forEach((c) => { const pl = tm.players.find((p) => p.stage && c.contains(p.stage)); if (pl && pl.autoOnReveal?.()) pl.play(); }); }
     };
     check.onclick = () => {
       if (chosen == null) return; attempts++;
@@ -804,24 +815,31 @@ table.tm-table th { font-size: 12px; text-transform: uppercase; letter-spacing: 
     const labels = ['Again', 'Hard', 'Good', 'Easy'];
     const grades = h('div', { class: 'tm-grades' }, ...labels.map((l, g) => h('button', { class: 'tm-btn' + (g === 2 ? ' tm-primary' : ''), type: 'button', text: l, onclick: () => grade(g) })));
     let cur = null;
-    const queue = () => cards.filter((c) => !progress.cards[c.id] || progress.cards[c.id].due <= Date.now()).sort((a, b) => (progress.cards[a.id]?.due || 0) - (progress.cards[b.id]?.due || 0));
-    const sayBtn = (text) => (cfg.lang ? h('button', { class: 'tm-say', type: 'button', 'aria-label': 'Listen', text: '🔊', onclick: (e) => { e.stopPropagation(); speak(text, cfg.lang, e.currentTarget); } }) : null);
+    // Card schedules live in one shared key, so the same card on a course review page keeps its history.
+    const sched = (id) => store.get("tm:cards", {})[id] || progress.cards[id];
+    const queue = () => cards.filter((c) => !sched(c.id) || sched(c.id).due <= Date.now()).sort((a, b) => (sched(a.id)?.due || 0) - (sched(b.id)?.due || 0));
+    const sayBtn = (text, lang = cfg.lang) => (lang && text ? h('button', { class: 'tm-say', type: 'button', 'aria-label': 'Listen', text: '🔊', onclick: (e) => { e.stopPropagation(); speak(text, lang, e.currentTarget); } }) : null);
     const show = () => {
-      const q = queue(); const nNew = cards.filter((c) => !progress.cards[c.id]).length;
+      const q = queue(); const nNew = cards.filter((c) => !sched(c.id)).length;
       bar.replaceChildren(h('span', { text: `${q.length} to review · ${nNew} new · ${cards.length} total` }), h('span', { class: 'tm-sp' }),
-        h('button', { class: 'tm-iconbtn', type: 'button', text: 'Export TSV', onclick: () => download(deck + '.tsv', cards.map((c) => [c.front, c.back].map((x) => x.replace(/\t|\n/g, ' ')).join('\t')).join('\n'), 'text/tab-separated-values') }));
+        h('button', { class: 'tm-iconbtn', type: 'button', text: 'Export TSV', onclick: () => download(deck + '.tsv', cards.map((c) => [cloze(c.front, true).replace(/<\/?mark>/g, ''), c.back || ''].map((x) => x.replace(/\t|\n/g, ' ')).join('\t')).join('\n'), 'text/tab-separated-values') }));
       flip.classList.remove('tm-flipped'); grades.hidden = true;
       cur = q[0];
       if (!cur) {
-        const next = Math.min(...cards.map((c) => progress.cards[c.id]?.due || Infinity));
+        const next = Math.min(...cards.map((c) => sched(c.id)?.due || Infinity));
         front.innerHTML = 'All done for now.<small>Next review ' + (isFinite(next) ? new Date(next).toLocaleString() : 'later') + '</small>'; back.innerHTML = ''; return;
       }
       front.innerHTML = cloze(cur.front, false) + (cur.hint ? `<small>${cur.hint}</small>` : '');
-      back.innerHTML = (cur.front.includes('{{c') ? cloze(cur.front, true) : cur.back) + (cur.note ? `<small>${cur.note}</small>` : '');
-      const sb = sayBtn((cur.say || cur.back).replace(/<[^>]+>/g, '')); if (sb && cur.say !== false) back.append(sb);
+      back.innerHTML = ''; // filled on flip, so the next answer never shows during the flip-back
     };
-    const doFlip = () => { if (!cur) return; flip.classList.toggle('tm-flipped'); grades.hidden = !flip.classList.contains('tm-flipped'); };
-    const grade = (g) => { if (!cur) return; progress.cards[cur.id] = schedule(progress.cards[cur.id], g); saveProgress(); show(); };
+    const fillBack = () => {
+      const isCloze = cur.front.includes('{{c');
+      back.innerHTML = (isCloze ? cloze(cur.front, true) + (cur.back ? '<small>' + cur.back + '</small>' : '') : cur.back || '') + (cur.note ? `<small>${cur.note}</small>` : '');
+      const text = (cur.say || (isCloze ? cloze(cur.front, true) : cur.back) || '').replace(/<[^>]+>/g, '');
+      const sb = cur.say !== false ? sayBtn(text, cur.lang || cfg.lang) : null; if (sb) back.append(sb);
+    };
+    const doFlip = () => { if (!cur) return; if (!flip.classList.contains('tm-flipped')) fillBack(); flip.classList.toggle('tm-flipped'); grades.hidden = !flip.classList.contains('tm-flipped'); };
+    const grade = (g) => { if (!cur) return; const s = schedule(sched(cur.id), g); const all = store.get("tm:cards", {}); all[cur.id] = s; store.set("tm:cards", all); progress.cards[cur.id] = s; saveProgress(); show(); };
     flip.onclick = doFlip;
     flip.onkeydown = (e) => { if (e.key === ' ' || e.key === 'Enter') { doFlip(); e.preventDefault(); } else if (/^[1-4]$/.test(e.key) && !grades.hidden) grade(+e.key - 1); };
     el.replaceChildren(h('div', { class: 'tm-card' }, cardHead({ ...cfg, title: cfg.title || 'Flashcards' }), h('div', { class: 'tm-cards' }, bar, flip, grades, h('p', { class: 'tm-muted', style: 'font-size:13px;text-align:center;margin:10px 0 0', text: 'Click the card or press Space to flip. Keys 1–4 grade it.' }))));
@@ -831,9 +849,10 @@ table.tm-table th { font-size: 12px; text-transform: uppercase; letter-spacing: 
   /* ---------- text to speech (on click only) ---------- */
   let voicesP;
   const voices = () => (voicesP ||= new Promise((res) => {
+    const done = (v) => { if (!v.length) voicesP = null; res(v); }; // don't cache an empty list
     const v = speechSynthesis.getVoices(); if (v.length) return res(v);
-    const t = setTimeout(() => res(speechSynthesis.getVoices()), 1500);
-    speechSynthesis.addEventListener('voiceschanged', () => { clearTimeout(t); res(speechSynthesis.getVoices()); }, { once: true });
+    const t = setTimeout(() => done(speechSynthesis.getVoices()), 1500);
+    speechSynthesis.addEventListener('voiceschanged', () => { clearTimeout(t); done(speechSynthesis.getVoices()); }, { once: true });
   }));
   async function speak(text, lang, btn, rate = 0.92) {
     if (!('speechSynthesis' in window)) return toast('This browser cannot speak.');
@@ -843,6 +862,7 @@ table.tm-table th { font-size: 12px; text-transform: uppercase; letter-spacing: 
     const v = all.find((x) => x.lang === lang && /natural|online|neural/i.test(x.name)) || all.find((x) => x.lang === lang) || all.find((x) => x.lang.toLowerCase().startsWith(base));
     if (v) u.voice = v; else toast('No ' + lang + ' voice installed; using the default voice.');
     btn?.classList.add('tm-speaking'); u.onend = u.onerror = () => btn?.classList.remove('tm-speaking');
+    tm._utterance = u; // keep a reference so Chrome fires onend
     speechSynthesis.speak(u);
   }
   tm.speak = speak;
@@ -881,7 +901,7 @@ table.tm-table th { font-size: 12px; text-transform: uppercase; letter-spacing: 
     el.replaceChildren(h('div', { class: 'tm-save tm-actions', style: 'display:flex;gap:8px;flex-wrap:wrap' },
       h('button', { class: 'tm-btn', type: 'button', text: 'Copy my progress for Claude', onclick: () => copy(summary()) }),
       h('button', { class: 'tm-btn', type: 'button', text: 'Download progress (.json)', onclick: () => download('tm-progress-' + lessonId + '.json', JSON.stringify(progress, null, 2)) }),
-      h('button', { class: 'tm-btn', type: 'button', text: 'Reset this lesson', onclick: () => { if (confirm('Clear your answers and cards for this lesson?')) { try { localStorage.removeItem(PKEY); } catch {} location.reload(); } } })));
+      h('button', { class: 'tm-btn', type: 'button', text: 'Reset this lesson', onclick: () => { if (confirm('Clear your answers and cards for this lesson?')) { try { localStorage.removeItem(PKEY); const all = store.get('tm:cards', {}); for (const k of Object.keys(progress.cards)) delete all[k]; store.set('tm:cards', all); } catch {} location.reload(); } } })));
   }
 
   /* ---------- theme toggle ---------- */
@@ -898,6 +918,7 @@ table.tm-table th { font-size: 12px; text-transform: uppercase; letter-spacing: 
   const MOUNT = { scene: mountScene, diagram: mountDiagram, stepper: mountStepper, sim: mountSim, quiz: (e, c) => mountQuiz(e, c, 'quiz'), predict: (e, c) => mountQuiz(e, c, 'predict'), spotbug: mountSpotbug, cards: mountCards, explain: mountExplain, ask: mountAsk, save: mountSave };
   tm.errors = [];
   function boot() {
+    if (Q.get('reveal') === '1') document.querySelectorAll('.tm-reveal[hidden]').forEach((r) => (r.hidden = false)); // test hook
     document.querySelectorAll('[data-tm]').forEach((el) => {
       const kind = el.dataset.tm; const fn = MOUNT[kind];
       try {
@@ -926,8 +947,7 @@ table.tm-table th { font-size: 12px; text-transform: uppercase; letter-spacing: 
       .map((e) => e.tagName.toLowerCase() + (e.className && typeof e.className === 'string' ? '.' + e.className.trim().split(/\s+/).join('.') : ''));
     const scans = tm.players.map((p, i) => (p.stage?.querySelector('svg') ? { player: i, id: p.id, ...tm.scan(i) } : null)).filter(Boolean);
     const stdout = [...document.querySelectorAll('[data-tm="stepper"]')].map((el) => {
-      const cfg = JSON.parse(el.querySelector(':scope > script[type="application/json"]')?.textContent || '{}');
-      const id = cfg.id || 'stepper-' + hash(cfg.code || cfg.trace);
+      const id = el.dataset.tmId; const cfg = tm.stepperCfg?.[id] || {};
       if (cfg.expectStdout == null) return { id, expect: null };
       const got = tm.stepperStdout?.[id]?.() ?? '';
       return { id, ok: got === cfg.expectStdout, expect: cfg.expectStdout, got };

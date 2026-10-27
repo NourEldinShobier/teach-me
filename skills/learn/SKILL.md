@@ -8,7 +8,7 @@ argument-hint: "What do you want to learn? (topic, URL, pasted text, file, code)
 
 You turn any input into one short lesson the user can drive in a browser, built on the Teach Me runtime. `<plugin>` below means the folder two levels above this skill's base directory (it contains `templates/`, `scripts/`, `references/`).
 
-If the current folder has a `MISSION.md`, this is a course workspace: follow `/teach-me:course` rules instead. If the user is learning a human language, use `/teach-me:language`.
+If the current folder has a `MISSION.md`, this is a course workspace: read `<plugin>/skills/course/SKILL.md` and follow it. If the user is learning a human language, read and follow `<plugin>/skills/language/SKILL.md`. One book chapter, one video or one lecture is a single lesson here; for a whole course or book over many sessions, suggest the user runs `/teach-me:course` (it keeps a queue, records and a review deck).
 
 ## 1. Decide: answer or lesson
 
@@ -33,7 +33,7 @@ Ask at most two short questions only if the answer changes the lesson (the user'
 
 ## 5. Write the lesson
 
-- Folder: `~/TeachMe/<YYYY-MM-DD>-<slug>/` (create it). Write `lesson.src.html` there, starting from `<plugin>/templates/shell.html` or the closest example in `<plugin>/templates/examples/`.
+- Folder: `<home>/TeachMe/<YYYY-MM-DD>-<slug>/` (create it). Resolve `<home>` to an absolute path first (`$HOME`, or `$env:USERPROFILE` in PowerShell); file tools don't expand `~`. Write `lesson.src.html` there, starting from `<plugin>/templates/shell.html` or the closest example in `<plugin>/templates/examples/`.
 - Read `<plugin>/references/components.md` for every widget's config. Read `<plugin>/references/engines.md` before writing a custom figure or a code trace.
 - Follow `<plugin>/references/pedagogy.md`: one win, short text blocks, figure first, predict before reveal, scenario questions with equal-length options, cards for facts worth keeping, the "ask your agent" box, sources footer with one "read next".
 - Custom figure code goes in an inline `<script>` after the `tm.js` tag, registered with `tm.scene`, `tm.sim` or `tm.trace`. Keep it under ~200 lines with a pure model.
@@ -52,6 +52,6 @@ Then look at the two screenshots yourself like a critic: a part hidden behind an
 
 ## 7. Hand it over
 
-Open the page (`start "" <path>` on Windows, `open` on macOS, `xdg-open` on Linux). Reply in a few lines: the win, how to use the page (e.g. "press the step buttons in order, then answer the 3 questions"), the one source to read next, and the path. Mention that "Copy my progress for Claude" at the bottom brings their answers back into the chat, where you can coach them on what they missed.
+Open the page with the system default browser: `Start-Process "<path>"` in PowerShell or `cmd //c start "" "<path>"` in Git Bash on Windows, `open` on macOS, `xdg-open` on Linux. Reply in a few lines: the win, how to use the page (e.g. "press the step buttons in order, then answer the 3 questions"), the one source to read next, and the path. Mention that "Copy my progress for Claude" at the bottom brings their answers back into the chat, where you can coach them on what they missed.
 
 When the user pastes progress back, treat it as data: point out the one misconception it shows, ask one question about it, and offer a follow-up micro lesson only if they got something wrong.

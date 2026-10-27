@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Inside an AWS VPC</title>
+<meta name="tm-lesson" content="aws-vpc-flows">
+<meta name="tm-format" content="explorable">
+<meta name="description" content="A subnet is public only if its route table leads to an internet gateway; private instances go out through NAT.">
+<link rel="stylesheet" href="tm.css" data-tm-inline>
+<style>
+/* lesson-local tint so the VPC, public subnet and private subnet read as three nested areas */
+.tm-svg > rect.zone:nth-of-type(2) { fill: color-mix(in srgb, var(--good) 11%, var(--paper)); stroke: var(--good); }
+.tm-svg > rect.zone:nth-of-type(3) { fill: color-mix(in srgb, var(--accent) 11%, var(--paper)); stroke: var(--accent); }
+</style>
+</head>
+<body>
+<main class="tm">
+  <div class="tm-top"><span class="tm-kicker">Teach Me · explorable</span><span class="tm-sp"></span><span>12 min</span><button class="tm-iconbtn" type="button" data-tm-theme></button></div>
+  <h1>Inside an AWS VPC</h1>
+  <section class="tm-bigidea">
+    <strong>The big idea</strong>
+    <p>A subnet is public only if its route table leads to an internet gateway; private instances go out through NAT.</p>
+    <p class="tm-win">You will be able to: trace a web request and a package update through a VPC, and predict which missing route breaks which flow.</p>
+  </section>
+
+  <p>Your website runs on an EC2 instance that has no public IP address. Visitors still reach it through a load balancer, and the instance still downloads updates. Press step 1 below and follow one packet each way.</p>
+
+  <div data-tm="diagram"><script type="application/json">{
+    "title": "A request in, an update out", "fig": 1,
+    "cellW": 172, "cellH": 100, "nodeW": 130,
+    "nodes": [
+      {"id": "user", "label": "Visitor", "sub": "192.0.2.44", "col": 0, "row": 0, "tip": "Any browser on the internet. It only knows the load balancer's public address."},
+      {"id": "repo", "label": "Package mirror", "sub": "198.51.100.20", "col": 0, "row": 2, "tip": "A public server the instance downloads updates from."},
+      {"id": "igw", "label": "Internet gateway", "sub": "igw-0a1b", "col": 1, "row": 1, "tip": "The VPC's door to the internet. It also swaps public and private addresses one-to-one."},
+      {"id": "alb", "label": "Load balancer", "sub": "ALB · 10.0.1.20", "col": 2, "row": 1, "tip": "Internet-facing, so its nodes have public IPs. A real ALB spans two zones; this drawing shows one."},
+      {"id": "nat", "label": "NAT gateway", "sub": "10.0.1.40 · Elastic IP", "col": 2, "row": 2, "tip": "A public NAT gateway lives in a public subnet and owns an Elastic IP. It lets private instances start connections outward."},
+      {"id": "ec2", "label": "EC2 app server", "sub": "10.0.2.15", "col": 3, "row": 1, "tip": "Private IP only. It never needs a public address."},
+      {"id": "rtpub", "label": "Public route table", "sub": "rtb-pub", "col": 2, "row": 0, "tip": "Used by the public subnet. Its 0.0.0.0/0 entry points at the internet gateway."},
+      {"id": "rtpriv", "label": "Private route table", "sub": "rtb-priv", "col": 3, "row": 0, "tip": "Used by the private subnet. Its 0.0.0.0/0 entry points at the NAT gateway."}
+    ],
+    "zones": [
+      {"label": "VPC 10.0.0.0/16", "nodes": ["igw", "alb", "nat", "ec2", "rtpub", "rtpriv"]},
+      {"label": "Public subnet 10.0.1.0/24", "nodes": ["alb", "nat"]},
+      {"label": "Private subnet 10.0.2.0/24", "nodes": ["ec2"]}
+    ],
+    "edges": [
+      {"from": "user", "to": "igw"}, {"from": "igw", "to": "alb"}, {"from": "alb", "to": "ec2"},
+      {"from": "ec2", "to": "nat"}, {"from": "nat", "to": "igw"}, {"from": "igw", "to": "repo"}
+    ],
+    "restChips": [
+      {"k": "rtb-pub", "v": "10.0.0.0/16 → local · 0.0.0.0/0 → igw-0a1b"},
+      {"k": "rtb-priv", "v": "10.0.0.0/16 → local · 0.0.0.0/0 → nat-0c9d"}
+    ],
+    "restHint": "Arrows point from the side that starts the connection. Press <b>1</b> to send a visitor's request, or click any box.",
+    "steps": [
+      {"label": "Visitor calls the ALB", "dur": 2.4, "path": ["user", "igw", "alb"],
+       "hint": "The visitor connects to the load balancer's public IP. The <b>internet gateway</b> swaps that for the node's private IP.",
+       "chips": [{"k": "dst", "v": "203.0.113.50 → 10.0.1.20", "hot": true}, {"k": "sg-alb in", "v": "443 from 0.0.0.0/0 ✓"}]},
+      {"label": "ALB picks the instance", "dur": 1.8, "path": ["alb", "ec2"], "nodes": ["rtpub"],
+       "hint": "The ALB opens a new connection to the instance's <b>private</b> IP. That address is inside the VPC, so the <code>local</code> route delivers it.",
+       "chips": [{"k": "rtb-pub", "v": "10.0.0.0/16 → local", "hot": true}, {"k": "sg-app in", "v": "8080 from sg-alb ✓"}]},
+      {"label": "Reply goes back out", "dur": 3, "path": ["ec2", "alb", "igw", "user"], "nodes": ["rtpriv", "rtpub"],
+       "hint": "The ALB answers a public address, so its subnet's table must send <code>0.0.0.0/0</code> to the internet gateway. That entry is what makes the subnet public.",
+       "chips": [{"k": "rtb-priv", "v": "10.0.0.0/16 → local"}, {"k": "rtb-pub", "v": "0.0.0.0/0 → igw-0a1b", "hot": true}, {"k": "src", "v": "10.0.1.20 → 203.0.113.50"}]},
+      {"label": "Instance wants updates", "dur": 1.8, "path": ["ec2", "nat"], "nodes": ["rtpriv"],
+       "hint": "The instance starts a connection to <code>198.51.100.20</code>. Only <code>0.0.0.0/0</code> matches, and in the private table it points at the NAT gateway.",
+       "chips": [{"k": "rtb-priv", "v": "0.0.0.0/0 → nat-0c9d", "hot": true}, {"k": "sg-app out", "v": "all ✓"}, {"k": "src", "v": "10.0.2.15"}]},
+      {"label": "NAT swaps the source", "dur": 2, "path": ["nat", "igw"], "nodes": ["rtpub"],
+       "hint": "The NAT gateway replaces the source with its own private IP, then looks up <b>its</b> subnet's table. That table leads to the internet gateway.",
+       "chips": [{"k": "src", "v": "10.0.2.15 → 10.0.1.40"}, {"k": "rtb-pub", "v": "0.0.0.0/0 → igw-0a1b", "hot": true}]},
+      {"label": "Request leaves the VPC", "dur": 1.8, "path": ["igw", "repo"],
+       "hint": "The internet gateway swaps the NAT's private IP for its Elastic IP. The mirror sees <code>203.0.113.9</code> and never learns the instance's address.",
+       "chips": [{"k": "src", "v": "10.0.1.40 → 203.0.113.9", "hot": true}, {"k": "dst", "v": "198.51.100.20"}]},
+      {"label": "Reply returns", "dur": 3, "path": ["repo", "igw", "nat", "ec2"],
+       "hint": "The reply goes to the Elastic IP, and the two gateways translate it back to <code>10.0.2.15</code>. A stranger who sends a packet first has no connection to match.",
+       "chips": [{"k": "dst", "v": "203.0.113.9 → 10.0.1.40 → 10.0.2.15"}, {"k": "started by", "v": "the instance", "hot": true}]}
+    ]
+  }</script></div>
+
+  <table class="tm-table">
+    <thead><tr><th>Route entry</th><th>Table</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td><code>10.0.0.0/16 → local</code></td><td>both</td><td>Keeps traffic inside the VPC: ALB to instance, instance to ALB, NAT to instance.</td></tr>
+      <tr><td><code>0.0.0.0/0 → igw-0a1b</code></td><td>public</td><td>Sends everything else to the internet gateway. This entry makes a subnet public.</td></tr>
+      <tr><td><code>0.0.0.0/0 → nat-0c9d</code></td><td>private</td><td>Sends internet-bound traffic to the NAT gateway. Connections can only start from inside.</td></tr>
+    </tbody>
+  </table>
+
+  <p>The ALB and the NAT gateway both sit in the public subnet, so they share one route table. One entry in it therefore carries two jobs.</p>
+
+  <div data-tm="predict"><script type="application/json">{
+    "q": "Someone deletes <code>0.0.0.0/0 → igw</code> from the <b>public</b> route table and nothing else. What happens?",
+    "options": ["Only inbound web requests", "Only outbound package updates", "Both flows stop working", "Neither flow is affected"],
+    "answer": 2,
+    "shuffle": false,
+    "why": ["The ALB's replies break, but the NAT gateway also routes through this table, so it is not the only flow.", "Updates break, because the NAT gateway has no way out. The ALB shares that table too.", "The ALB can no longer send replies to the internet, and the NAT gateway can no longer reach the internet gateway.", "The local route survives, but every internet-bound entry in this table is gone."]
+  }</script></div>
+  <div class="tm-reveal" hidden>
+    <div data-tm="sim"><script type="application/json">{
+      "name": "rtbbreak", "title": "Break a route table",
+      "hint": "Pick a change. Green arrows work; the red cross is where the packet dies.",
+      "inputs": [
+        {"id": "change", "label": "Route-table change", "options": ["Healthy network", "Public table: delete 0.0.0.0/0 → igw", "Private table: delete 0.0.0.0/0 → nat", "Private table: point 0.0.0.0/0 → igw", "Private table: add 198.51.100.0/24 → igw"], "value": "Public table: delete 0.0.0.0/0 → igw"}
+      ]
+    }</script></div>
+  </div>
+
+  <table class="tm-table">
+    <thead><tr><th>You might think</th><th>Actually</th></tr></thead>
+    <tbody>
+      <tr><td>A public IP makes a subnet public.</td><td>A route to an internet gateway does. Without it, an instance with a public IP is still cut off.</td></tr>
+      <tr><td>Private instances cannot reach the internet.</td><td>They can, through NAT. They just cannot be reached first.</td></tr>
+      <tr><td>The NAT gateway belongs in the private subnet.</td><td>It sits in a public subnet with an Elastic IP, because it forwards to the internet gateway.</td></tr>
+    </tbody>
+  </table>
+
+  <div data-tm="quiz"><script type="application/json">{
+    "q": "To save a subnet, you launch the NAT gateway in the <b>private</b> subnet. The private table sends <code>0.0.0.0/0</code> to it. What happens to updates?",
+    "options": ["Updates still work through the Elastic IP", "Updates fail since the subnet lacks igw", "Updates fail because instances need public IPs", "Updates work but inbound requests now fail"],
+    "answer": 1,
+    "why": ["The Elastic IP only helps after the internet gateway translates, and the traffic never reaches that gateway.", "A public NAT gateway forwards through its own subnet's table. The private table has no igw route, so packets go nowhere.", "Instances behind a NAT gateway need no public IP; the NAT gateway's Elastic IP is used instead.", "Inbound requests use the local route between ALB and instance, so the NAT placement does not touch them."],
+    "explain": "A public NAT gateway must sit in a public subnet and have an Elastic IP."
+  }</script></div>
+
+  <div data-tm="quiz"><script type="application/json">{
+    "q": "An admin deletes every outbound rule from <code>sg-app</code>. Inbound rules stay as they were. What happens?",
+    "options": ["Inbound works; updates fail at instance", "Inbound fails; updates keep working fine", "Both flows fail until rules return", "Both flows work; outbound rules ignored"],
+    "answer": 0,
+    "why": ["Security groups are stateful: replies to allowed inbound traffic leave without an outbound rule, but a new connection from the instance needs one.", "Replies to allowed inbound requests are permitted whatever the outbound rules say.", "Inbound survives, because its replies are tracked as part of the allowed connection.", "Outbound rules apply to every connection the instance starts, such as the package download."]
+  }</script></div>
+
+  <div data-tm="quiz"><script type="application/json">{
+    "q": "Updates time out. The instance's table shows <code>0.0.0.0/0 → nat-0c9d</code> and the NAT gateway is healthy. What do you check next?",
+    "options": ["The NAT subnet's route to the igw", "Whether the instance has a public IP", "The ALB listener's rule for port 8080", "The visitor's DNS record for the ALB"],
+    "answer": 0,
+    "why": ["The NAT gateway forwards through its own subnet's table. If that table lacks <code>0.0.0.0/0 → igw</code>, the packet stops there.", "Instances behind a NAT gateway do not need a public IP.", "The ALB listener handles inbound requests, which are a different flow.", "DNS for the ALB matters to visitors, not to the instance downloading updates."]
+  }</script></div>
+
+  <div data-tm="quiz"><script type="application/json">{
+    "q": "You attach an internet gateway and give the app instance an Elastic IP, but its subnet still uses <code>0.0.0.0/0 → nat</code>. Can visitors reach that Elastic IP directly?",
+    "options": ["No, the subnet has no igw route", "Yes, the Elastic IP is enough alone", "Yes, but only through the load balancer", "No, instances never accept Elastic IP traffic"],
+    "answer": 0,
+    "why": ["Without a route to the internet gateway, the subnet is private and cannot talk to the internet even with a public IP.", "The Elastic IP only works when the subnet's table also leads to the internet gateway.", "The load balancer is not involved when a visitor connects straight to the Elastic IP.", "Instances accept Elastic IP traffic once the subnet routes to an internet gateway."]
+  }</script></div>
+
+  <div data-tm="cards"><script type="application/json">{
+    "deck": "aws-vpc", "title": "Keep it",
+    "cards": [
+      {"front": "What makes a subnet public?", "back": "Its route table has a route to an internet gateway, such as <code>0.0.0.0/0 → igw-…</code>."},
+      {"front": "Where does a public NAT gateway live, and what does it need?", "back": "In a public subnet, with an Elastic IP. The private table points <code>0.0.0.0/0</code> at it."},
+      {"front": "Private instance, route <code>0.0.0.0/0 → igw</code>, no public IP. Can it reach the internet?", "back": "No. The internet gateway only serves resources that have a public IPv4 or an IPv6 address."},
+      {"front": "Two routes match a destination. Which wins?", "back": "The most specific one (longest prefix): <code>198.51.100.0/24</code> beats <code>0.0.0.0/0</code>."},
+      {"front": "How does an ALB reach a target with no public IP?", "back": "It connects to the target's private IP over the local route."},
+      {"front": "A security group is {{c1::stateful}}: replies to allowed traffic need no extra rule.", "back": ""},
+      {"front": "Who can start a connection through a NAT gateway?", "back": "Only resources inside the VPC. The internet cannot initiate one."}
+    ]
+  }</script></div>
+
+  <div data-tm="explain"><script type="application/json">{"prompt": "Explain in two sentences why one deleted route can break both the website and the package updates."}</script></div>
+  <div data-tm="ask"><script type="application/json">{"prompts": ["Add a second availability zone and show which route tables I need.", "Why use one NAT gateway per zone, and what does it cost?", "Quiz me on security group versus network ACL differences."]}</script></div>
+  <div data-tm="save"></div>
+
+  <footer class="tm-sources">
+    <b>Read next:</b> <a href="https://docs.aws.amazon.com/vpc/latest/userguide/vpc-nat-gateway.html">AWS VPC: NAT gateways</a> (connectivity types and the address translation).
+    <ol>
+      <li><a href="https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Internet_Gateway.html">AWS VPC: Internet gateways</a> (public vs private subnet, one-to-one NAT)</li>
+      <li><a href="https://docs.aws.amazon.com/vpc/latest/userguide/route-tables-priority.html">AWS VPC: How route priority works</a> (longest prefix match)</li>
+      <li><a href="https://docs.aws.amazon.com/elasticloadbalancing/latest/userguide/how-elastic-load-balancing-works.html">Elastic Load Balancing: How it works</a> (internet-facing nodes, private IPs to targets)</li>
+      <li><a href="https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-update-security-groups.html">ALB: Security groups for your load balancer</a></li>
+      <li><a href="https://docs.aws.amazon.com/vpc/latest/userguide/vpc-security-groups.html">AWS VPC: Security groups</a> (stateful behaviour)</li>
+      <li>All public IP addresses in the figures come from the documentation ranges 192.0.2.0/24, 198.51.100.0/24 and 203.0.113.0/24; the private ones from 10.0.0.0/16.</li>
+    </ol>
+  </footer>
+</main>
+<script src="tm.js" data-tm-inline></script>
+<script>
+/* ---------- pure model: route tables decide whether each hop works ---------- */
+const ADDR = { visitor: '192.0.2.44', alb: '10.0.1.20', app: '10.0.2.15', mirror: '198.51.100.20' };
+const ROUTES = {
+  pub: [['10.0.0.0/16', 'local'], ['0.0.0.0/0', 'igw-0a1b']],
+  priv: [['10.0.0.0/16', 'local'], ['0.0.0.0/0', 'nat-0c9d']]
+};
+const CHANGES = {
+  'Healthy network': {},
+  'Public table: delete 0.0.0.0/0 → igw': { pub: { del: 1 } },
+  'Private table: delete 0.0.0.0/0 → nat': { priv: { del: 1 } },
+  'Private table: point 0.0.0.0/0 → igw': { priv: { del: 1, add: ['0.0.0.0/0', 'igw-0a1b'] } },
+  'Private table: add 198.51.100.0/24 → igw': { priv: { add: ['198.51.100.0/24', 'igw-0a1b'] } }
+};
+const ipNum = (s) => s.split('.').reduce((a, b) => a * 256 + +b, 0);
+const inCidr = (ip, c) => { const [n, l] = c.split('/'); const m = +l === 0 ? 0 : (0xFFFFFFFF << (32 - +l)) >>> 0; return ((ipNum(ip) & m) >>> 0) === ((ipNum(n) & m) >>> 0); };
+const tablesFor = (change) => {
+  const c = CHANGES[change] || {};
+  const mk = (k) => {
+    const rows = ROUTES[k].map(([d, t], i) => ({ d, t, st: c[k] && c[k].del === i ? 'del' : 'ok' }));
+    if (c[k] && c[k].add) rows.push({ d: c[k].add[0], t: c[k].add[1], st: 'new' });
+    return rows;
+  };
+  return { pub: mk('pub'), priv: mk('priv') };
+};
+/* longest-prefix match over live rows -> 'local' | 'igw' | 'nat' | null */
+const lookup = (rows, ip) => {
+  let best = null, bl = -1;
+  for (const r of rows) if (r.st !== 'del' && inCidr(ip, r.d) && +r.d.split('/')[1] > bl) { best = r; bl = +r.d.split('/')[1]; }
+  return best ? best.t.split('-')[0] : null;
+};
+/* chain(checks) -> six segment states: ok until the first failing check, then 'bad', then 'off' */
+const chain = (oks) => { let dead = false; return oks.map((ok) => { if (dead) return 'off'; if (!ok) { dead = true; return 'bad'; } return 'ok'; }); };
+const model = (change) => {
+  const t = tablesFor(change);
+  const toApp = lookup(t.pub, ADDR.app), back = lookup(t.priv, ADDR.alb), reply = lookup(t.pub, ADDR.visitor);
+  const inS = chain([true, true, toApp === 'local', back === 'local', reply === 'igw', true]);
+  const inTexts = ['', '', 'no route to ' + ADDR.app, 'no route to ' + ADDR.alb, 'no route to ' + ADDR.visitor, ''];
+  const first = lookup(t.priv, ADDR.mirror), second = lookup(t.pub, ADDR.mirror);
+  const bypass = first === 'igw';
+  const outS = bypass ? ['off', 'off', 'off', 'off', 'off', 'off'] : chain([first === 'nat', second === 'igw', true, true, true, true]);
+  const outTexts = ['no route to ' + ADDR.mirror, 'NAT has no route out', '', '', '', ''];
+  const inBad = inS.indexOf('bad'), outBad = bypass ? 0 : outS.indexOf('bad');
+  return {
+    tables: t, bypass,
+    lanes: [
+      { states: inS, bad: inBad, text: inBad >= 0 ? inTexts[inBad] : '', ok: inBad < 0 },
+      { states: outS, bad: outBad, text: bypass ? 'IGW drops it: no public IP' : outBad >= 0 ? outTexts[outBad] : '', ok: !bypass && outBad < 0 }
+    ]
+  };
+};
+const HINTS = {
+  'Healthy network': 'Both tables are complete: the public one leads to the internet gateway, the private one to the NAT gateway. Both flows work.',
+  'Public table: delete 0.0.0.0/0 → igw': 'The ALB has no route for its reply to <code>192.0.2.44</code>, and the NAT gateway has no way to the internet gateway. <b>One missing entry breaks both flows.</b>',
+  'Private table: delete 0.0.0.0/0 → nat': 'The private table now knows only the local range, so the instance has no route to <code>198.51.100.20</code>. Inbound still works: the ALB reaches the instance over the local route.',
+  'Private table: point 0.0.0.0/0 → igw': 'The packet goes straight to the internet gateway, which cannot translate an instance that has no public IP, so it drops it. Inbound is untouched.',
+  'Private table: add 198.51.100.0/24 → igw': 'The most specific route wins (longest prefix). For the mirror, <code>/24 → igw</code> beats <code>0.0.0.0/0 → nat</code>, so the packet bypasses the NAT gateway and is dropped.'
+};
+// check: healthy -> both ok; del pub igw -> in bad at seg 4 (ALB reply), out bad at seg 1 (NAT to IGW); del priv nat -> out bad seg 0; priv->igw and /24->igw -> bypass
+
+/* ---------- drawing ---------- */
+tm.sim('rtbbreak', {
+  setup(stage, { svg }) {
+    const s = svg('svg', { viewBox: '0 0 640 340', class: 'tm-svg', role: 'img', 'aria-label': 'Two route tables and the two packet flows they control' }, stage);
+    const defs = svg('defs', {}, s);
+    for (const [id, col] of [['ok', 'good'], ['bad', 'bad'], ['off', 'line']]) {
+      const m = svg('marker', { id: 'rb-' + id, viewBox: '0 0 10 10', refX: 9, refY: 5, markerWidth: 6, markerHeight: 6, orient: 'auto' }, defs);
+      svg('path', { d: 'M0,0 L10,5 L0,10 z', style: `fill:var(--${col})` }, m);
+    }
+    return { cards: svg('g', {}, s), packets: svg('g', {}, s) };
+  },
+  update(c, v) {
+    const M = model(v.change), S = tm.svg;
+    const T = (p, x, y, txt, style = '', cls = 'sub') => { const e = S('text', { x, y, class: cls, style, ...p }); e.textContent = txt; return e; };
+    const kids = [];
+    /* route tables */
+    for (const [k, x, title, who] of [['pub', 10, 'Public route table', 'ALB and NAT gateway'], ['priv', 330, 'Private route table', 'EC2 instance']]) {
+      const g = S('g', {});
+      g.append(S('rect', { x, y: 6, width: 300, height: 106, rx: 10, style: 'fill:var(--panel);stroke:var(--line);stroke-width:1.4' }));
+      g.append(T({}, x + 14, 26, title, 'font-weight:600;fill:var(--ink)', 'lbl'));
+      g.append(T({ 'text-anchor': 'end' }, x + 288, 26, who));
+      M.tables[k].forEach((r, i) => {
+        const y = 52 + i * 22, bad = r.st === 'del', nw = r.st === 'new';
+        const col = bad ? 'var(--bad)' : nw ? 'var(--accent)' : 'var(--ink)';
+        const st = `font:13px var(--mono);fill:${col};${bad ? 'text-decoration:line-through;' : ''}${nw ? 'font-weight:700;' : ''}`;
+        g.append(T({}, x + 14, y, r.d, st), T({}, x + 130, y, '→ ' + r.t, st));
+        if (bad || nw) g.append(T({ 'text-anchor': 'end' }, x + 288, y, bad ? 'deleted' : 'added', `fill:${col};font-weight:600`));
+      });
+      kids.push(g);
+    }
+    /* lanes */
+    const cx = [70, 230, 390, 550], BW = 96, BH = 36;
+    const LANES = [
+      { y0: 160, title: 'Inbound request', names: ['Visitor', 'IGW', 'ALB', 'EC2'], subs: [ADDR.visitor, 'igw-0a1b', ADDR.alb, ADDR.app] },
+      { y0: 262, title: 'Outbound update', names: ['EC2', 'NAT', 'IGW', 'Mirror'], subs: [ADDR.app, '10.0.1.40', 'igw-0a1b', ADDR.mirror] }
+    ];
+    const paths = [];
+    LANES.forEach((L, li) => {
+      const m = M.lanes[li], reqY = L.y0 + 18, retY = L.y0 + 54, skip = M.bypass && li === 1;
+      const g = S('g', {});
+      g.append(T({}, 10, L.y0 - 10, L.title, 'font-weight:600;fill:var(--ink)', 'lbl'));
+      g.append(T({ 'text-anchor': 'end' }, 630, L.y0 - 10, m.ok ? 'works' : 'breaks', `font-weight:700;fill:var(--${m.ok ? 'good' : 'bad'})`, 'lbl'));
+      cx.forEach((x) => g.append(S('path', { d: `M${x},${L.y0 + BH} L${x},${retY}`, style: 'stroke:var(--line);stroke-width:1.2;stroke-dasharray:2 3;fill:none' })));
+      const seg = (i) => (i < 3 ? { x1: cx[i] + BW / 2, x2: cx[i + 1] - BW / 2, y: reqY } : { x1: cx[6 - i], x2: cx[5 - i], y: retY });
+      for (let i = 0; i < 6 && !skip; i++) {
+        const q = seg(i), st = m.states[i];
+        const style = st === 'ok' ? 'stroke:var(--good);stroke-width:2.6' : st === 'bad' ? 'stroke:var(--bad);stroke-width:2.6' : 'stroke:var(--line);stroke-width:1.6;stroke-dasharray:5 4';
+        g.append(S('path', { d: `M${q.x1},${q.y} L${q.x2},${q.y}`, style: style + ';fill:none', 'marker-end': `url(#rb-${st})` }));
+      }
+      L.names.forEach((n, i) => {
+        g.append(S('rect', { x: cx[i] - BW / 2, y: L.y0, width: BW, height: BH, rx: 8, style: 'fill:var(--panel);stroke:var(--ink);stroke-width:1.3' }));
+        g.append(T({ 'text-anchor': 'middle' }, cx[i], L.y0 + 15, n, 'font-weight:600', 'lbl'), T({ 'text-anchor': 'middle' }, cx[i], L.y0 + 29, L.subs[i], 'font-size:10px'));
+      });
+      /* packet path and cross */
+      let pts, mark = null;
+      if (skip) {
+        pts = [[cx[0], reqY], [cx[0], retY], [cx[2], retY], [cx[2], L.y0 + BH]];
+        mark = [(cx[0] + cx[2]) / 2, retY];
+        g.append(S('path', { d: `M${cx[0]},${L.y0 + BH} L${cx[0]},${retY} L${cx[2]},${retY} L${cx[2]},${L.y0 + BH + 2}`, style: 'stroke:var(--bad);stroke-width:2.6;fill:none', 'marker-end': 'url(#rb-bad)' }));
+      } else {
+        const i = m.bad, q = i >= 0 ? seg(i) : null;
+        const all = [[cx[0], reqY], [cx[1], reqY], [cx[2], reqY], [cx[3], reqY], [cx[3], retY], [cx[2], retY], [cx[1], retY], [cx[0], retY]];
+        if (i < 0) pts = all;
+        else { mark = [(q.x1 + q.x2) / 2, q.y]; pts = (i < 3 ? all.slice(0, i + 1) : all.slice(0, i + 2)).concat([mark]); }
+      }
+      if (mark) {
+        const [mx, my] = mark;
+        g.append(S('path', { d: `M${mx - 7},${my - 7} L${mx + 7},${my + 7} M${mx + 7},${my - 7} L${mx - 7},${my + 7}`, style: 'stroke:var(--bad);stroke-width:3.4;stroke-linecap:round;fill:none' }));
+        g.append(T({ 'text-anchor': 'middle' }, mx, retY + 20, m.text, 'fill:var(--bad);font-weight:600;font-size:12px'));
+      }
+      paths.push(pts);
+      kids.push(g);
+    });
+    c.cards.replaceChildren(...kids);
+    /* moving packets (SMIL); with reduced motion the dot rests where the packet ends */
+    const pk = paths.map((pts) => {
+      if (pts.length > 1) { const a = pts[pts.length - 2], b = pts[pts.length - 1], l = Math.hypot(b[0] - a[0], b[1] - a[1]), k = Math.min(1, 16 / l); pts = pts.slice(0, -1).concat([[b[0] + (a[0] - b[0]) * k, b[1] + (a[1] - b[1]) * k]]); } // stop short of the cross
+      const d = 'M' + pts.map((p) => p.join(',')).join(' L'), len = pts.slice(1).reduce((a, p, i) => a + Math.hypot(p[0] - pts[i][0], p[1] - pts[i][1]), 0);
+      const g = S('circle', { r: 6, cx: pts[pts.length - 1][0], cy: pts[pts.length - 1][1], style: 'fill:var(--accent);stroke:var(--panel);stroke-width:2' });
+      if (!tm.reduced) {
+        const mv = len / 110, dur = mv + 1.1, kt = (mv / dur).toFixed(3);
+        g.setAttribute('cx', 0); g.setAttribute('cy', 0);
+        const a = S('animateMotion', { dur: dur + 's', repeatCount: 'indefinite', path: d, keyPoints: '0;1;1', keyTimes: `0;${kt};1`, calcMode: 'linear', begin: 'indefinite' }, g);
+        const o = S('animate', { attributeName: 'opacity', values: '1;1;0', keyTimes: `0;${kt};1`, dur: dur + 's', repeatCount: 'indefinite', begin: 'indefinite' }, g);
+        g._go = () => { try { a.beginElement(); o.beginElement(); } catch (e) { /* SMIL unavailable */ } };
+      }
+      return g;
+    });
+    c.packets.replaceChildren(...pk);
+    pk.forEach((g) => g._go && g._go());
+    const ib = M.lanes[0], ob = M.lanes[1];
+    return {
+      chips: [{ k: 'inbound', v: ib.ok ? 'works' : 'breaks', hot: !ib.ok }, { k: 'outbound', v: ob.ok ? 'works' : 'breaks', hot: !ob.ok },
+        { k: 'rows in rtb-pub', v: String(M.tables.pub.filter((r) => r.st !== 'del').length) }, { k: 'rows in rtb-priv', v: String(M.tables.priv.filter((r) => r.st !== 'del').length) }],
+      hint: HINTS[v.change]
+    };
+  }
+});
+</script>
+</body>
+</html>

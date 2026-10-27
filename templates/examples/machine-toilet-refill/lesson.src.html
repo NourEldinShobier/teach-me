@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Toilet Tank Refill</title>
+<meta name="tm-lesson" content="toilet-tank-refill">
+<meta name="tm-format" content="machine">
+<meta name="description" content="A float is a switch that measures the water: level down opens the valve, level up closes it.">
+<link rel="stylesheet" href="tm.css" data-tm-inline>
+<style>
+.tm-svg .lab text { font-size: 18px; fill: var(--muted); paint-order: stroke; stroke: var(--panel); stroke-width: 4px; stroke-linejoin: round; }
+.tm-svg .lab line { stroke: var(--muted); stroke-width: 1; opacity: .7; }
+.tm-svg .lab.on text { fill: var(--accent); font-weight: 700; }
+.tm-svg .lab.on line { stroke: var(--accent); opacity: 1; stroke-width: 1.6; }
+.tm-svg .ceramic { fill: var(--soft); stroke: var(--ink); stroke-width: 1.4; stroke-linejoin: round; }
+.tm-svg .cav { fill: var(--panel); }
+.tm-svg .plastic { fill: var(--soft); stroke: var(--ink); stroke-width: 1.2; stroke-linejoin: round; }
+.tm-svg .metal { fill: #aab2bc; stroke: var(--ink); stroke-width: 1.2; stroke-linejoin: round; }
+.tm-svg .rubber { fill: #d4503f; stroke: var(--ink); stroke-width: 1.2; stroke-linejoin: round; }
+.tm-svg .float { fill: #f0902e; stroke: var(--ink); stroke-width: 1.3; stroke-linejoin: round; }
+.tm-svg .teal { fill: #2f8f86; stroke: var(--ink); stroke-width: 1.2; stroke-linejoin: round; }
+.tm-svg .wet { fill: #4aa3ff; fill-opacity: .5; }
+.tm-svg .wetline { stroke: #2d7fe0; fill: none; stroke-width: 2; }
+.tm-svg .jet { stroke: #2d7fe0; fill: none; stroke-linecap: round; }
+</style>
+</head>
+<body>
+<main class="tm">
+  <div class="tm-top"><span class="tm-kicker">Teach Me · machine</span><span class="tm-sp"></span><span>12 min</span><button class="tm-iconbtn" type="button" data-tm-theme></button></div>
+  <h1>Why the toilet tank refills itself</h1>
+  <section class="tm-bigidea">
+    <strong>The big idea</strong>
+    <p>A float is a switch that measures the water: level down opens the valve, level up closes it.</p>
+    <p class="tm-win">You will be able to: say which part triggers the refill, why it stops at the right level, and which part to blame when a toilet runs.</p>
+  </section>
+
+  <p>In the figure below, the orange cup sliding on the fill valve is the float. Its height is the water level, and the valve opening is its only output. Where the idea breaks: a light switch is on or off, but this valve closes gradually, like a dimmer.</p>
+
+  <div data-tm="predict"><script type="application/json">{
+    "q": "You flush. Water starts entering the tank before the flapper has even closed. What told the fill valve to open?",
+    "options": ["The falling float opens the valve", "The lifting flapper tugs the valve", "Water pressure forces the valve open"],
+    "answer": 0, "shuffle": true,
+    "why": ["The float rides the water surface, so as soon as the level drops it pulls the valve open. Nothing else is involved.", "The flapper is only linked to the handle chain. It never touches the fill valve.", "The supply pressure is always there. The float is what lets it through or blocks it."]
+  }</script></div>
+
+  <div class="tm-reveal" hidden>
+    <div data-tm="scene"><script type="application/json">{
+      "name": "tank", "title": "A flush and the refill, side cut-away", "fig": 1, "mode": "manual",
+      "restHint": "Tank full, valve shut. Press <b>1</b> to flush.",
+      "steps": [
+        {"label": "Press the handle", "hint": "The handle turns the lift arm inside the tank. The slack chain goes tight, but the flapper has not moved yet.", "dur": 1, "seconds": 1, "sound": "clunk", "soundAt": {"x": 76, "y": 12}},
+        {"label": "Flapper lifts", "hint": "The tight chain pulls the rubber flapper off the drain hole.", "dur": 1, "seconds": 1},
+        {"label": "Tank empties, float falls", "hint": "Water above the flapper rushes into the bowl.", "dur": 3.5, "seconds": 4, "sound": "WHOOOSH", "soundAt": {"x": 60, "y": 68}},
+        {"label": "Flapper drops", "hint": "The flapper floats back down and seals the drain.", "dur": 1.4, "seconds": 1.5, "sound": "thunk", "soundAt": {"x": 58, "y": 72}},
+        {"label": "Tank refills", "hint": "Water comes in at full flow.", "dur": 9, "seconds": 35.5, "sound": "sssshhh", "soundAt": {"x": 20, "y": 24}},
+        {"label": "Float rises, valve closes", "hint": "The rising float squeezes the valve shut.", "dur": 4, "seconds": 10}
+      ]
+    }</script></div>
+    <p class="tm-muted">Numbers: 4.8 L per flush and a 30 to 60 s refill are sourced (see the footer). The 8.0 L full volume, the 3.2 L left after the flush and the 4 s flush are illustrative values for a typical tank.</p>
+  </div>
+
+  <h2>Parts and what they mean</h2>
+  <table class="tm-table">
+    <tr><th>Part</th><th>What it does</th><th>Idea it stands for</th></tr>
+    <tr><td>Handle, arm, chain</td><td>Pull the flapper up</td><td>The input that triggers the cycle</td></tr>
+    <tr><td>Flapper</td><td>Opens or seals the drain hole</td><td>A gate that holds a stored volume</td></tr>
+    <tr><td>Float cup</td><td>Rides the water surface</td><td>A sensor: its height is the measurement</td></tr>
+    <tr><td>Fill valve</td><td>Lets supply water in</td><td>An actuator driven by the sensor</td></tr>
+    <tr><td>Overflow tube</td><td>Drains excess into the bowl</td><td>A safety limit if the control fails</td></tr>
+    <tr><td>Refill tube</td><td>Tops up the bowl via the overflow tube</td><td>A side loop that restores a seal</td></tr>
+    <tr><td>Shut-off valve</td><td>Cuts the supply by hand</td><td>A manual override</td></tr>
+  </table>
+
+  <div data-tm="quiz"><script type="application/json">{
+    "q": "Water runs continuously down the overflow tube, and the tank water sits at its top. What do you adjust?",
+    "options": ["Lower the float setting", "Shorten the flapper chain", "Open the shut-off wider"],
+    "answer": 0,
+    "why": ["The float stops the valve at a set level. If that level is above the overflow tube top, the valve never closes before water spills into the tube.", "A short chain holds the flapper open and drains the tank. The level would sink, not sit at the top.", "More supply flow makes the tank fill faster. It does not change where the float shuts the valve."],
+    "explain": "EPA advises lowering the float when the water level sits above the overflow tube."
+  }</script></div>
+
+  <div data-tm="quiz"><script type="application/json">{
+    "q": "Every ten minutes the toilet briefly refills with nobody near it. Which part is leaking?",
+    "options": ["The flapper seal", "The float cup", "The lift arm"],
+    "answer": 0,
+    "why": ["A worn seal lets tank water creep into the bowl. The level sinks until the float opens the valve for a short top-up.", "A leaking float cup would ride lower, but the valve would then stay open and run continuously.", "The lift arm only moves when the handle is pressed. It cannot move water."],
+    "explain": "A dye tablet in the tank turns the bowl water coloured within ten minutes when the flapper leaks (EPA)."
+  }</script></div>
+
+  <div data-tm="quiz"><script type="application/json">{
+    "q": "You close the shut-off valve, then flush. What do the float and the tank do afterwards?",
+    "options": ["Float falls; tank stays empty", "Float rises; tank stays empty", "Float falls; tank refills slowly"],
+    "answer": 0,
+    "why": ["The float drops with the emptied tank and asks for water, but no water can arrive, so it stays down.", "A float rises only with the water surface. With no water coming in, it cannot rise.", "The shut-off blocks the supply completely. Nothing refills the tank, however slowly."]
+  }</script></div>
+
+  <div data-tm="cards"><script type="application/json">{
+    "deck": "toilet-refill", "title": "Keep it",
+    "cards": [
+      {"front": "What tells the fill valve to open after a flush?", "back": "The float falling with the water level."},
+      {"front": "WaterSense maximum per flush?", "back": "1.28 gpf, about 4.8 L."},
+      {"front": "Typical tank refill time?", "back": "About 30 to 60 s."},
+      {"front": "Job of the overflow tube?", "back": "Drains excess into the bowl if the valve fails to close."},
+      {"front": "Job of the refill tube?", "back": "Sends a little water down the overflow tube to top up the bowl."},
+      {"front": "A float is a {{c1::switch}} that measures the water.", "back": ""}
+    ]
+  }</script></div>
+
+  <div data-tm="explain"><script type="application/json">{"prompt": "Explain in two sentences why a float stuck too high makes a toilet run forever."}</script></div>
+  <div data-tm="ask"><script type="application/json">{"prompts": ["Compare a ballcock float arm with a cup-type fill valve.", "How do I test whether my flapper leaks, step by step?", "Quiz me on which toilet part causes which symptom."]}</script></div>
+  <div data-tm="save"></div>
+
+  <footer class="tm-sources">
+    <b>Read next:</b> <a href="https://www.epa.gov/watersense/residential-toilets">EPA WaterSense: residential toilets</a> (the 1.28 gpf limit).
+    <ol>
+      <li><a href="https://www.epa.gov/watersense/residential-toilets">EPA WaterSense: residential toilets</a> (1.28 gpf or less, about 4.8 L).</li>
+      <li><a href="https://patents.google.com/patent/US8387652">US 8,387,652 B2, Water saver fill valve and assembly</a> (background: float drops, valve opens, flapper closes, float rises, valve shuts, overflow tube refills the bowl).</li>
+      <li><a href="https://support.globeunion.com/hc/en-us/articles/38584087195547-What-should-I-do-if-my-toilet-tank-is-refill-slowly-than-usual">Globe Union support: slow tank refill</a> (about 30 to 60 s; 1 gpm is 60 s per gallon, 2 gpm is 30 s).</li>
+      <li><a href="https://19january2017snapshot.epa.gov/www3/watersense/our_water/howto.html">EPA WaterSense: fixing leaks at home</a> (dye test, flapper).</li>
+    </ol>
+  </footer>
+</main>
+<script src="tm.js" data-tm-inline></script>
+<script>
+(() => {
+  const { lerp, clamp, ease: e } = tm;
+  // ---- ONE model. Litres, geometry inputs and times all come from here. ----
+  const LFULL = 8.0, LRES = 3.2, BAND = 0.4, QIN = (LFULL - BAND - LRES) / 37, TAU = 3.3, TB = 10; // L, L/s
+  const SECS = [1, 1, 4, 1.5, 35.5, 10], DUR = [1, 1, 3.5, 1.4, 9, 4];
+  const START = SECS.reduce((a, s, k) => (a.push(k ? a[k - 1] + SECS[k - 1] : 0), a), []);
+  const PSTART = DUR.reduce((a, s, k) => (a.push(k ? a[k - 1] + DUR[k - 1] : 0), a), []);
+  const MM_PER_L = 195 / LFULL, K = 0.9, FLOOR = 296;           // px per mm, tank floor y
+  const P = [506, 104], ARM = 72, LEV = 68, H = [378, 286], HOOK = [58, -12], LC = 182; // arm pivot, lengths, flapper hinge, chain hook, chain length
+  const rad = (d) => d * Math.PI / 180;
+  const alphaOf = (th) => -10 + 38 * th;                         // arm angle, degrees
+  const tipOf = (th) => { const a = rad(alphaOf(th)); return [P[0] - ARM * Math.cos(a), P[1] - ARM * Math.sin(a)]; };
+  const hookOf = (deg) => { const f = rad(deg); return [H[0] + HOOK[0] * Math.cos(f) + HOOK[1] * Math.sin(f), H[1] - HOOK[0] * Math.sin(f) + HOOK[1] * Math.cos(f)]; };
+  const dist = (th, deg) => { const t = tipOf(th), q = hookOf(deg); return Math.hypot(t[0] - q[0], t[1] - q[1]); };
+  const phiFor = (th) => { if (dist(th, 0) <= LC) return 0; let lo = 0, hi = 80; for (let n = 0; n < 40; n++) { const m = (lo + hi) / 2; if (dist(th, m) > LC) lo = m; else hi = m; } return (lo + hi) / 2; };
+  const TH0 = (() => { let lo = 0, hi = 1; for (let n = 0; n < 40; n++) { const m = (lo + hi) / 2; if (dist(m, 0) < LC) lo = m; else hi = m; } return lo; })();
+  const PHI1 = phiFor(1), PHI_FLOAT = 70;
+  const level = (tau) => { // litres after the flapper starts to drop; tau in real seconds
+    if (tau <= 37) return LRES + QIN * tau;
+    const s = clamp(tau - 37, 0, TB), g = BAND * (Math.exp(-s / TAU) - Math.exp(-TB / TAU)) / (1 - Math.exp(-TB / TAU));
+    return LFULL - g;
+  };
+  const model = (i, p) => {
+    let k = i, q = p; if (i < 0) { k = 5; q = 1; }
+    let th = 0, ph = 0, L = LFULL, drain = 0;
+    if (k === 0) th = TH0 * e(q);
+    else if (k === 1) { th = lerp(TH0, 1, e(q)); ph = phiFor(th); }
+    else if (k === 2) { th = 1 - e(clamp(q / 0.35, 0, 1)); ph = lerp(PHI1, PHI_FLOAT, e(clamp(q / 0.25, 0, 1))); L = LRES + (LFULL - LRES) * Math.pow(1 - q, 1.5); drain = Math.sqrt(1 - q); }
+    else if (k === 3) { ph = PHI_FLOAT * (1 - e(q)); L = level(1.5 * q); }
+    else if (k === 4) L = level(1.5 + 35.5 * q);
+    else L = level(37 + 10 * q);
+    const mm = L * MM_PER_L, open = 100 * clamp((LFULL - L) / BAND, 0, 1);
+    const t = i < 0 ? 0 : START[k] + SECS[k] * q;
+    return { k, th, ph, L, mm, levelY: FLOOR - mm * K, cupBottomMm: mm - 22 / K, open, flow: QIN * 60 * open / 100, drain, t, pt: i < 0 ? 0 : PSTART[k] + DUR[k] * q };
+  };
+  // check: full 8.0 L, flush 4.8 L in 4 s, valve fully open at L<=7.6, refill 3.2->8.0 L in 47 s, flow 7.1 L/min = 1.9 gpm
+  tm.toiletModel = model;
+
+  tm.scene('tank', {
+    setup(stage, { svg }) {
+      const s = svg('svg', { viewBox: '0 0 720 470', class: 'tm-svg', role: 'img', 'aria-label': 'Cut-away side view of a toilet tank with flapper, fill valve, float, overflow tube and refill tube' }, stage);
+      const A = (tag, at, par) => svg(tag, at, par || s);
+      const defs = A('defs'); const cp = A('clipPath', { id: 'tankin' }, defs); A('rect', { x: 114, y: 62, width: 392, height: 234 }, cp);
+      const cp2 = A('clipPath', { id: 'bowlwater' }, defs); A('path', { d: 'M236 388 H606 V398 Q606 420 560 420 H300 Q240 420 236 392 Z' }, cp2);
+      // floor shadow and bowl
+      A('ellipse', { cx: 370, cy: 458, rx: 290, ry: 8, fill: 'var(--ink)', opacity: .12 });
+      A('path', { class: 'ceramic', d: 'M100 310 H640 V362 Q640 448 560 448 H250 Q150 448 124 404 L100 372 Z' });
+      A('path', { class: 'cav', d: 'M230 310 H610 V366 Q610 424 560 424 H300 Q236 424 232 380 Z' });
+      A('rect', { x: 236, y: 388, width: 372, height: 36, class: 'wet', 'clip-path': 'url(#bowlwater)' });
+      A('path', { d: 'M236 388 H606', class: 'wetline' });
+      A('path', { d: 'M255 440 Q330 450 420 440', stroke: 'var(--ink)', 'stroke-width': 1, fill: 'none', opacity: .3 });
+      A('rect', { x: 528, y: 298, width: 112, height: 12, rx: 6, class: 'plastic' });  // seat
+      A('rect', { x: 640, y: 302, width: 10, height: 8, class: 'metal' });             // seat hinge nub
+      A('rect', { x: 236, y: 330, width: 16, height: 6, rx: 3, fill: 'var(--ink)', opacity: .15 });
+      // tank shell
+      A('rect', { x: 100, y: 62, width: 420, height: 248, class: 'ceramic' });
+      A('rect', { x: 114, y: 62, width: 392, height: 234, class: 'cav' });
+      A('rect', { x: 390, y: 296, width: 56, height: 14, class: 'cav' });                  // drain hole through the floor
+      A('path', { d: 'M390 296 V330 M446 296 V330', stroke: 'var(--ink)', 'stroke-width': 1.4, fill: 'none' }); // outlet pipe wall
+      A('rect', { x: 390, y: 310, width: 56, height: 20, class: 'cav' });
+      A('path', { d: 'M118 66 V292', stroke: 'var(--ink)', opacity: .12, 'stroke-width': 4 });
+      // bolts holding tank to bowl
+      for (const bx of [150, 470]) { A('rect', { x: bx - 5, y: 296, width: 10, height: 20, class: 'metal' }); A('rect', { x: bx - 9, y: 314, width: 18, height: 6, rx: 2, class: 'metal' }); A('rect', { x: bx - 9, y: 290, width: 18, height: 6, rx: 2, class: 'plastic' }); }
+      // water
+      const water = A('g', { 'data-track': '' });
+      const wbody = A('path', { class: 'wet', 'clip-path': 'url(#tankin)' }, water);
+      const wline = A('path', { class: 'wetline', 'clip-path': 'url(#tankin)' }, water);
+      // supply line (outside + inside)
+      A('rect', { x: 0, y: 238, width: 16, height: 56, class: 'ceramic' });                // wall
+      A('rect', { x: 16, y: 259, width: 84, height: 10, class: 'metal' });
+      A('rect', { x: 36, y: 250, width: 30, height: 28, rx: 5, class: 'teal' });          // shut-off valve body
+      A('rect', { x: 46, y: 238, width: 10, height: 14, class: 'metal' });
+      A('ellipse', { cx: 51, cy: 236, rx: 12, ry: 5, class: 'metal' });                     // handle
+      A('rect', { x: 84, y: 254, width: 10, height: 20, rx: 2, class: 'metal' });
+      A('rect', { x: 96, y: 254, width: 20, height: 20, rx: 3, class: 'metal' });          // tank coupling nut
+      A('rect', { x: 114, y: 260, width: 34, height: 12, class: 'plastic' });
+      // fill valve (column, base)
+      A('path', { class: 'teal', d: 'M138 296 V266 Q138 258 146 258 H150 V100 H162 V258 H166 Q174 258 174 266 V296 Z' });
+      A('path', { d: 'M152 104 V256', stroke: '#fff', opacity: .35, 'stroke-width': 2 });
+      A('rect', { x: 134, y: 290, width: 44, height: 8, rx: 2, class: 'metal' });
+      // flush valve: seat flanges, overflow tube, base block
+      A('rect', { x: 362, y: 98, width: 16, height: 198, class: 'plastic' });
+      A('rect', { x: 358, y: 96, width: 24, height: 5, rx: 2, class: 'plastic' });
+      for (const hy of [112, 124]) A('circle', { cx: 370, cy: hy, r: 1.6, fill: 'var(--ink)' });
+      A('rect', { x: 356, y: 276, width: 28, height: 20, class: 'plastic' });
+      A('rect', { x: 384, y: 292, width: 6, height: 4, class: 'plastic' });
+      A('rect', { x: 446, y: 292, width: 6, height: 4, class: 'plastic' });
+      // refill tube (flexible) from fill valve cap to overflow tube
+      const rtD = 'M166 92 C200 68, 330 68, 366 100';
+      A('path', { d: rtD, stroke: 'var(--ink)', 'stroke-width': 6, fill: 'none', 'stroke-linecap': 'round' });
+      A('path', { d: rtD, stroke: '#cfd6de', 'stroke-width': 3.6, fill: 'none', 'stroke-linecap': 'round' });
+      const rtFlow = A('path', { d: rtD, class: 'jet', 'stroke-width': 2, 'stroke-dasharray': '3 9' });
+      A('rect', { x: 359, y: 94, width: 6, height: 8, class: 'metal' });                     // clip on overflow tube
+      const towerFlow = A('path', { d: 'M370 104 V294', class: 'jet', 'stroke-width': 2, 'stroke-dasharray': '3 9' });
+      // streams out of the fill valve cap
+      const stR = A('path', { class: 'jet', 'stroke-dasharray': '5 6' }), stL = A('path', { class: 'jet', 'stroke-dasharray': '5 6' });
+      // drain streaks over the flush valve and in the outlet pipe
+      const streaks = [400, 410, 420, 430, 438].map((x) => A('line', { x1: x, x2: x, class: 'jet', 'stroke-width': 2, 'stroke-dasharray': '6 7' }));
+      const pipeStreaks = [404, 418, 432].map((x) => A('line', { x1: x, x2: x, y1: 296, y2: 330, class: 'jet', 'stroke-width': 2, 'stroke-dasharray': '6 7' }));
+      // flapper
+      const flap = A('g', { 'data-track': '' });
+      A('path', { class: 'rubber', d: 'M0 -3 L8 -3 L8 -5 Q40 -24 72 -5 L72 6 L8 6 L8 3 L0 3 Z' }, flap);
+      A('path', { d: 'M14 -4 Q40 -17 66 -4', stroke: '#fff', opacity: .35, fill: 'none', 'stroke-width': 2 }, flap);
+      A('circle', { cx: 58, cy: -12, r: 2.6, fill: 'none', stroke: 'var(--ink)', 'stroke-width': 1.2 }, flap);
+      A('circle', { cx: 0, cy: 0, r: 3.2, class: 'metal' }, flap);
+      // float: rod, cup, cap
+      const rod = A('line', { stroke: 'var(--ink)', 'stroke-width': 3, 'stroke-linecap': 'round', 'data-track': '' });
+      A('line', { x1: 162, y1: 88, x2: 180, y2: 88, stroke: 'var(--ink)', 'stroke-width': 3, 'stroke-linecap': 'round' });
+      const cup = A('g', { 'data-track': '' });
+      A('rect', { x: 134, y: 0, width: 40, height: 36, rx: 4, class: 'float' }, cup);
+      A('rect', { x: 134, y: 0, width: 40, height: 6, rx: 3, fill: '#fff', opacity: .3 }, cup);
+      for (const ly of [14, 22, 30]) A('line', { x1: 138, x2: 170, y1: ly, y2: ly, stroke: 'var(--ink)', opacity: .35, 'stroke-width': 1 }, cup);
+      A('rect', { x: 174, y: 8, width: 8, height: 7, rx: 1, class: 'metal' }, cup);
+      const cap = A('g', { 'data-track': '' });
+      A('rect', { x: 142, y: 84, width: 28, height: 14, rx: 4, class: 'teal' }, cap);
+      A('rect', { x: 148, y: 78, width: 16, height: 8, rx: 2, class: 'metal' }, cap);
+      // lift arm + handle lever (one rigid body)
+      const chain = A('g', { 'data-track': '' });
+      const chainOut = A('path', { stroke: 'var(--ink)', 'stroke-width': 4.4, fill: 'none', 'stroke-linecap': 'round' }, chain);
+      const chainIn = A('path', { stroke: '#cfd6de', 'stroke-width': 2.2, fill: 'none', 'stroke-dasharray': '3 2.4' }, chain);
+      const lever = A('g', { 'data-track': '' });
+      A('line', { x1: -ARM, y1: 0, x2: LEV, y2: 0, stroke: 'var(--ink)', 'stroke-width': 8, 'stroke-linecap': 'round' }, lever);
+      A('line', { x1: -ARM, y1: 0, x2: LEV, y2: 0, stroke: '#aab2bc', 'stroke-width': 5.4, 'stroke-linecap': 'round' }, lever);
+      A('circle', { cx: LEV, cy: 0, r: 9, class: 'metal' }, lever);
+      A('circle', { cx: -ARM, cy: 0, r: 3, fill: 'none', stroke: 'var(--ink)', 'stroke-width': 1.3 }, lever);
+      A('rect', { x: 514, y: 90, width: 12, height: 28, rx: 3, class: 'metal' });          // escutcheon plate
+      A('circle', { cx: 506, cy: 104, r: 6, class: 'metal' });
+      // lid
+      A('rect', { x: 90, y: 44, width: 440, height: 18, rx: 4, class: 'ceramic' });
+      A('rect', { x: 292, y: 36, width: 56, height: 8, rx: 4, class: 'ceramic' });
+      // labels
+      const labs = {};
+      const lab = (id, text, x, y, anchor, lx1, ly1, lx2, ly2) => {
+        const g = A('g', { class: 'lab' }); const ln = lx1 == null ? null : A('line', { x1: lx1, y1: ly1, x2: lx2, y2: ly2 }, g);
+        const t = A('text', { x, y, 'text-anchor': anchor || 'start' }, g); t.textContent = text; labs[id] = { g, t, ln }; return labs[id];
+      };
+      lab('handle', 'Handle', 592, 92);
+      lab('arm', 'Lift arm', 592, 176, 'start', 588, 172, 478, 108);
+      lab('chain', 'Chain', 592, 214, 'start', 588, 210, 440, 190);
+      lab('flapper', 'Flapper', 592, 258, 'start', 588, 254, 446, 282);
+      lab('tower', 'Overflow tube', 352, 112, 'end', 356, 108, 362, 108);
+      lab('refill', 'Refill tube', 250, 92, 'middle', 250, 82, 250, 75);
+      lab('flush', 'Flush valve', 352, 284, 'end', 356, 280, 360, 286);
+      lab('fill', 'Fill valve', 190, 288, 'start', 186, 284, 176, 284);
+      lab('cup', 'Float cup', 190, 0, 'start', 186, 0, 176, 0);
+      lab('water', '↑ water level', 268, 0, 'start');
+      lab('supply', 'Supply line', 4, 224, 'start', 50, 229, 82, 256);
+      lab('stop', 'Shut-off', 6, 326, 'start', 50, 312, 50, 280);
+      return { water, wbody, wline, flap, rod, cup, cap, chainOut, chainIn, lever, rtFlow, towerFlow, stR, stL, streaks, pipeStreaks, labs, A };
+    },
+    frame(r, i, p) {
+      const m = model(i, p), U = m.pt;
+      // water: surface with ripples, calmer when nothing moves
+      const amp = 0.8 + 2.2 * Math.max(m.drain, m.open / 100 * 0.6), y = m.levelY; let d = `M114 ${y + Math.sin(U * 5) * amp}`;
+      for (let x = 126; x <= 506; x += 12) d += ` L${x} ${y + Math.sin(x * 0.07 + U * 5) * amp}`;
+      r.wline.setAttribute('d', d); r.wbody.setAttribute('d', d + ' V300 H114 Z');
+      // flapper, arm, chain
+      r.flap.setAttribute('transform', `translate(${H[0]} ${H[1]}) rotate(${-m.ph})`);
+      r.lever.setAttribute('transform', `translate(${P[0]} ${P[1]}) rotate(${-alphaOf(m.th)})`);
+      const T = tipOf(m.th), E = hookOf(m.ph), dd = Math.hypot(T[0] - E[0], T[1] - E[1]), slack = Math.max(0, LC - dd);
+      const hgt = Math.sqrt(3 * dd * slack / 8), mx = (T[0] + E[0]) / 2, my = (T[1] + E[1]) / 2, nx = -(E[1] - T[1]) / dd, ny = (E[0] - T[0]) / dd;
+      const cd = `M${T[0]} ${T[1]} Q${mx + nx * 2 * hgt} ${my + ny * 2 * hgt} ${E[0]} ${E[1]}`;
+      r.chainOut.setAttribute('d', cd); r.chainIn.setAttribute('d', cd);
+      // float cup rides the water, rod follows
+      const cupTop = y - 14; r.cup.setAttribute('transform', `translate(0 ${cupTop})`);
+      r.rod.setAttribute('x1', 178); r.rod.setAttribute('x2', 178); r.rod.setAttribute('y1', 88); r.rod.setAttribute('y2', cupTop + 12);
+      const gap = m.open / 100 * 6; r.cap.setAttribute('transform', `translate(0 ${-gap})`);
+      // water jets
+      const o = m.open / 100, flow = (n) => -(U * n) % 11;
+      r.stR.setAttribute('d', `M170 ${92 - gap} Q192 ${92 - gap} 200 ${y}`); r.stL.setAttribute('d', `M142 ${92 - gap} Q122 ${92 - gap} 120 ${y}`);
+      for (const st of [r.stR, r.stL]) { st.style.opacity = o > 0.02 ? 1 : 0; st.setAttribute('stroke-width', 1 + 2.2 * o); st.setAttribute('stroke-dashoffset', flow(40)); }
+      r.rtFlow.style.opacity = o; r.rtFlow.setAttribute('stroke-dashoffset', flow(30));
+      r.towerFlow.style.opacity = 0.7 * o; r.towerFlow.setAttribute('stroke-dashoffset', flow(30));
+      const dr = m.drain * clamp(m.ph / 20, 0, 1), y1 = Math.min(y + 6, 270);
+      r.streaks.forEach((s, n) => { s.setAttribute('y1', y1 + n % 2 * 3); s.setAttribute('y2', 290); s.style.opacity = dr; s.setAttribute('stroke-dashoffset', flow(60 + n * 5)); });
+      r.pipeStreaks.forEach((s) => { s.style.opacity = dr; s.setAttribute('stroke-dashoffset', flow(70)); });
+      // labels: follow their parts, light up while the part works
+      const L = r.labs, cupMid = cupTop + 18;
+      const place = (l, y0, ly) => { l.t.setAttribute('y', y0); if (l.ln) { l.ln.setAttribute('y1', ly); l.ln.setAttribute('y2', ly); } };
+      place(L.cup, cupMid + 5, cupMid); place(L.water, Math.min(y + 20, 262), 0); 
+      const on = { handle: [0], arm: [0, 1], chain: [0, 1], flapper: [1, 2, 3], flush: [2], cup: [2, 4, 5], fill: [2, 4, 5], refill: [4, 5], tower: [], water: [2, 3, 4, 5], supply: [4], stop: [] };
+      for (const [id, l] of Object.entries(L)) l.g.classList.toggle('on', i >= 0 && (on[id] || []).includes(m.k));
+      const hints = {
+        2: `${m.L.toFixed(1)} L left. The float sank ${Math.round((LFULL - m.L) * MM_PER_L)} mm with the water, so the fill valve is ${Math.round(m.open)}% open already.`,
+        3: `The drain is sealed at ${LRES.toFixed(1)} L. The valve is wide open, so water only goes in now.`,
+        4: `Water enters at ${(m.flow).toFixed(1)} L/min (1.9 gpm) and the float climbs with it: ${m.L.toFixed(1)} L. A little runs down the refill tube to top up the bowl.`,
+        5: `Near full the float throttles the valve: ${Math.round(m.open)}% open, ${m.flow.toFixed(1)} L/min. The last ${BAND} L takes ${TB} s, so the whole refill is 47 s.`
+      };
+      return {
+        hint: i >= 0 && p > 0.02 ? hints[m.k] : undefined,
+        chips: [
+          { k: 'tank', v: m.L.toFixed(1) + ' L', hot: m.k === 2 || m.k === 4 },
+          { k: 'float', v: Math.round(m.cupBottomMm) + ' mm', hot: m.k === 2 || m.k === 5 },
+          { k: 'valve', v: Math.round(m.open) + '% open', hot: m.open > 0 && m.open < 100 },
+          { k: 'inflow', v: m.flow.toFixed(1) + ' L/min' },
+          { k: 'clock', v: m.t.toFixed(1) + ' s' }
+        ]
+      };
+    }
+  });
+})();
+</script>
+</body>
+</html>

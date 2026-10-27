@@ -2,7 +2,8 @@
 // Critic for a built Teach Me lesson. Static checks always; browser checks when Chrome or Edge is found.
 // Narrow checks run at 500px: headless Chrome on Windows will not open a narrower window.
 // Usage: bun check.ts <lesson.html> [--no-browser] [--shots <dir>]
-import { existsSync, mkdirSync, readFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 
@@ -33,9 +34,9 @@ else {
 if (!/<meta name="tm-lesson"/.test(html)) warn('missing <meta name="tm-lesson">; progress keys fall back to the title');
 const sources = html.match(/class="tm-sources"[\s\S]*?<\/footer>/)?.[0] ?? "";
 if (!sources) err("missing sources footer (.tm-sources)");
-else if (!/href="https?:\/\//.test(sources)) err("sources footer has no http(s) link");
+else if (!/href="https?:\/\//.test(sources)) { if (strip(sources).length < 20) err("sources footer is empty"); else warn("sources footer has no link; fine for a local book or file, otherwise link the source"); }
 if (/data-tm-inline/.test(html)) err("data-tm-inline still present: run build.ts first");
-const ALLOW = /^https:\/\/(cdnjs\.cloudflare\.com|cdn\.jsdelivr\.net\/npm|unpkg\.com)\/.+@?\d/;
+const ALLOW = /^https:\/\/(cdnjs\.cloudflare\.com\/ajax\/libs\/[^/]+\/\d[^/]*\/|cdn\.jsdelivr\.net\/npm\/(@[^/]+\/)?[^/@]+@\d|unpkg\.com\/(@[^/]+\/)?[^/@]+@\d)/;
 for (const m of html.matchAll(/<(?:script|link)\b[^>]*(?:src|href)="(https?:[^"]+)"/g))
   if (!/<a\b/.test(m[0]) && !ALLOW.test(m[1])) err(`external resource not allowed or not version-pinned: ${m[1]}`);
 if (/\son(click|load|input|change)=/i.test(html)) warn("inline event handler attributes found; wire events in scripts");
@@ -44,6 +45,7 @@ if (/\son(click|load|input|change)=/i.test(html)) warn("inline event handler att
 type Cfg = Record<string, any>;
 const comps: { kind: string; cfg: Cfg | null }[] = [];
 // Only scan the lesson body; inlined runtime code also contains data-tm="..." strings.
+for (const m of html.matchAll(/data-tm="(\w+)"[^>]*>\s*<script(?![^>]*type="application\/json")[^>]*>/g)) err(`${m[1]}: config script must be <script type="application/json">`);
 const body = (html.match(/<main[\s\S]*<\/main>/)?.[0] ?? html).replace(/<script>[\s\S]*?<\/script>/g, "");
 for (const m of body.matchAll(/data-tm="(\w+)"[^>]*>\s*(?:<script type="application\/json">([\s\S]*?)<\/script>)?/g)) {
   let cfg: Cfg | null = {};
@@ -66,7 +68,7 @@ for (const { kind, cfg } of quizzes) {
   if (kind === "quiz" && Math.max(...cc) > Math.min(...cc) * 1.35 + 4) warn(`quiz "${q}": option lengths ${cc.join("/")} chars differ a lot; the longest often gives the answer away`);
   if (c.options.some((o: string) => /\b(all|none) of the above\b/i.test(o))) err(`${kind} "${q}": no "all/none of the above"`);
   if (kind === "quiz" && (!Array.isArray(c.why) || c.why.filter(Boolean).length < c.options.length)) warn(`quiz "${q}": give every option a "why" so wrong answers teach`);
-  if (/\b(what is|define|definition of|which term)\b/i.test(q)) warn(`quiz "${q}": looks like a definition question; test a scenario instead`);
+  if (/\b(define|definition of|which term)\b|^what (is|are) (a|an) \w+\??$/i.test(q)) warn(`quiz "${q}": looks like a definition question; test a scenario instead`);
 }
 for (const { cfg } of comps.filter((c) => c.kind === "stepper" && c.cfg)) {
   const c = cfg!; const lines = String(c.code ?? "").replace(/\n$/, "").split("\n").length;
@@ -101,7 +103,7 @@ for (const { cfg } of comps.filter((c) => c.kind === "cards" && c.cfg)) {
 const main = html.match(/<main[\s\S]*<\/main>/)?.[0] ?? html;
 const prose = [...main.replace(/<script[\s\S]*?<\/script>/g, "").matchAll(/<p(?:\s[^>]*)?>([\s\S]*?)<\/p>/g)].map((m) => strip(m[1])).filter((t) => t.length > 40);
 for (const p of prose) {
-  const sentences = p.split(/(?<=[.!?])\s+(?=[A-Z0-9"“(])/).filter((s) => s.trim());
+  const sentences = p.replace(/\b(e\.g|i\.e|etc|vs|approx|Dr|Mr|Ms|Mrs|No|Fig)\./gi, "$1").split(/(?<=[.!?])\s+(?=[A-Z0-9"“(])/).filter((s) => s.trim());
   if (sentences.length > 3) warn(`paragraph has ${sentences.length} sentences (max 3): "${p.slice(0, 70)}…"`);
   const long = sentences.find((s) => words(s) > 32);
   if (long) warn(`sentence over 32 words: "${long.slice(0, 70)}…"`);
@@ -123,17 +125,18 @@ const BROWSERS = [
 const browser = BROWSERS.find((b) => existsSync(b));
 
 async function run(cmd: string[]) {
-  const p = Bun.spawn(cmd, { stdout: "pipe", stderr: "pipe" });
+  const p = Bun.spawn(cmd, { stdout: "pipe", stderr: "ignore" });
   const timer = setTimeout(() => p.kill(), 45000);
   const out = await new Response(p.stdout).text(); await p.exited; clearTimeout(timer);
   return out;
 }
-const base = ["--headless=new", "--disable-gpu", "--no-first-run", "--no-default-browser-check", "--hide-scrollbars", "--allow-file-access-from-files", "--virtual-time-budget=6000"];
+const profile = join(tmpdir(), "teach-me-check-" + process.pid);
+const base = ["--headless=new", `--user-data-dir=${profile}`, "--disable-gpu", "--no-first-run", "--no-default-browser-check", "--hide-scrollbars", "--allow-file-access-from-files", "--virtual-time-budget=6000"];
 
 if (!noBrowser && browser) {
   const url = pathToFileURL(resolve(file)).href;
   for (const [w, theme] of [[1280, "light"], [500, "dark"]] as const) {
-    const dom = await run([browser, ...base, `--window-size=${w},1600`, "--dump-dom", `${url}?check=1&theme=${theme}&auto=0`]);
+    const dom = await run([browser, ...base, `--window-size=${w},1600`, "--dump-dom", `${url}?check=1&reveal=1&theme=${theme}&auto=0`]);
     const raw = dom.match(/<pre id="tm-check"[^>]*>([\s\S]*?)<\/pre>/)?.[1];
     if (!raw) { err(`browser ${w}px: no self-report (page script crashed or tm.js missing)`); continue; }
     const r = JSON.parse(raw.replace(/&quot;/g, '"').replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&"));
@@ -151,14 +154,18 @@ if (!noBrowser && browser) {
   }
   if (shots) {
     mkdirSync(shots, { recursive: true });
-    for (const [name, w, q] of [["desktop-light", 1280, "theme=light"], ["narrow-dark", 500, "theme=dark"]] as const) {
+    for (const [name, w, q] of [["desktop-light", 1280, "theme=light&reveal=1"], ["narrow-dark", 500, "theme=dark&reveal=1"]] as const) {
       const out = join(resolve(shots), name + ".png");
-      await run([browser, ...base, `--window-size=${w},1800`, `--screenshot=${out}`, `${url}?${q}&auto=0`]);
+      await run([browser, ...base, `--window-size=${w},4000`, `--screenshot=${out}`, `${url}?${q}&auto=0`]);
       notes.push("screenshot " + out);
     }
   }
 } else if (!noBrowser) warnings.push("no Chrome or Edge found (set TM_BROWSER); browser checks skipped, do them with a browser tool");
 
+try { rmSync(profile, { recursive: true, force: true }); } catch {}
+const reveals = (body.match(/class="tm-reveal"/g) || []).length, predicts = count("predict");
+if (predicts > reveals) warn(`${predicts} predict widgets but ${reveals} .tm-reveal blocks; a predict should open the demo it asks about`);
+for (const { cfg } of comps.filter((c) => c.kind === "diagram" && c.cfg)) for (const z of cfg!.zones || []) for (const id of z.nodes || []) if (!(cfg!.nodes || []).some((n: any) => n.id === id)) err(`diagram "${cfg!.title}": zone "${z.label}" names missing node "${id}"`);
 /* ---- report ---- */
 for (const n of notes) console.log("·", n);
 for (const w of warnings) console.log("warn:", w);

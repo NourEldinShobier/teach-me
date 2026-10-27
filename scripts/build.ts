@@ -32,6 +32,7 @@ export function build(file: string, out?: string): string {
 }
 
 const meta = (html: string, name: string) => html.match(new RegExp(`<meta name="${name}" content="([^"]*)"`))?.[1] ?? "";
+const unesc = (s: string) => s.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, "&");
 const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]!);
 
 export function buildLibrary(root: string): string {
@@ -39,8 +40,8 @@ export function buildLibrary(root: string): string {
     .filter((d) => d.isDirectory() && existsSync(join(root, d.name, "index.html")))
     .map((d) => {
       const f = join(root, d.name, "index.html"), html = readFileSync(f, "utf8");
-      return { href: `${d.name}/index.html`, title: html.match(/<title>([^<]*)<\/title>/)?.[1] ?? d.name,
-        idea: meta(html, "description"), format: meta(html, "tm-format") || "lesson", mtime: statSync(f).mtimeMs };
+      return { href: `${d.name}/index.html`, title: unesc(html.match(/<title>([^<]*)<\/title>/)?.[1] ?? d.name),
+        idea: unesc(meta(html, "description")), format: meta(html, "tm-format") || "lesson", mtime: statSync(f).mtimeMs };
     })
     .sort((a, b) => b.mtime - a.mtime);
   const css = readFileSync(join(TEMPLATES, "tm.css"), "utf8");

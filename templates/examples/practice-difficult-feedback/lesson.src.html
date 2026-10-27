@@ -1,0 +1,408 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hard Feedback with SBI</title>
+<meta name="tm-lesson" content="practice-difficult-feedback">
+<meta name="tm-format" content="practice">
+<meta name="description" content="Name the moment, the visible behavior and its effect, then ask about intent: feedback a person can hear without defending.">
+<link rel="stylesheet" href="tm.css" data-tm-inline>
+</head>
+<body>
+<main class="tm">
+  <div class="tm-top"><span class="tm-kicker">Teach Me · practice</span><span class="tm-sp"></span><span>10 min</span><button class="tm-iconbtn" type="button" data-tm-theme></button></div>
+  <h1>Giving hard feedback with SBI</h1>
+  <section class="tm-bigidea">
+    <strong>The big idea</strong>
+    <p>Describe what happened, not what it means: a specific moment, a visible behavior, and its real effect.</p>
+    <p class="tm-win">You will be able to: open a hard conversation calmly, say a Situation-Behavior-Impact sentence the other person cannot dispute, and keep going when they get defensive.</p>
+  </section>
+
+  <h2>The situation</h2>
+  <p>You are Maya, lead of a small product team. On Thursday your developer Dev, who is strong technically, answered a client's pricing question with "that's not my area" and looked at his laptop. You want to talk to him, and you know he will expect bad news.</p>
+
+  <div data-tm="predict"><script type="application/json">{
+    "q": "You ask Dev for a private conversation. Which opening sentence leaves him most able to listen?",
+    "options": ["I need to talk to you about your attitude Thursday.", "Ten minutes? Nothing urgent; I'd like to discuss Thursday's demo.", "Everyone noticed how Thursday's demo went; we should talk now.", "Please report to my office at five; we must talk."],
+    "answer": 1,
+    "why": ["\"Attitude\" is a verdict. Dev starts defending himself before you have said a single fact.", "It names the topic, says it is not an emergency, and gives a time box, so nothing is left for his imagination to fill with worst cases.", "\"Everyone noticed\" adds an audience and shame, and says nothing specific enough to respond to.", "A summons with no topic lets him imagine the worst until five o'clock, and his guard goes up."],
+    "explain": "A vague or alarming opening raises tension before the feedback starts. Watch the meter below: it starts high because Dev expects trouble.",
+    "shuffle": true
+  }</script></div>
+  <div class="tm-reveal" hidden>
+    <h2>The conversation, step by step</h2>
+    <p>Press the step buttons. The meter is Dev's tension. It is a teaching model with made-up numbers: the rules behind it (verdicts raise it; specifics and curiosity lower it) are the claim, not the percentages.</p>
+    <div data-tm="scene"><script type="application/json">{
+      "name": "sbi", "title": "Maya and Dev: one SBI conversation", "fig": 1, "mode": "manual",
+      "steps": [
+        {"label": "Open calmly", "hint": "", "dur": 4.2, "seconds": 15},
+        {"label": "Name the Situation", "hint": "", "dur": 4.2, "seconds": 8},
+        {"label": "Describe the Behavior", "hint": "", "dur": 4.6, "seconds": 12},
+        {"label": "Say the Impact", "hint": "", "dur": 4.6, "seconds": 12},
+        {"label": "Ask about Intent", "hint": "", "dur": 4.6, "seconds": 20},
+        {"label": "Agree the next step", "hint": "", "dur": 4.6, "seconds": 25}
+      ]
+    }</script></div>
+  </div>
+
+  <h2>What each part has to pass</h2>
+  <table class="tm-table">
+    <tr><th>Part</th><th>Test before you say it</th><th>Maya's version</th></tr>
+    <tr><td><b>S</b>ituation</td><td>Could Dev find the moment on a calendar?</td><td>"Thursday, in the Q&amp;A at the end of the client demo"</td></tr>
+    <tr><td><b>B</b>ehavior</td><td>Would a video camera have recorded it?</td><td>"You said 'that's not my area' and looked at your laptop"</td></tr>
+    <tr><td><b>I</b>mpact</td><td>Is it what happened to me, the team or the work?</td><td>"I felt caught off guard; Priya asked who owns pricing"</td></tr>
+    <tr><td>Intent (ask)</td><td>Am I asking before I conclude why?</td><td>"What was going on for you in that moment?"</td></tr>
+  </table>
+
+  <h2>Same moment, five Behavior lines</h2>
+  <p>Pick a wording and compare. The model applies the same rules as the scene above, starting from the tension after Maya has named the Situation.</p>
+  <div data-tm="sim"><script type="application/json">{
+    "name": "wording", "fig": 2, "title": "Behavior wording and Dev's reaction",
+    "hint": "Pick a wording for the Behavior part. Watch the meter and Dev's likely reply.",
+    "inputs": [
+      {"id": "line", "label": "Maya says", "options": ["You said 'that's not my area' and looked at your laptop.", "You seemed unprepared in the Q&A.", "You never prepare for anything.", "You were rude to the client.", "You clearly don't care about clients."], "value": "You said 'that's not my area' and looked at your laptop."}
+    ]
+  }</script></div>
+
+  <h2>Your turn as the lead</h2>
+  <p>A different case. Sam, on your team, joined the 9:15 standup at 9:25 on Monday, Tuesday and Thursday this week. You are about to talk to Sam.</p>
+
+  <div data-tm="quiz"><script type="application/json">{
+    "q": "You opened with the Situation: \"This week, at our 9:15 standup...\". Which Behavior sentence comes next?",
+    "options": ["You joined standup at 9:25, not 9:15, three mornings.", "You show a pattern of disrespect toward the team.", "You obviously think standup is a waste of time.", "You've been unreliable about showing up on time lately."],
+    "answer": 0,
+    "why": ["A camera, or the meeting log, would show exactly this, so Sam cannot dispute it.", "\"Disrespect\" is a verdict about Sam's character, and \"pattern\" turns three mornings into a case.", "That is a guess about Sam's motive, stated as fact. Only Sam knows his motive.", "\"Unreliable\" and \"lately\" are vague labels with no moment Sam could point to."],
+    "explain": "If a camera could not have recorded it, it is an interpretation. Interpretations start arguments; recorded facts start conversations."
+  }</script></div>
+
+  <p>You said the Behavior line and Sam nodded. Now the Impact.</p>
+
+  <div data-tm="quiz"><script type="application/json">{
+    "q": "Which Impact sentence comes next, in your own voice?",
+    "options": ["I restarted the update twice, and the others lost ten minutes.", "Another one like that and it goes into your review file.", "Everyone is annoyed with you and honestly nobody trusts you now.", "It makes me feel like you don't take the job seriously."],
+    "answer": 0,
+    "why": ["It states what actually happened to you and the team, with details Sam can check.", "A threat is not an impact. It ends the conversation and adds fear.", "\"Everyone\" and \"nobody\" speak for people you have not quoted, and \"trust\" is a verdict.", "It sounds personal, but \"like you don't take the job seriously\" is still a judgment of Sam's motive wrapped in \"I feel\"."],
+    "explain": "A good Impact is true even if Sam's intent was good. That is why it is hard to argue with, and why the Intent question comes after it."
+  }</script></div>
+
+  <p>Sam answers quickly and a little sharply.</p>
+
+  <div data-tm="quiz"><script type="application/json">{
+    "q": "Sam says: \"Others were late too, so why pick on me?\" What do you say?",
+    "options": ["I'm talking about your mornings; what was getting in the way?", "You're right, forget it; I should have raised it with everyone.", "Others are not my concern here; yours is the only pattern.", "That is a defensive reaction, and it proves exactly my point."],
+    "answer": 0,
+    "why": ["It stays on your specific example without debating anyone else, and the question invites Sam's side.", "Retreating teaches Sam that pushing back cancels the feedback, and the real issue is never discussed.", "It answers the question coldly and repeats \"pattern\", the label from the wrong option you rejected.", "Labelling the reaction as defensive is a new verdict, and it makes Sam defend even harder."],
+    "explain": "Defensiveness is information, not an offence. Return to your example, then ask. The Intent question is where the conversation turns."
+  }</script></div>
+
+  <h2>Keep it</h2>
+  <div data-tm="cards"><script type="application/json">{
+    "deck": "sbi-feedback", "title": "Principles of SBI",
+    "cards": [
+      {"front": "SBI: what do S, B and I stand for, and what does each name?", "back": "Situation (when and where) · Behavior (what was observable) · Impact (the effect it had)"},
+      {"front": "The camera test for Behavior", "back": "If a video camera could not have recorded it, it is a label or a guess about motive, not behavior."},
+      {"front": "A good Impact sentence", "back": "What happened to you, the team or the work, in your own voice: \"I felt…\", \"we lost…\". No threats, no verdicts."},
+      {"front": "After S, B and I, CCL adds one step: ask about ___.", "back": "intent (\"What were you hoping to accomplish?\"), because impact and intent often differ."},
+      {"front": "A Behavior line passes the {{c1::camera}} test if a video could have recorded it.", "back": ""},
+      {"front": "They say \"why pick on me?\". Best move?", "back": "Stay on your specific example, don't debate others, don't retreat, and ask what got in the way."}
+    ]
+  }</script></div>
+
+  <div data-tm="explain"><script type="application/json">{"prompt": "In two sentences, explain to a colleague why \"You were rude\" fails as feedback while \"you said 'that's not my area' and looked at your laptop\" works. Use the camera test."}</script></div>
+
+  <div class="tm-callout">
+    <b>Try it this week</b>
+    <ul>
+      <li><b>Today:</b> write one SBI sentence about something small a colleague did, positive or critical, and say it to them.</li>
+      <li><b>Before your next hard talk:</b> write S, B and I on paper, then cross out every word a camera could not have recorded.</li>
+      <li><b>In the talk:</b> after the Impact, ask one open question about intent and let the person finish before you reply.</li>
+    </ul>
+  </div>
+
+  <div data-tm="ask"><script type="application/json">{"prompts": ["Role-play Dev: be defensive and let me practise my SBI sentence.", "Turn this real situation of mine into S, B and I: [paste what happened].", "How does SBI change for positive feedback or for a manager above me?"]}</script></div>
+  <div data-tm="save"></div>
+
+  <footer class="tm-sources">
+    <b>Read next:</b> <a href="https://www.ccl.org/articles/leading-effectively-articles/closing-the-gap-between-intent-vs-impact-sbii/">CCL: Use Situation-Behavior-Impact (SBI) to close the gap between intent and impact</a> (the four steps, with examples).
+    <ol>
+      <li><a href="https://www.ccl.org/articles/leading-effectively-articles/closing-the-gap-between-intent-vs-impact-sbii/">Center for Creative Leadership, SBI and the Intent step</a> (definitions of Situation, Behavior, Impact and Intent follow this article).</li>
+      <li><a href="https://www.ccl.org/wp-content/uploads/2019/06/Feedback-That-Works-2E-Promo-Package.pdf">CCL: Feedback That Works, 2nd ed., promo package</a> (Sloan R. Weitzel's guidebook; I read only the publisher's summary, not the full text).</li>
+      <li>The Maya and Dev story, the five wordings and the tension numbers are invented for this lesson; they are not CCL material.</li>
+    </ol>
+  </footer>
+</main>
+<script src="tm.js" data-tm-inline></script>
+<script>
+(() => {
+  const { clamp, lerp, ease } = tm;
+
+  /* ---- one model drives the scene and the sim ----
+     Each spoken line has features [judgment, sting, specificity, curiosity, warmth], each 0..1.
+     Dev's tension changes by: .3*judgment + .2*sting - .1*specificity - .25*curiosity - .12*warmth, clamped to .05..1.
+     check: start 65%; after the 6 steps: 56, 49, 58, 65, 38, 18 %; wording sim on 49% gives 58 / 73 / 86 / 91 / 97 %. */
+  const T0 = 0.65;
+  const FEAT = [
+    [0, 0,   0.2, 0.1, 0.4],  // open calmly
+    [0, 0.1, 0.6, 0,   0.2],  // situation
+    [0, 0.9, 0.9, 0,   0],    // behavior
+    [0, 0.8, 0.7, 0,   0.2],  // impact
+    [0, 0,   0,   0.8, 0.6],  // intent question
+    [0, 0,   0.5, 0.2, 0.8]   // agree next step
+  ];
+  const delta = (f) => 0.3 * f[0] + 0.2 * f[1] - 0.1 * f[2] - 0.25 * f[3] - 0.12 * f[4];
+  const tEnd = (k) => { let t = T0; for (let j = 0; j <= k; j++) t = clamp(t + delta(FEAT[j]), 0.05, 1); return t; };
+  const tension = (i, p) => (i < 0 ? T0 : lerp(tEnd(i - 1), tEnd(i), ease(p)));
+  const zone = (T) => (T < 0.35 ? 'calm' : T < 0.6 ? 'tense' : 'defensive');
+  const pct = (T) => Math.round(T * 100) + '%';
+
+  const SAY = [
+    ['Got ten minutes? Nothing urgent. I\'d like to talk about Thursday\'s demo.', 'Sure.'],
+    ['Thursday, in the Q&A at the end of the client demo...', 'Okay...'],
+    ['Priya asked about pricing. You said "that\'s not my area" and looked at your laptop.', 'Hm. Yes, I did.'],
+    ['I felt caught off guard. Priya emailed Friday asking who owns pricing.', 'I didn\'t know that.'],
+    ['What was going on for you in that moment?', 'I froze. I had no numbers.'],
+    ['Thanks. How about a ten-minute prep before each demo?', 'Yes. I\'ll bring pricing notes.']
+  ];
+  const HINT = [
+    'Maya names the topic and says it is not urgent. Dev expected bad news, so tension starts high.',
+    'Situation: a moment Dev can find on his calendar. Nothing to dispute yet.',
+    'Behavior: words and actions a camera records. It stings, but Dev cannot argue with it.',
+    'Impact: what happened to Maya and the work, in her own voice, with no verdict on Dev.',
+    'Intent: a real question. Dev explains, and the gap between intent and impact becomes the topic.',
+    'They agree one concrete next step together, and tension settles.'
+  ];
+  const PART = ['Setup', 'Situation', 'Behavior', 'Impact', 'Intent', 'Next step'];
+
+  const wrap = (s, n) => { const out = []; let l = ''; for (const w of s.split(' ')) { if ((l + ' ' + w).trim().length > n) { out.push(l); l = w; } else l = (l + ' ' + w).trim(); } if (l) out.push(l); return out; };
+  const K = 'stroke:var(--ink);stroke-width:1.3;stroke-linejoin:round;stroke-linecap:round;';
+
+  // Zone bar with a needle; shared by the scene and the sim.
+  function gauge(svg, parent, x, y, w) {
+    const zs = [[0, 0.35, '--good'], [0.35, 0.6, '--warn'], [0.6, 1, '--bad']];
+    zs.forEach(([a, b, c]) => svg('rect', { x: x + w * a, y, width: w * (b - a), height: 14, style: `fill:var(${c});opacity:.38;stroke:var(--line)` }, parent));
+    [['calm', 0.175], ['tense', 0.475], ['defensive', 0.8]].forEach(([t, m]) => { svg('text', { x: x + w * m, y: y + 30, 'text-anchor': 'middle', class: 'sub', style: 'font-size:14px' }, parent).textContent = t; });
+    const needle = svg('g', { 'data-track': '' }, parent);
+    svg('path', { d: 'M-7 -13 L7 -13 L0 -1 Z', style: 'fill:var(--ink);stroke:var(--paper);stroke-width:1' }, needle);
+    svg('line', { x1: 0, y1: -1, x2: 0, y2: 15, style: 'stroke:var(--ink);stroke-width:2' }, needle);
+    const val = svg('text', { x: x + w + 14, y: y + 12, class: 'lbl', style: 'font-weight:600' }, parent);
+    return { set(T) { needle.setAttribute('transform', `translate(${x + w * T} ${y})`); val.textContent = pct(T); } };
+  }
+
+  tm.scene('sbi', {
+    setup(stage, { svg }) {
+      const s = svg('svg', { viewBox: '0 0 640 404', class: 'tm-svg', role: 'img', 'aria-label': 'Maya, a team lead, and Dev, a developer, talk across a table while a meter shows Dev\'s tension' }, stage);
+      const E = (tag, a, p = s) => svg(tag, a, p);
+      const P = (d, st, p = s) => E('path', { d, style: st }, p);
+
+      /* room */
+      E('rect', { x: 0, y: 0, width: 640, height: 326, style: 'fill:var(--soft)' });
+      E('rect', { x: 0, y: 322, width: 640, height: 26, style: 'fill:var(--line);opacity:.55' });
+      E('line', { x1: 0, y1: 312, x2: 640, y2: 312, style: 'stroke:var(--line);stroke-width:2' });
+      // window
+      E('rect', { x: 566, y: 164, width: 56, height: 86, style: K + 'fill:#cfe3f7' });
+      E('line', { x1: 594, y1: 164, x2: 594, y2: 250, style: K });
+      E('line', { x1: 566, y1: 207, x2: 622, y2: 207, style: K });
+      E('ellipse', { cx: 580, cy: 186, rx: 9, ry: 5, style: 'fill:#fff;opacity:.9' });
+      E('ellipse', { cx: 608, cy: 228, rx: 8, ry: 4, style: 'fill:#fff;opacity:.9' });
+      // whiteboard
+      E('rect', { x: 256, y: 172, width: 128, height: 76, rx: 2, style: K + 'fill:#fbfbf8' });
+      E('rect', { x: 264, y: 244, width: 112, height: 5, style: K + 'fill:#9aa0aa' });
+      E('text', { x: 268, y: 192, style: 'font:italic 700 14px var(--sans);fill:#2a3a6a' }).textContent = 'Demo: Thu';
+      [[270, 214, 12, 20], [286, 206, 12, 28], [302, 220, 12, 14], [318, 200, 12, 34]].forEach(([x, y, w, h]) => E('rect', { x, y: 236 - h, width: w, height: h, style: 'fill:#7c9cff;stroke:#2a3a6a;stroke-width:1' }));
+      E('rect', { x: 338, y: 190, width: 40, height: 30, style: 'fill:#ffe27a;stroke:#b58f00;stroke-width:1' });
+      E('text', { x: 342, y: 209, style: 'font:600 12px var(--sans);fill:#5a4600' }).textContent = 'Q&A?';
+      // plant
+      P('M22 316 L26 284 L54 284 L58 316 Z', K + 'fill:#b5653b');
+      [[-35, 40, 262], [-12, 40, 258], [14, 40, 258], [36, 40, 264], [0, 36, 250]].forEach(([r, l, y]) => P(`M40 284 Q${40 + r * 0.5} ${y} ${40 + r} ${y - 14}`, 'stroke:#3f7d3a;stroke-width:6;fill:none;stroke-linecap:round'));
+
+      /* SBI tiles */
+      const tiles = ['S|Situation', 'B|Behavior', 'I|Impact', '?|Intent (ask)'].map((t, k) => {
+        const [letter, label] = t.split('|'), x = 66 + k * 128, g = E('g');
+        const r = E('rect', { x, y: 8, width: 120, height: 28, rx: 8 }, g);
+        const dot = E('circle', { cx: x + 16, cy: 22, r: 10 }, g);
+        E('text', { x: x + 16, y: 27, 'text-anchor': 'middle', style: 'font:700 14px var(--sans);fill:var(--paper)' }, g).textContent = letter;
+        const tx = E('text', { x: x + 32, y: 27, class: 'lbl', style: 'font-size:13px' }, g); tx.textContent = label;
+        return { r, dot, tx };
+      });
+
+      /* bubbles */
+      const bubble = (bx, tailX, name) => {
+        const g = E('g', { opacity: 0 });
+        E('path', { d: `M${tailX - 14} 148 L${tailX + 4} 174 L${tailX + 16} 148 Z`, style: K + 'fill:var(--panel)' }, g);
+        E('rect', { x: bx, y: 50, width: 280, height: 98, rx: 12, style: K + 'fill:var(--panel)' }, g);
+        E('line', { x1: tailX - 12, y1: 148, x2: tailX + 14, y2: 148, style: 'stroke:var(--panel);stroke-width:3' }, g);
+        E('text', { x: bx + 14, y: 66, class: 'sub', style: 'font-size:11px;font-weight:600;letter-spacing:.04em' }, g).textContent = name;
+        const tx = E('text', { x: bx + 14, y: 88, style: 'font-size:15px;fill:var(--ink)' }, g);
+        return { g, tx, key: null };
+      };
+      const bM = bubble(14, 132, 'MAYA'), bD = bubble(346, 508, 'DEV');
+      const setText = (b, text) => {
+        if (b.key === text) return; b.key = text;
+        b.tx.textContent = '';
+        const lines = wrap(text, 33), y0 = 88 + (lines.length < 3 ? 8 : 0);
+        lines.forEach((l, k) => { const t = svg('tspan', { x: +b.tx.previousSibling.getAttribute('x'), y: y0 + k * 19 }, b.tx); t.textContent = l; });
+      };
+
+      /* people: head at local (0,0), global y 215 */
+      const person = (cx, o) => {
+        const g = E('g', { transform: `translate(${cx} 215)` });
+        // arms and torso
+        P('M-44 70 Q-46 38 -18 33 L18 33 Q46 38 44 70 L44 100 L-44 100 Z', K + `fill:${o.top}`, g);
+        P('M-44 48 Q-58 74 -42 96 L-28 96 Q-36 74 -32 54 Z', K + `fill:${o.top}`, g);
+        P('M44 48 Q58 74 42 96 L28 96 Q36 74 32 54 Z', K + `fill:${o.top}`, g);
+        P('M-8 20 L-8 36 Q0 42 8 36 L8 20 Z', K + `fill:${o.skin}`, g);
+        if (o.maya) {
+          P('M-14 33 L0 60 L14 33 Z', K + 'fill:#fff', g);
+          P('M-14 33 L-4 62 L-26 72 L-30 44 Z', K + 'fill:var(--accent);filter:brightness(.88)', g);
+          P('M14 33 L4 62 L26 72 L30 44 Z', K + 'fill:var(--accent);filter:brightness(.88)', g);
+          E('circle', { cx: 0, cy: 76, r: 2.4, style: 'fill:#fff;stroke:var(--ink);stroke-width:1' }, g);
+          P('M-9 34 Q0 70 9 34', 'stroke:#8a9099;stroke-width:1;fill:none', g); // lanyard
+          E('rect', { x: 14, y: 54, width: 22, height: 15, rx: 2, style: K + 'fill:#fff' }, g);
+          E('text', { x: 25, y: 65, 'text-anchor': 'middle', style: 'font:700 8px var(--sans);fill:#333' }, g).textContent = 'MAYA';
+        } else {
+          P('M-30 36 Q-34 18 -14 22 Q0 42 14 22 Q34 18 30 36 Q0 62 -30 36 Z', K + 'fill:#4d6642', g);
+          E('line', { x1: -6, y1: 40, x2: -7, y2: 56, style: 'stroke:#e9e4d6;stroke-width:1.6' }, g);
+          E('line', { x1: 6, y1: 40, x2: 7, y2: 56, style: 'stroke:#e9e4d6;stroke-width:1.6' }, g);
+          E('circle', { cx: -7, cy: 57, r: 2, style: 'fill:#e9e4d6;stroke:var(--ink);stroke-width:.8' }, g);
+          E('circle', { cx: 7, cy: 57, r: 2, style: 'fill:#e9e4d6;stroke:var(--ink);stroke-width:.8' }, g);
+        }
+        // head group (moves a little)
+        const head = E('g', { 'data-track': '' }, g);
+        if (o.maya) P('M-31 -2 Q-34 -38 0 -39 Q34 -38 31 -2 Q35 28 24 38 L-24 38 Q-35 28 -31 -2 Z', K + `fill:${o.hair}`, head);
+        E('circle', { cx: -25, cy: 3, r: 5, style: K + `fill:${o.skin}` }, head);
+        E('circle', { cx: 25, cy: 3, r: 5, style: K + `fill:${o.skin}` }, head);
+        if (o.maya) { E('circle', { cx: -25, cy: 10, r: 2, style: 'fill:#e0b84a;stroke:var(--ink);stroke-width:.8' }, head); E('circle', { cx: 25, cy: 10, r: 2, style: 'fill:#e0b84a;stroke:var(--ink);stroke-width:.8' }, head); }
+        E('ellipse', { cx: 0, cy: 0, rx: 25, ry: 29, style: K + `fill:${o.skin}` }, head);
+        if (o.maya) P('M-26 -8 Q-8 -36 27 -10 Q8 -24 -26 -8 Z', K + `fill:${o.hair}`, head);
+        else {
+          P('M-22 8 Q0 38 22 8 Q14 28 0 29 Q-14 28 -22 8 Z', `fill:${o.hair};opacity:.4`, head);
+          P('M-26 -8 Q-31 -38 0 -39 Q31 -38 26 -8 Q20 -26 6 -25 Q-6 -18 -26 -8 Z', K + `fill:${o.hair}`, head);
+        }
+        // eyes
+        const eye = (x) => ({ w: E('ellipse', { cx: x, cy: -2, rx: 5.5, ry: 4.6, style: 'fill:#fff;stroke:var(--ink);stroke-width:.9' }, head), p: E('circle', { cx: x, cy: -2, r: 2.3, style: 'fill:#222' }, head), x });
+        const eL = eye(-11), eR = eye(11);
+        if (!o.maya) {
+          E('circle', { cx: -11, cy: -2, r: 9.5, style: K + 'fill:#fff;fill-opacity:.12' }, head);
+          E('circle', { cx: 11, cy: -2, r: 9.5, style: K + 'fill:#fff;fill-opacity:.12' }, head);
+          E('line', { x1: -1.5, y1: -3, x2: 1.5, y2: -3, style: K }, head);
+        }
+        const browL = E('path', { style: 'stroke:var(--ink);stroke-width:2.2;stroke-linecap:round;fill:none' }, head);
+        const browR = E('path', { style: 'stroke:var(--ink);stroke-width:2.2;stroke-linecap:round;fill:none' }, head);
+        P('M0 5 Q-4 11 1 12', 'stroke:var(--ink);stroke-width:1;fill:none;opacity:.7', head);
+        const mouth = E('path', { style: K + 'fill:#8a3b3b' }, head);
+        const sweat = o.maya ? null : P('M30 -14 Q36 -4 30 0 Q24 -4 30 -14 Z', K + 'fill:#8fd0f5', head);
+        return { g, head, eL, eR, browL, browR, mouth, sweat };
+      };
+      const aura = E('circle', { cx: 510, cy: 215, r: 40 });
+      const maya = person(130, { top: 'var(--accent)', skin: '#e7b894', hair: '#3b2a22', maya: true });
+      const dev = person(510, { top: '#5f7a52', skin: '#c68a62', hair: '#1f1a18', maya: false });
+      // move aura behind Dev (draw order): insert before Dev's group
+      s.insertBefore(aura, dev.g);
+
+      /* table, placards, props */
+      E('rect', { x: 30, y: 298, width: 580, height: 10, rx: 2, style: K + 'fill:#d2a874' });
+      E('rect', { x: 36, y: 308, width: 568, height: 16, style: K + 'fill:#b0834f' });
+      [90, 320, 550].forEach((x) => E('rect', { x: x - 5, y: 324, width: 10, height: 22, style: K + 'fill:#8d6738' }));
+      [[130, 'Maya, team lead'], [510, 'Dev, developer']].forEach(([x, t]) => { E('rect', { x: x - 52, y: 310, width: 104, height: 13, rx: 2, style: 'fill:#fbfbf8;stroke:var(--ink);stroke-width:.8' }); E('text', { x, y: 320, 'text-anchor': 'middle', style: 'font:600 10px var(--sans);fill:#333' }).textContent = t; });
+      // Maya: notebook, pen, phone, mug
+      P('M96 296 L150 296 L156 284 L102 284 Z', K + 'fill:#fff6d6');
+      [288, 291.5].forEach((y) => E('line', { x1: 106, y1: y, x2: 148, y2: y, style: 'stroke:#9aa0aa;stroke-width:.8' }));
+      E('line', { x1: 160, y1: 294, x2: 178, y2: 288, style: 'stroke:#2a3a6a;stroke-width:3;stroke-linecap:round' });
+      E('rect', { x: 184, y: 289, width: 16, height: 8, rx: 2, style: K + 'fill:#333' });
+      E('rect', { x: 196, y: 276, width: 16, height: 22, rx: 2, style: K + 'fill:#f4f1ea' });
+      P('M212 280 Q222 282 212 292', K + 'fill:none');
+      P('M199 272 Q201 267 199 263 M205 272 Q207 267 205 263', 'stroke:#9aa0aa;stroke-width:1.2;fill:none');
+      // Dev: laptop lid with stickers, mug, headphones
+      E('rect', { x: 482, y: 262, width: 62, height: 36, rx: 3, style: K + 'fill:#aab0bd' });
+      E('circle', { cx: 513, cy: 280, r: 4.5, style: 'fill:#e9ecf2;stroke:var(--ink);stroke-width:.8' });
+      [[488, 268, '#ff8c42'], [530, 268, '#7c9cff'], [532, 286, '#4cc27f']].forEach(([x, y, c]) => E('rect', { x, y, width: 9, height: 9, rx: 2, style: `fill:${c};stroke:var(--ink);stroke-width:.8` }));
+      E('rect', { x: 556, y: 278, width: 16, height: 20, rx: 2, style: K + 'fill:#e9e4d6' });
+      P('M572 282 Q582 284 572 294', K + 'fill:none');
+      P('M440 296 Q440 280 452 280 Q464 280 464 296', K + 'fill:none;stroke-width:3');
+      E('ellipse', { cx: 440, cy: 297, rx: 6, ry: 4, style: K + 'fill:#555' });
+      E('ellipse', { cx: 464, cy: 297, rx: 6, ry: 4, style: K + 'fill:#555' });
+      // hands
+      [[96, '#e7b894'], [164, '#e7b894'], [476, '#c68a62'], [546, '#c68a62']].forEach(([x, c]) => E('ellipse', { cx: x, cy: 296, rx: 8, ry: 5, style: K + `fill:${c}` }));
+
+      /* tension meter */
+      E('text', { x: 16, y: 376, class: 'lbl', style: 'font-weight:600' }).textContent = 'Dev\'s tension';
+      const gz = gauge(svg, s, 120, 366, 420);
+      return { tiles, bM, bD, setText, maya, dev, aura, gz };
+    },
+
+    frame(r, i, p) {
+      const T = tension(i, p), on = i >= 0;
+      const fin = on ? ease(clamp(p / 0.1, 0, 1)) : 0;
+      const dFade = on ? ease(clamp((p - 0.6) / 0.1, 0, 1)) : 0;
+      const dTalk = on ? dFade * (1 - ease(clamp((p - 0.9) / 0.1, 0, 1))) * (0.5 + 0.5 * Math.sin(p * 80)) : 0;
+      const mTalk = on ? fin * (1 - ease(clamp((p - 0.5) / 0.08, 0, 1))) * (0.5 + 0.5 * Math.sin(p * 95)) : 0;
+      const mOp = fin * (1 - 0.5 * dFade);
+      if (on) { r.setText(r.bM, SAY[i][0]); r.setText(r.bD, SAY[i][1]); }
+      r.bM.g.setAttribute('opacity', mOp.toFixed(3));
+      r.bD.g.setAttribute('opacity', dFade.toFixed(3));
+
+      // tiles: S B I ? light up as the conversation reaches them
+      r.tiles.forEach((t, k) => {
+        const done = on && i - 1 >= k, act = on && i - 1 === k;
+        t.r.setAttribute('style', `fill:${done ? 'var(--accent-soft)' : 'var(--panel)'};stroke:${act ? 'var(--accent)' : 'var(--line)'};stroke-width:${act ? 2.2 : 1.3}`);
+        t.dot.setAttribute('style', `fill:${done ? 'var(--accent)' : 'var(--muted)'}`);
+      });
+
+      // faces
+      const sting = on ? lerp(i > 0 ? FEAT[i - 1][1] : 0, FEAT[i][1], ease(p)) : 0;
+      const face = (f, brow, curve, open, dx, dy) => {
+        f.mouth.setAttribute('d', `M-9 16 Q0 ${16 + curve} 9 16 Q0 ${16 + curve + 3 + open * 8} -9 16 Z`);
+        f.browL.setAttribute('d', `M-18 -14 L-5 ${-14 - brow}`);
+        f.browR.setAttribute('d', `M18 -14 L5 ${-14 - brow}`);
+        [f.eL, f.eR].forEach((e) => { e.p.setAttribute('cx', e.x + dx); e.p.setAttribute('cy', -2 + dy); });
+      };
+      face(r.maya, 2 * sting, 3 - 3 * sting, mTalk, 1.8, 0);
+      face(r.dev, 5 * T, 4 - 9 * T, dTalk, -1.8 + 1.4 * clamp((T - 0.5) / 0.2, 0, 1), 1.6 * clamp((T - 0.5) / 0.2, 0, 1));
+      const listenM = on ? dFade * (1 - dTalk * 0) : 0, listenD = on ? mOp * (1 - dFade) : 0;
+      r.maya.head.setAttribute('transform', `translate(0 ${(1.6 * Math.sin(p * 18) * listenM).toFixed(2)})`);
+      r.dev.head.setAttribute('transform', `translate(0 ${(1.6 * Math.sin(p * 18) * listenD + 3 * clamp((T - 0.45) / 0.3, 0, 1)).toFixed(2)}) rotate(${(-4 * clamp((T - 0.45) / 0.3, 0, 1)).toFixed(2)})`);
+      r.dev.sweat.setAttribute('opacity', clamp((T - 0.5) / 0.15, 0, 1).toFixed(3));
+      r.dev.sweat.setAttribute('transform', `translate(0 ${(5 * clamp((T - 0.5) / 0.3, 0, 1)).toFixed(2)})`);
+      r.aura.setAttribute('r', (36 + 14 * T).toFixed(1));
+      r.aura.setAttribute('style', `fill:color-mix(in srgb, var(--bad) ${Math.round(T * 100)}%, var(--good));opacity:${(0.12 + 0.3 * T).toFixed(2)}`);
+      r.gz.set(T);
+
+      const hint = on ? `${HINT[i]} Tension ${pct(T)} (${zone(T)}).` : 'Maya and Dev sit down. Dev expects bad news: tension 65% (defensive).';
+      return { chips: [{ k: 'tension', v: pct(T), hot: T >= 0.6 }, { k: 'zone', v: zone(T) }, { k: 'part', v: on ? PART[i] : 'Setup' }], hint };
+    }
+  });
+
+  /* ---- sim: five wordings of the Behavior line, same model ---- */
+  const WORDS = [
+    { t: 'You said \'that\'s not my area\' and looked at your laptop.', f: [0, 0.9, 0.9, 0, 0], kind: 'observable', cam: 'yes', reply: '...Yes. I did say that.' },
+    { t: 'You seemed unprepared in the Q&A.', f: [0.5, 0.6, 0.3, 0, 0], kind: 'vague impression', cam: 'no', reply: 'Unprepared how? Be specific.' },
+    { t: 'You never prepare for anything.', f: [0.8, 0.7, 0.1, 0, 0], kind: 'generalisation', cam: 'no', reply: 'Never? I stayed up Tuesday on the deck.' },
+    { t: 'You were rude to the client.', f: [0.9, 0.8, 0.1, 0, 0], kind: 'verdict', cam: 'no', reply: 'I was not rude. I did not know the answer.' },
+    { t: 'You clearly don\'t care about clients.', f: [1, 0.9, 0, 0, 0], kind: 'mind-reading', cam: 'no', reply: 'You don\'t know what I care about.' }
+  ];
+  tm.sim('wording', {
+    setup(stage, { svg }) {
+      const s = svg('svg', { viewBox: '0 0 640 206', class: 'tm-svg', role: 'img', 'aria-label': 'Maya\'s Behavior line, Dev\'s reply and a tension meter' }, stage);
+      svg('text', { x: 14, y: 26, class: 'sub' }, s).textContent = 'MAYA SAYS';
+      const say = svg('text', { x: 14, y: 52, style: 'font:600 15px var(--sans);fill:var(--accent)' }, s);
+      svg('text', { x: 14, y: 86, class: 'sub' }, s).textContent = 'DEV ANSWERS';
+      const rep = svg('text', { x: 14, y: 112, style: 'font:italic 15px var(--sans);fill:var(--ink)' }, s);
+      svg('text', { x: 14, y: 146, class: 'sub' }, s).textContent = 'TENSION AFTER THIS LINE (starts at 49%, after the Situation)';
+      const gz = gauge(svg, s, 14, 168, 480);
+      return { say, rep, gz };
+    },
+    update(r, v) {
+      const w = WORDS.find((x) => x.t === v.line) || WORDS[0];
+      const T = clamp(tEnd(1) + delta(w.f), 0.05, 1);
+      r.say.textContent = '"' + w.t + '"'; r.rep.textContent = '"' + w.reply + '"'; r.gz.set(T);
+      return {
+        chips: [{ k: 'tension', v: pct(T), hot: T >= 0.6 }, { k: 'type', v: w.kind, hot: w.kind !== 'observable' }, { k: 'camera could record it', v: w.cam }],
+        hint: w.cam === 'yes' ? 'A camera would show this, so there is nothing to argue about. Dev can only reply to the facts.' : `A ${w.kind} cannot be checked, so Dev argues with it instead of hearing it.`
+      };
+    }
+  });
+})();
+</script>
+</body>
+</html>

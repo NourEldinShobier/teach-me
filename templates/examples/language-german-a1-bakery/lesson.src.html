@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Beim Bäcker</title>
+<meta name="tm-lesson" content="german-a1-bakery">
+<meta name="tm-format" content="language">
+<meta name="description" content="German A1 at the bakery: seven nouns with gender and plural, and why only masculine articles change after Ich möchte.">
+<link rel="stylesheet" href="tm.css" data-tm-inline>
+</head>
+<body>
+<main class="tm">
+  <div class="tm-top"><span class="tm-kicker">Teach Me · language · German A1</span><span class="tm-sp"></span><span>15 min</span><button class="tm-iconbtn" type="button" data-tm-theme></button></div>
+  <h1>Beim Bäcker</h1>
+  <section class="tm-bigidea">
+    <strong>The big idea</strong>
+    <p>In German, the noun's gender picks its article, and after “Ich möchte” only masculine articles change.</p>
+    <p class="tm-win">You will be able to: order seven bakery items with the right article, and say “Ich möchte einen Kaffee” without thinking.</p>
+  </section>
+
+  <h2>1. Seven words, each with its gender colour</h2>
+  <p>Learn every noun with its article and plural, as one chunk. <span class="g-m">Blue</span> is <span class="g-m">der</span>, <span class="g-f">red</span> is <span class="g-f">die</span>, <span class="g-n">green</span> is <span class="g-n">das</span>. Click 🔊 to hear a word; Shift+click plays it slowly.</p>
+  <table class="tm-table">
+    <thead><tr><th>Word</th><th>Plural</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td><span data-say="de-DE"><span class="g-n">das</span> Brötchen</span><br><small>bread roll</small></td><td><span data-say="de-DE">die Brötchen</span></td><td><span data-say="de-DE">Ich möchte ein Brötchen.</span><br><small>I would like a roll.</small></td></tr>
+      <tr><td><span data-say="de-DE"><span class="g-f">die</span> Brezel</span><br><small>pretzel</small></td><td><span data-say="de-DE">die Brezeln</span></td><td><span data-say="de-DE">Eine Brezel, bitte.</span><br><small>A pretzel, please.</small></td></tr>
+      <tr><td><span data-say="de-DE"><span class="g-m">der</span> Kuchen</span><br><small>cake</small></td><td><span data-say="de-DE">die Kuchen</span></td><td><span data-say="de-DE">Der Kuchen ist frisch.</span><br><small>The cake is fresh.</small></td></tr>
+      <tr><td><span data-say="de-DE"><span class="g-n">das</span> Brot</span><br><small>bread</small></td><td><span data-say="de-DE">die Brote</span></td><td><span data-say="de-DE">Das Brot ist warm.</span><br><small>The bread is warm.</small></td></tr>
+      <tr><td><span data-say="de-DE"><span class="g-f">die</span> Torte</span><br><small>layer cake</small></td><td><span data-say="de-DE">die Torten</span></td><td><span data-say="de-DE">Die Torte sieht lecker aus.</span><br><small>The cake looks tasty.</small></td></tr>
+      <tr><td><span data-say="de-DE"><span class="g-m">der</span> Kaffee</span><br><small>coffee</small></td><td><span data-say="de-DE">die Kaffees</span></td><td><span data-say="de-DE">Ich möchte einen Kaffee.</span><br><small>I would like a coffee.</small></td></tr>
+      <tr><td><span data-say="de-DE"><span class="g-n">das</span> Croissant</span><br><small>croissant</small></td><td><span data-say="de-DE">die Croissants</span></td><td><span data-say="de-DE">Ein Croissant, bitte.</span><br><small>A croissant, please.</small></td></tr>
+    </tbody>
+  </table>
+  <div class="tm-callout tm-warn"><b>Careful:</b> DWDS lists <i>Croissant</i> as <span class="g-n">das</span> or <span class="g-m">der</span>; this lesson uses <span class="g-n">das</span>. Wiktionary also records regional <span class="g-n">das</span> Brezel and <span class="g-n">das</span> Kaffee; the standard forms are <span class="g-f">die</span> Brezel and <span class="g-m">der</span> Kaffee.</div>
+
+  <h2>2. Which article after “Ich möchte”?</h2>
+  <p>You say “Das ist ein Kuchen” (<span class="g-m">der</span> Kuchen is masculine). Now you order one.</p>
+  <div data-tm="predict"><script type="application/json">{
+    "q": "“Das ist ein Kuchen.” At the counter you say: “Ich möchte ___ Kuchen, bitte.” Which word fills the gap?",
+    "options": ["<i>ein</i>", "<i>eine</i>", "<i>einen</i>"],
+    "answer": 2,
+    "shuffle": false,
+    "why": ["Natural guess, but <i>ein</i> is the form for the subject (“Das ist …”). The thing you order is the object, and masculine changes there.", "<i>eine</i> is the feminine form. Kuchen is masculine, so this one never fits.", "Right: the thing you order is the object (accusative case), and masculine <i>ein</i> becomes <i>einen</i>."]
+  }</script></div>
+  <div class="tm-reveal" hidden>
+    <div data-tm="sim"><script type="application/json">{
+      "name": "counter", "title": "The bakery counter (pick an item and a sentence)", "fig": 1,
+      "hint": "Choose an item and switch between the two sentences. Watch which articles change.",
+      "inputs": [
+        {"id": "item", "label": "Item in the case", "options": ["Brötchen", "Brezel", "Kuchen", "Brot", "Torte", "Kaffee", "Croissant"], "value": "Kuchen"},
+        {"id": "sent", "label": "Sentence", "options": ["Das ist … (nominative)", "Ich möchte … (accusative)"], "value": "Ich möchte … (accusative)"}
+      ]
+    }</script></div>
+  </div>
+  <p>Only the blue words change. <span class="g-f">Die</span> and <span class="g-n">das</span> look the same in both sentences, and so do <i>eine</i> and <i>ein</i>.</p>
+
+  <div data-tm="quiz"><script type="application/json">{
+    "q": "A new word on the cake display: <i>Plätzchen</i> (cookie). Which article, and why?",
+    "options": ["<i>der</i>, it is a food", "<i>die</i>, it ends in -en", "<i>das</i>, it ends in -chen"],
+    "answer": 2,
+    "why": ["Food does not decide gender; <i>der Kuchen</i> and <i>die Torte</i> are both food.", "-en is not a feminine ending: <i>der Kuchen</i> and <i>der Wagen</i> are masculine.", "Every noun ending in the diminutive <i>-chen</i> is neuter, like <i>das Brötchen</i>."],
+    "explain": "Wiktionary: words ending in -chen are always neuter. Plural: <i>die Plätzchen</i>."
+  }</script></div>
+
+  <div data-tm="quiz"><script type="application/json">{
+    "q": "You want a coffee. The word ends in -e, which looks feminine. Complete: “Ich möchte ___ Kaffee.”",
+    "options": ["<i>ein</i>", "<i>eine</i>", "<i>einen</i>"],
+    "answer": 2,
+    "why": ["<i>ein</i> is the subject form of a masculine noun, but a coffee you order is the object.", "-e tempts you, but <i>Kaffee</i> is masculine (<span class=\"g-m\">der</span> Kaffee), so <i>eine</i> is wrong.", "Masculine plus object: <i>der Kaffee</i> becomes <i>einen Kaffee</i>."],
+    "explain": "Learn the gender from the article, not from the ending: -e is only a hint."
+  }</script></div>
+
+  <h2>3. A short dialogue</h2>
+  <p>Read the German column first and cover the English. Click 🔊 on each line and repeat it aloud.</p>
+  <table class="tm-table">
+    <thead><tr><th>Who</th><th>German</th><th>English</th></tr></thead>
+    <tbody>
+      <tr><td>Verkäuferin</td><td><span data-say="de-DE">Guten Morgen! Was darf es sein?</span></td><td style="color:var(--muted)">Good morning! What can I get you?</td></tr>
+      <tr><td>Kunde</td><td><span data-say="de-DE">Guten Morgen. Ich möchte zwei Brötchen und ein Brot, bitte.</span></td><td style="color:var(--muted)">Good morning. I would like two rolls and a loaf of bread, please.</td></tr>
+      <tr><td>Verkäuferin</td><td><span data-say="de-DE">Sonst noch etwas?</span></td><td style="color:var(--muted)">Anything else?</td></tr>
+      <tr><td>Kunde</td><td><span data-say="de-DE">Ja, einen Kaffee und eine Brezel, bitte.</span></td><td style="color:var(--muted)">Yes, a coffee and a pretzel, please.</td></tr>
+      <tr><td>Verkäuferin</td><td><span data-say="de-DE">Das macht sieben Euro vierzig.</span></td><td style="color:var(--muted)">That comes to 7.40 euros.</td></tr>
+      <tr><td>Kunde</td><td><span data-say="de-DE">Hier, bitte. Danke, tschüss!</span></td><td style="color:var(--muted)">Here you go. Thanks, bye!</td></tr>
+    </tbody>
+  </table>
+
+  <h2>4. Keep it</h2>
+  <p>First the words with gender and plural, then sentences with one gap each.</p>
+  <div data-tm="cards"><script type="application/json">{
+    "deck": "de-bakery-words", "title": "Words (English to German)", "lang": "de-DE",
+    "cards": [
+      {"front": "bread roll", "back": "<span class=\"g-n\">das</span> Brötchen · pl. die Brötchen", "note": "neuter: -chen", "say": "das Brötchen", "verified": true},
+      {"front": "pretzel", "back": "<span class=\"g-f\">die</span> Brezel · pl. die Brezeln", "note": "feminine", "say": "die Brezel", "verified": true},
+      {"front": "cake", "back": "<span class=\"g-m\">der</span> Kuchen · pl. die Kuchen", "note": "masculine; the plural looks like the singular", "say": "der Kuchen", "verified": true},
+      {"front": "bread", "back": "<span class=\"g-n\">das</span> Brot · pl. die Brote", "note": "neuter", "say": "das Brot", "verified": true},
+      {"front": "layer cake", "back": "<span class=\"g-f\">die</span> Torte · pl. die Torten", "note": "feminine", "say": "die Torte", "verified": true},
+      {"front": "coffee", "back": "<span class=\"g-m\">der</span> Kaffee · pl. die Kaffees", "note": "masculine, although it ends in -e", "say": "der Kaffee", "verified": true},
+      {"front": "croissant", "back": "<span class=\"g-n\">das</span> Croissant · pl. die Croissants", "note": "also <i>der</i> in DWDS; this lesson uses <i>das</i>", "say": "das Croissant", "verified": true}
+    ]
+  }</script></div>
+  <div data-tm="cards"><script type="application/json">{
+    "deck": "de-bakery-cloze", "title": "Sentences with a gap", "lang": "de-DE",
+    "cards": [
+      {"front": "Ich möchte {{c1::einen}} Kuchen.", "back": "", "note": "der Kuchen: masculine object", "say": "Ich möchte einen Kuchen.", "verified": true},
+      {"front": "Ich möchte {{c1::eine}} Brezel, bitte.", "back": "", "note": "die Brezel: feminine stays eine", "say": "Ich möchte eine Brezel, bitte.", "verified": true},
+      {"front": "Ich möchte {{c1::ein}} Brot, bitte.", "back": "", "note": "das Brot: neuter stays ein", "say": "Ich möchte ein Brot, bitte.", "verified": true},
+      {"front": "Ich möchte zwei {{c1::Brötchen}}, bitte.", "back": "", "note": "plural of das Brötchen is die Brötchen", "say": "Ich möchte zwei Brötchen, bitte.", "verified": true}
+    ]
+  }</script></div>
+
+  <div data-tm="ask"><script type="application/json">{"prompts": [
+    "Play the baker. Let me order five things in German, and correct every article I get wrong.",
+    "Give me 5 new bakery words (A1). I answer with the article and plural, and you correct me.",
+    "Write my own order in German with 3 items. Then correct my gender and case, and explain each fix in English."
+  ]}</script></div>
+  <div data-tm="save"></div>
+
+  <footer class="tm-sources">
+    <b>Read next:</b> <a href="https://en.wiktionary.org/wiki/einen">Wiktionary: einen</a> (shows it as the accusative masculine form of <i>ein</i>).
+    <ol>
+      <li>Gender and plural of the seven nouns: <a href="https://de.wiktionary.org/wiki/Brötchen">German Wiktionary</a> (CC BY-SA), e.g. <a href="https://de.wiktionary.org/wiki/Kuchen">Kuchen</a>, <a href="https://de.wiktionary.org/wiki/Kaffee">Kaffee</a>, <a href="https://de.wiktionary.org/wiki/Croissant">Croissant</a>.</li>
+      <li>Gender cross-check: <a href="https://www.dwds.de/wb/Brötchen">DWDS Brötchen</a>, <a href="https://www.dwds.de/wb/Croissant">DWDS Croissant</a> (das oder der), <a href="https://www.dwds.de/wb/Plätzchen">DWDS Plätzchen</a>.</li>
+      <li>The suffix rule: <a href="https://en.wiktionary.org/wiki/-chen">Wiktionary: -chen</a> (always neuter).</li>
+    </ol>
+  </footer>
+</main>
+<script src="tm.js" data-tm-inline></script>
+<script>
+// Model: gender -> article. check: Kuchen+acc -> "einen", "den"; Brezel+acc -> "eine", "die"; Brot+acc -> "ein", "das".
+const ITEMS = [
+  { n: 'Brötchen', g: 'n', pl: 'Brötchen' }, { n: 'Brezel', g: 'f', pl: 'Brezeln' }, { n: 'Kuchen', g: 'm', pl: 'Kuchen' },
+  { n: 'Brot', g: 'n', pl: 'Brote' }, { n: 'Torte', g: 'f', pl: 'Torten' }, { n: 'Kaffee', g: 'm', pl: 'Kaffees' }, { n: 'Croissant', g: 'n', pl: 'Croissants' }
+];
+const DEF = { m: ['der', 'den'], f: ['die', 'die'], n: ['das', 'das'] };
+const INDEF = { m: ['ein', 'einen'], f: ['eine', 'eine'], n: ['ein', 'ein'] };
+const COL = { m: 'var(--m)', f: 'var(--f)', n: 'var(--n)' };
+const SLOT = (i) => 55 + i * 98;
+function model(name, sent) {
+  const idx = Math.max(0, ITEMS.findIndex((x) => x.n === name)), it = ITEMS[idx], acc = /möchte/.test(sent), c = acc ? 1 : 0;
+  const d = DEF[it.g], a = INDEF[it.g];
+  return { it, idx, acc, art: a[c], def: d[c], changed: a[0] !== a[1], pre: acc ? 'Ich möchte ' : 'Das ist ', post: acc ? ', bitte.' : '.', defPair: d[0] + ' → ' + d[1], indPair: a[0] + ' → ' + a[1] };
+}
+
+tm.sim('counter', {
+  setup(stage, { svg }) {
+    const s = svg('svg', { viewBox: '0 0 700 330', class: 'tm-svg', role: 'img', 'aria-label': 'A bakery counter with seven items and a speech bubble' }, stage);
+    const P = (tag, attrs, par) => svg(tag, attrs, par || s);
+    const CR = '#c98a4b', DK = '#7a4a22', LT = '#e8b878', CREAM = '#fff3d6', RED = '#c23b4a';
+    // awning: 14 stripes, scalloped edge, name plate
+    for (let i = 0; i < 14; i++) {
+      P('rect', { x: i * 50, y: 0, width: 50, height: 30, fill: i % 2 ? '#f6ecd9' : RED }, s);
+      P('path', { d: `M${i * 50} 30 a25 10 0 0 0 50 0 Z`, fill: i % 2 ? '#f6ecd9' : RED, stroke: DK, 'stroke-width': .8 }, s);
+    }
+    P('rect', { x: 290, y: 5, width: 120, height: 22, rx: 4, fill: '#3b2a1c' }, s);
+    P('text', { x: 350, y: 21, 'text-anchor': 'middle', style: 'font:700 13px var(--sans);letter-spacing:3px', fill: '#f6ecd9' }, s).textContent = 'BÄCKEREI';
+    // wall, shelf with loaves, basket of baguettes, clock
+    P('rect', { x: 0, y: 40, width: 700, height: 112, fill: 'var(--soft)' }, s);
+    for (let y = 56; y < 150; y += 18) P('line', { x1: 0, x2: 700, y1: y, y2: y, stroke: 'var(--line)', 'stroke-width': .8 }, s);
+    P('rect', { x: 14, y: 138, width: 180, height: 7, fill: '#9a6a3a', stroke: DK }, s);
+    for (let i = 0; i < 5; i++) { const x = 36 + i * 34; P('path', { d: `M${x - 13} 138 C${x - 14} 120 ${x + 14} 120 ${x + 13} 138Z`, fill: CR, stroke: DK, 'stroke-width': 1 }, s); P('path', { d: `M${x - 5} 128 l3 8 M${x + 2} 126 l3 10`, stroke: DK, 'stroke-width': 1 }, s); }
+    P('rect', { x: 500, y: 138, width: 120, height: 7, fill: '#9a6a3a', stroke: DK }, s);
+    for (let i = 0; i < 5; i++) P('rect', { x: 523 + i * 14, y: 78 + (i % 2) * 6, width: 9, height: 32 - (i % 2) * 6, rx: 4.5, fill: LT, stroke: DK, 'stroke-width': 1 }, s);
+    P('path', { d: 'M515 138 L522 108 L598 108 L605 138Z', fill: '#b98a52', stroke: DK }, s);
+    for (let i = 0; i < 6; i++) P('line', { x1: 520 + i * 13, y1: 108, x2: 515 + i * 14, y2: 138, stroke: DK, 'stroke-width': .6 }, s);
+    P('circle', { cx: 660, cy: 74, r: 17, fill: '#fff', stroke: '#3b2a1c', 'stroke-width': 2.5 }, s);
+    for (let i = 0; i < 12; i++) { const a = i * Math.PI / 6; P('line', { x1: 660 + 14 * Math.sin(a), y1: 74 - 14 * Math.cos(a), x2: 660 + 16 * Math.sin(a), y2: 74 - 16 * Math.cos(a), stroke: '#3b2a1c', 'stroke-width': 1 }, s); }
+    P('path', { d: 'M660 74 L660 63 M660 74 L668 78', stroke: '#3b2a1c', 'stroke-width': 1.8, 'stroke-linecap': 'round' }, s);
+    // glass case
+    P('rect', { x: 14, y: 152, width: 672, height: 112, fill: 'var(--panel)', 'fill-opacity': .55, stroke: 'var(--line)', 'stroke-width': 2 }, s);
+    const lamp = P('g', { style: 'transition:transform .4s cubic-bezier(.3,.7,.2,1)' }, s);
+    P('path', { d: 'M-8 158 L8 158 L44 250 L-44 250Z', fill: '#ffe9a8', 'fill-opacity': .3 }, lamp);
+    P('rect', { x: -12, y: 152, width: 24, height: 5, rx: 2, fill: '#555' }, lamp);
+    P('path', { d: 'M-10 158 a10 7 0 0 1 20 0Z', fill: '#e9c24a', stroke: '#555', 'stroke-width': 1 }, lamp);
+    // items on silver trays
+    const items = ITEMS.map((it, i) => {
+      P('rect', { x: SLOT(i) - 42, y: 244, width: 84, height: 7, rx: 2, fill: '#c9ced6', stroke: '#8d949f' }, s);
+      P('line', { x1: SLOT(i) - 38, x2: SLOT(i) + 38, y1: 246, y2: 246, stroke: '#fff', 'stroke-width': 1, 'stroke-opacity': .8 }, s);
+      const g = P('g', { transform: `translate(${SLOT(i)} 244)` }, s);
+      P('ellipse', { cx: 0, cy: 0, rx: 32, ry: 4, fill: '#000', 'fill-opacity': .15 }, g);
+      const pop = P('g', { style: 'transform-origin:0 0;transition:transform .4s cubic-bezier(.3,.7,.2,1)' }, g);
+      const q = (tag, a) => P(tag, a, pop);
+      if (it.n === 'Brötchen') {
+        q('path', { d: 'M-27 0 C-30 -20 -10 -31 0 -31 C10 -31 30 -20 27 0Z', fill: CR, stroke: DK, 'stroke-width': 1.3 });
+        q('path', { d: 'M-18 -14 C-14 -24 -6 -28 0 -28', fill: 'none', stroke: LT, 'stroke-width': 3, 'stroke-linecap': 'round' });
+        q('path', { d: 'M-10 -26 C-4 -18 -5 -9 -9 -3 M2 -29 C8 -20 7 -10 3 -3 M13 -25 C18 -18 17 -9 13 -3', fill: 'none', stroke: DK, 'stroke-width': 1.4, 'stroke-linecap': 'round' });
+        [[-20, -9], [-6, -14], [8, -15], [20, -8], [0, -6], [-14, -4]].forEach(([x, y]) => q('ellipse', { cx: x, cy: y, rx: 1.8, ry: 1, fill: CREAM, transform: `rotate(${x * 3} ${x} ${y})` }));
+      } else if (it.n === 'Brezel') {
+        const arms = ['M-24 2 C-40 -18 -30 -40 -12 -36 C-3 -34 0 -24 0 -18 C0 -24 3 -34 12 -36 C30 -40 40 -18 24 2', 'M-24 2 C-12 -4 4 -6 14 -14', 'M24 2 C12 -4 -4 -6 -14 -14'];
+        arms.forEach((d) => q('path', { d, fill: 'none', stroke: DK, 'stroke-width': 8, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }));
+        arms.forEach((d) => q('path', { d, fill: 'none', stroke: CR, 'stroke-width': 5.2, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }));
+        arms.forEach((d) => q('path', { d, fill: 'none', stroke: LT, 'stroke-width': 1.4, 'stroke-dasharray': '8 6', 'stroke-linecap': 'round' }));
+        [[-30, -24], [-22, -34], [-10, -36], [10, -36], [22, -34], [30, -24], [-4, -26], [4, -26], [-1, -8], [-10, -6], [10, -6]].forEach(([x, y]) => q('circle', { cx: x, cy: y, r: 1.2, fill: '#fff' }));
+      } else if (it.n === 'Kuchen') { // Gugelhupf with powdered sugar
+        q('path', { d: 'M-22 0 L-28 -8 C-31 -22 -16 -31 0 -31 C16 -31 31 -22 28 -8 L22 0Z', fill: '#b9772f', stroke: DK, 'stroke-width': 1.3 });
+        for (let i = -3; i <= 3; i++) q('path', { d: `M${i * 8} -29 C${i * 9.5} -18 ${i * 9} -8 ${i * 7} 0`, fill: 'none', stroke: DK, 'stroke-width': 1, 'stroke-opacity': .7 });
+        q('ellipse', { cx: 0, cy: -30, rx: 17, ry: 4.5, fill: '#fff8ec', stroke: DK, 'stroke-width': 1 });
+        q('ellipse', { cx: 0, cy: -30, rx: 6, ry: 1.8, fill: '#5b3a29' });
+        [[-22, -20], [-12, -26], [12, -26], [22, -20], [-26, -12], [26, -12], [-4, -22], [5, -23]].forEach(([x, y]) => q('circle', { cx: x, cy: y, r: 1.6, fill: '#fff8ec' }));
+        q('path', { d: 'M-28 -9 q4 3 6 -2 M20 -11 q4 3 7 0', fill: 'none', stroke: '#fff8ec', 'stroke-width': 2, 'stroke-linecap': 'round' });
+      } else if (it.n === 'Brot') { // loaf plus a cut slice
+        q('path', { d: 'M-34 0 C-38 -16 -26 -32 -4 -32 C16 -32 26 -20 24 0Z', fill: CR, stroke: DK, 'stroke-width': 1.3 });
+        q('path', { d: 'M-26 -14 C-22 -24 -14 -28 -6 -28', fill: 'none', stroke: LT, 'stroke-width': 3, 'stroke-linecap': 'round' });
+        q('path', { d: 'M-22 -24 l6 20 M-10 -28 l6 24 M2 -27 l5 22', fill: 'none', stroke: LT, 'stroke-width': 3.2, 'stroke-linecap': 'round' });
+        q('path', { d: 'M-22 -24 l6 20 M-10 -28 l6 24 M2 -27 l5 22', fill: 'none', stroke: DK, 'stroke-width': .8, 'stroke-linecap': 'round', 'stroke-opacity': .6 });
+        q('path', { d: 'M28 0 L28 -20 C28 -26 40 -26 40 -20 L40 0Z', fill: CREAM, stroke: DK, 'stroke-width': 1.3 });
+        q('path', { d: 'M28 -20 C28 -26 40 -26 40 -20', fill: 'none', stroke: CR, 'stroke-width': 3 });
+        [[32, -14], [36, -8], [33, -5], [37, -16]].forEach(([x, y]) => q('circle', { cx: x, cy: y, r: .8, fill: '#d9b57a' }));
+      } else if (it.n === 'Torte') {
+        q('rect', { x: -25, y: -8, width: 50, height: 8, fill: '#d9a35c', stroke: DK, 'stroke-width': 1 });
+        q('rect', { x: -25, y: -15, width: 50, height: 7, fill: '#fff3e0', stroke: DK, 'stroke-width': 1 });
+        q('rect', { x: -25, y: -23, width: 50, height: 8, fill: '#d9a35c', stroke: DK, 'stroke-width': 1 });
+        q('ellipse', { cx: 0, cy: -23, rx: 25, ry: 5.5, fill: '#fff3e0', stroke: DK, 'stroke-width': 1 });
+        for (let i = 0; i < 7; i++) { const a = i * 0.9; q('circle', { cx: 15 * Math.cos(a), cy: -23 + 3 * Math.sin(a), r: 3, fill: i % 2 ? RED : '#e35d6a', stroke: '#7a1f2a', 'stroke-width': .7 }); }
+        q('circle', { cx: 0, cy: -25, r: 3.6, fill: '#8e1f2e', stroke: '#4a0f17', 'stroke-width': .8 });
+        q('path', { d: 'M0 -28 q4 -6 8 -8', fill: 'none', stroke: '#2f7a3a', 'stroke-width': 1.4, 'stroke-linecap': 'round' });
+      } else if (it.n === 'Kaffee') {
+        q('ellipse', { cx: 0, cy: -1.5, rx: 28, ry: 5, fill: '#fff', stroke: '#8d949f', 'stroke-width': 1.2 });
+        q('path', { d: 'M17 -22 C32 -24 32 -8 15 -9', fill: 'none', stroke: '#8d949f', 'stroke-width': 4, 'stroke-linecap': 'round' });
+        q('path', { d: 'M17 -22 C32 -24 32 -8 15 -9', fill: 'none', stroke: '#fff', 'stroke-width': 2, 'stroke-linecap': 'round' });
+        q('path', { d: 'M-18 -26 L18 -26 C18 -9 9 -3 0 -3 C-9 -3 -18 -9 -18 -26Z', fill: '#fff', stroke: '#8d949f', 'stroke-width': 1.2 });
+        q('ellipse', { cx: 0, cy: -26, rx: 18, ry: 4.2, fill: '#5b3a29', stroke: '#8d949f', 'stroke-width': 1.2 });
+        q('ellipse', { cx: -5, cy: -26.5, rx: 6, ry: 1.3, fill: '#8b5e3c' });
+        q('path', { d: 'M-8 -34 q-4 -5 0 -9 q4 -4 0 -9 M2 -34 q-4 -5 0 -9 q4 -4 0 -9 M12 -34 q-4 -5 0 -9', fill: 'none', stroke: '#9aa3ad', 'stroke-width': 1.6, 'stroke-linecap': 'round', 'stroke-opacity': .8 });
+      } else { // Croissant: five rolled segments along an arc
+        [0, 4, 1, 3, 2].forEach((k) => {
+          const a = 200 + k * 35, r = (a * Math.PI) / 180, x = 25 * Math.cos(r), y = 5 + 24 * Math.sin(r), rx = [7, 10, 13, 10, 7][k], ry = [6, 8, 10, 8, 6][k];
+          q('ellipse', { cx: x, cy: y, rx, ry, transform: `rotate(${a + 90} ${x} ${y})`, fill: k === 2 ? '#d9954a' : CR, stroke: DK, 'stroke-width': 1.2 });
+          q('path', { d: `M${x - 4} ${y - ry + 2} q4 ${ry - 1} 0 ${2 * ry - 4}`, transform: `rotate(${a + 90} ${x} ${y})`, fill: 'none', stroke: LT, 'stroke-width': 1.4, 'stroke-linecap': 'round' });
+        });
+      }
+      return pop;
+    });
+    // counter front: wood planks, gender tags and nouns
+    P('rect', { x: 0, y: 264, width: 700, height: 66, fill: '#9a6a3a' }, s);
+    P('rect', { x: 0, y: 264, width: 700, height: 8, fill: '#c28d54' }, s);
+    for (let i = 1; i < 14; i++) P('line', { x1: i * 50, x2: i * 50, y1: 272, y2: 330, stroke: DK, 'stroke-width': .8, 'stroke-opacity': .6 }, s);
+    const ring = P('rect', { x: -48, y: 275, width: 96, height: 50, rx: 8, fill: 'none', stroke: '#ffe9a8', 'stroke-width': 3, style: 'transition:transform .4s cubic-bezier(.3,.7,.2,1)' }, s);
+    const tags = ITEMS.map((it, i) => {
+      P('rect', { x: SLOT(i) - 19, y: 280, width: 38, height: 17, rx: 8.5, fill: COL[it.g] }, s);
+      const t = P('text', { x: SLOT(i), y: 292.5, 'text-anchor': 'middle', style: 'font:700 12px var(--sans)', fill: '#fff' }, s);
+      P('text', { x: SLOT(i), y: 315, 'text-anchor': 'middle', style: 'font:600 13px var(--sans)', fill: '#fff8ec' }, s).textContent = it.n;
+      return t;
+    });
+    // speech bubble (follows the selected item)
+    const bub = P('g', { style: 'transition:transform .4s cubic-bezier(.3,.7,.2,1)' }, s);
+    const bRect = P('rect', { y: 44, height: 40, rx: 12, fill: '#fff', stroke: '#3b2a1c', 'stroke-width': 1.6 }, bub);
+    const bTail = P('path', { fill: '#fff', stroke: '#3b2a1c', 'stroke-width': 1.6, 'stroke-linejoin': 'round' }, bub);
+    const bCover = P('rect', { y: 82, height: 4, fill: '#fff' }, bub);
+    const bText = P('text', { y: 70, 'text-anchor': 'middle', style: 'font:600 17px var(--sans);fill:#1b1b1f' }, bub);
+    return { items, tags, lamp, ring, bub, bRect, bTail, bCover, bText };
+  },
+  update(c, v) {
+    const m = model(v.item, v.sent), x = SLOT(m.idx);
+    c.items.forEach((pop, i) => { pop.style.transform = i === m.idx ? 'translateY(-6px) scale(1.22)' : 'none'; });
+    c.tags.forEach((t, i) => { t.textContent = DEF[ITEMS[i].g][m.acc ? 1 : 0]; });
+    c.lamp.style.transform = `translateX(${x}px)`;
+    c.ring.style.transform = `translateX(${x}px)`;
+    const full = m.pre + m.art + ' ' + m.it.n + m.post, w = Math.max(190, full.length * 9.6 + 30), cx = Math.min(Math.max(x, w / 2 + 12), 700 - w / 2 - 12);
+    c.bub.style.transform = `translateX(${cx}px)`;
+    c.bRect.setAttribute('x', -w / 2); c.bRect.setAttribute('width', w);
+    const tx = Math.min(Math.max(x - cx, -w / 2 + 24), w / 2 - 24);
+    c.bTail.setAttribute('d', `M${tx - 9} 84 L${tx} 98 L${tx + 9} 84`);
+    c.bCover.setAttribute('x', tx - 8); c.bCover.setAttribute('width', 16);
+    c.bText.innerHTML = `${m.pre}<tspan style="fill:${COL[m.it.g]};font-weight:800${m.changed && m.acc ? ';text-decoration:underline' : ''}">${m.art}</tspan> ${m.it.n}${m.post}`;
+    const g = { m: 'masculine', f: 'feminine', n: 'neuter' }[m.it.g];
+    const hint = m.it.g === 'm'
+      ? (m.acc ? `<b>Masculine changes:</b> <span class="g-m">der → den</span>, <span class="g-m">ein → einen</span>. Switch to “Das ist …” to see the other form.` : `In “Das ist …” the masculine article is the plain one: <span class="g-m">der</span>, <span class="g-m">ein</span>.`)
+      : `<b>${m.it.n}</b> is ${g}, so its article is the same in both sentences. Only masculine nouns change.`;
+    return { chips: [{ k: 'gender', v: DEF[m.it.g][0] + ' ' + m.it.n }, { k: 'plural', v: 'die ' + m.it.pl }, { k: 'the', v: m.defPair, hot: m.changed }, { k: 'a', v: m.indPair, hot: m.changed }], hint };
+  }
+});
+</script>
+</body>
+</html>
