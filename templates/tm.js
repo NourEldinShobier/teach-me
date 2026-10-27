@@ -299,7 +299,7 @@
           const [x1, y1] = border(a, b.cx, b.cy), [x2, y2] = border(b, a.cx, a.cy);
           const g = svg('g', {}, s);
           const line = svg('path', { d: `M${x1},${y1} L${x2},${y2}`, class: 'edge', 'marker-end': `url(#${uid}a)` }, g);
-          if (e.label) { const t = svg('text', { x: (x1 + x2) / 2 + (x1 === x2 ? 8 : 0), y: (y1 + y2) / 2 - (y1 === y2 ? 8 : 0), 'text-anchor': x1 === x2 ? 'start' : 'middle', class: 'sub' }, g); t.textContent = e.label; }
+          if (e.label) { const t = svg('text', { x: (x1 + x2) / 2 + (x1 === x2 ? 8 : 0), y: (y1 + y2) / 2 - (y1 === y2 ? 8 : 0), 'text-anchor': x1 === x2 ? 'start' : 'middle', class: 'sub halo' }, g); t.textContent = e.label; }
           edges[edgeKey(e.from, e.to)] = { line, x1, y1, x2, y2, uid };
         }
         const nodeEls = {};

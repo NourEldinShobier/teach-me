@@ -257,7 +257,7 @@
       const labs = {};
       const lab = (id, text, x, y, anchor, lx1, ly1, lx2, ly2) => {
         const g = A('g', { class: 'lab' }); const ln = lx1 == null ? null : A('line', { x1: lx1, y1: ly1, x2: lx2, y2: ly2 }, g);
-        const t = A('text', { x, y, 'text-anchor': anchor || 'start' }, g); t.textContent = text; labs[id] = { g, t, ln }; return labs[id];
+        const t = A('text', { x, y, 'text-anchor': anchor || 'start', class: 'halo' }, g); t.textContent = text; labs[id] = { g, t, ln }; return labs[id];
       };
       lab('handle', 'Handle', 592, 92);
       lab('arm', 'Lift arm', 592, 176, 'start', 588, 172, 478, 108);

@@ -54,3 +54,4 @@ Pages are not all white. Colour comes from three places, all automatic:
 - **Diagram nodes** are tinted by column; set `tone` on a node or zone to group by meaning instead (e.g. all CloudWatch parts violet, AWS compute blue). The packet is rose.
 
 Mix colours with `color-mix(in oklab, …)`, never `in oklch`: oklch mixes with white or grey swing the hue toward pink.
+- Labels that sit over lines, water or bars: add `class="halo"` to the `<text>` for a panel-coloured outline. Never on text over light shapes (it smears in dark mode).

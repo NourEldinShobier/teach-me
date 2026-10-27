@@ -417,5 +417,5 @@ h2::before { content: ""; display: inline-block; width: 8px; height: 8px; border
 .tm-opt.tm-right::before { border-color: var(--good); background: var(--good); }
 .tm-opt.tm-wrong { border-color: color-mix(in oklab, var(--bad) 60%, var(--panel)); }
 .tm-opt.tm-wrong::before { border-color: var(--bad); background: var(--bad); }
-/* Free-standing figure labels get a halo so lines and water behind them don't strike through */
-.tm-svg :not(.node) > text { paint-order: stroke; stroke: var(--panel); stroke-width: 3px; stroke-linejoin: round; }
+/* Opt-in halo for labels that sit over lines, water or bars: <text class="halo">. Not global: on light shapes in dark mode a panel-coloured halo smears. */
+.tm-svg text.halo { paint-order: stroke; stroke: var(--panel); stroke-width: 3px; stroke-linejoin: round; }
