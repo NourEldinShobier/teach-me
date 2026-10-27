@@ -143,6 +143,7 @@ One variable per sim. The readout names the term the lesson teaches. Prefer real
 - `explain`: `{"prompt": "Explain why … in two sentences."}` A textarea saved locally with a "Copy for Claude" button. Never graded in the page.
 - `ask`: `{"prompts": ["…", "…", "…"]}` Three ready prompts the learner can copy to their agent. Required on every lesson.
 - `save`: no config. "Copy my progress for Claude", download progress JSON, reset.
+- Highlights and notes are built in, no markup needed: the learner selects text in any prose block (not inside widgets) and picks Highlight or Note. They are saved with the lesson progress, restored on reload, cleared by Reset, and included in "Copy my progress for Claude" (read notes there as questions or confusions to address).
 
 ## Test hooks
 

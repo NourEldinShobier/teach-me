@@ -426,3 +426,14 @@ h2::before { content: ""; display: inline-block; width: 8px; height: 8px; border
   .tm-stage svg { min-width: calc(var(--vbw, 560) * 1px); max-height: none; }
   .tm-stage::-webkit-scrollbar { height: 6px; } .tm-stage::-webkit-scrollbar-thumb { background: var(--line); border-radius: 3px; }
 }
+
+/* highlights + notes (tm.js setupNotes) */
+mark.tm-hl { background: color-mix(in oklab, var(--warn) 28%, transparent); color: inherit; border-radius: 2px; padding: 0 1px; cursor: pointer; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
+mark.tm-hl.tm-hasnote { border-bottom: 2px solid var(--warn); }
+mark.tm-hl:hover { background: color-mix(in oklab, var(--warn) 42%, transparent); }
+.tm-hlbar { position: absolute; z-index: 60; display: flex; gap: 4px; padding: 4px; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: 0 10px 15px -3px rgb(0 0 0 / .1), 0 4px 6px -4px rgb(0 0 0 / .1); animation: tm-pop .15s var(--ease); }
+.tm-hlbar[hidden] { display: none; }
+.tm-hlnote { display: grid; gap: 8px; padding: 6px; width: min(320px, calc(100vw - 32px)); }
+.tm-hlnote q { font-size: 13px; color: var(--muted); }
+.tm-hlnote textarea { width: 100%; font: inherit; font-size: 14px; padding: 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--paper); color: var(--ink); resize: vertical; }
+@media print { .tm-hlbar { display: none; } }

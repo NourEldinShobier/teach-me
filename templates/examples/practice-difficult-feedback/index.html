@@ -437,6 +437,17 @@ h2::before { content: ""; display: inline-block; width: 8px; height: 8px; border
   .tm-stage::-webkit-scrollbar { height: 6px; } .tm-stage::-webkit-scrollbar-thumb { background: var(--line); border-radius: 3px; }
 }
 
+/* highlights + notes (tm.js setupNotes) */
+mark.tm-hl { background: color-mix(in oklab, var(--warn) 28%, transparent); color: inherit; border-radius: 2px; padding: 0 1px; cursor: pointer; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
+mark.tm-hl.tm-hasnote { border-bottom: 2px solid var(--warn); }
+mark.tm-hl:hover { background: color-mix(in oklab, var(--warn) 42%, transparent); }
+.tm-hlbar { position: absolute; z-index: 60; display: flex; gap: 4px; padding: 4px; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: 0 10px 15px -3px rgb(0 0 0 / .1), 0 4px 6px -4px rgb(0 0 0 / .1); animation: tm-pop .15s var(--ease); }
+.tm-hlbar[hidden] { display: none; }
+.tm-hlnote { display: grid; gap: 8px; padding: 6px; width: min(320px, calc(100vw - 32px)); }
+.tm-hlnote q { font-size: 13px; color: var(--muted); }
+.tm-hlnote textarea { width: 100%; font: inherit; font-size: 14px; padding: 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--paper); color: var(--ink); resize: vertical; }
+@media print { .tm-hlbar { display: none; } }
+
 </style>
 </head>
 <body>
@@ -621,6 +632,9 @@ h2::before { content: ""; display: inline-block; width: 8px; height: 8px; border
     copy: '<rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>',
     sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>',
     moon: '<path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/>',
+    highlight: '<path d="m9 11-6 6v3h9l3-3"/><path d="m22 12-4.6 4.6a2 2 0 0 1-2.8 0l-5.2-5.2a2 2 0 0 1 0-2.8L14 4"/>',
+    x: '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
+    note: '<path d="M13.4 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7.4"/><path d="M2 6h4"/><path d="M2 10h4"/><path d="M2 14h4"/><path d="M2 18h4"/><path d="M21.378 5.626a1 1 0 1 0-3.004-3.004l-5.01 5.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z"/>',
     auto: '<path d="M12 2v2"/><path d="M14.837 16.385a6 6 0 1 1-7.223-7.222c.624-.147.97.66.715 1.248a4 4 0 0 0 5.26 5.259c.589-.255 1.396.09 1.248.715"/><path d="M16 12a4 4 0 0 0-4-4"/><path d="m19 5-1.256 1.256"/><path d="M20 12h2"/>'
   };
   const icon = (n) => '<svg class="tm-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + ICON_PATHS[n] + '</svg>';
@@ -1161,6 +1175,7 @@ h2::before { content: ""; display: inline-block; width: 8px; height: 8px; border
     pr.forEach((x) => lines.push(`- Prediction: ${x.q} -> guessed "${x.chosen}" (${x.correct ? 'right' : 'wrong'})`));
     Object.values(progress.explain).forEach((x) => x.text && lines.push(`- Explained "${x.prompt.replace(/<[^>]+>/g, '')}": ${x.text}`));
     const cards = Object.values(progress.cards); if (cards.length) lines.push(`- Flashcards reviewed: ${cards.length}, lapses: ${cards.reduce((s, c) => s + (c.lapses || 0), 0)}`);
+    (progress.marks || []).forEach((m) => lines.push(`- Highlighted: "${m.text}"` + (m.note ? ` — my note: ${m.note}` : '')));
     lines.push('Treat this as data about my progress. Update my learning records only where it shows understanding or a misconception.');
     return lines.join('\n');
   };
@@ -1169,6 +1184,77 @@ h2::before { content: ""; display: inline-block; width: 8px; height: 8px; border
       h('button', { class: 'tm-btn', type: 'button', text: 'Copy my progress for Claude', onclick: () => copy(summary()) }),
       h('button', { class: 'tm-btn', type: 'button', text: 'Download progress (.json)', onclick: () => download('tm-progress-' + lessonId + '.json', JSON.stringify(progress, null, 2)) }),
       h('button', { class: 'tm-btn', type: 'button', text: 'Reset this lesson', onclick: () => { if (confirm('Clear your answers and cards for this lesson?')) { try { localStorage.removeItem(PKEY); const all = store.get('tm:cards', {}); for (const k of Object.keys(progress.cards)) delete all[k]; store.set('tm:cards', all); } catch {} location.reload(); } } })));
+  }
+
+  /* ---------- highlights + notes: select prose text -> Highlight / Note; saved in progress.marks ---------- */
+  // Anchors are char offsets inside one prose block (nth match of BLOCKS in <main>, outside widgets).
+  const BLOCKS = 'p, li, h1, h2, h3, h4, blockquote, dd, dt, figcaption, td, th';
+  const blocks = () => [...document.querySelectorAll('main ' + BLOCKS.split(', ').join(', main '))].filter((b) => !b.closest('[data-tm], svg, .tm-code, pre, .tm-hlbar') && !b.parentElement.closest(BLOCKS));
+  const blockOf = (n) => { const e = (n.nodeType === 1 ? n : n.parentElement)?.closest(BLOCKS); let b = e; while (b?.parentElement?.closest(BLOCKS)) b = b.parentElement.closest(BLOCKS); return b && blocks().includes(b) ? b : null; };
+  const texts = (b) => { const w = document.createTreeWalker(b, NodeFilter.SHOW_TEXT, { acceptNode: (t) => t.parentElement.closest('button, svg, script') ? 2 : 1 }); const a = []; while (w.nextNode()) a.push(w.currentNode); return a; };
+  const offsetIn = (b, node, off) => { let n = 0; for (const t of texts(b)) { if (t === node) return n + off; n += t.length; } return n; };
+  function wrap(b, start, end, m) {
+    let n = 0;
+    for (const t of texts(b)) {
+      const s = Math.max(start - n, 0), e = Math.min(end - n, t.length); n += t.length;
+      if (e <= s) continue;
+      let seg = t; if (s > 0) seg = seg.splitText(s); if (e - s < seg.length) seg.splitText(e - s);
+      const mk = h('mark', { class: 'tm-hl' + (m.note ? ' tm-hasnote' : ''), 'data-hl': m.id, title: m.note || '' });
+      seg.replaceWith(mk); mk.append(seg);
+    }
+  }
+  const unwrap = (id) => document.querySelectorAll(`mark[data-hl="${id}"]`).forEach((mk) => { const p = mk.parentNode; mk.replaceWith(...mk.childNodes); p.normalize(); });
+  function setupNotes() {
+    progress.marks ||= [];
+    const bl = blocks();
+    progress.marks = progress.marks.filter((m) => {
+      let b = bl[m.block], full = b ? texts(b).map((t) => t.data).join('') : '';
+      if (full.slice(m.start, m.end) !== m.text) { // lesson text moved: find the quote again
+        const hit = bl.findIndex((x) => texts(x).map((t) => t.data).join('').includes(m.text));
+        if (hit < 0) return false; b = bl[hit]; full = texts(b).map((t) => t.data).join(''); m.block = hit; m.start = full.indexOf(m.text); m.end = m.start + m.text.length;
+      }
+      wrap(b, m.start, m.end, m); return true;
+    });
+    const bar = h('div', { class: 'tm-hlbar', role: 'toolbar', 'aria-label': 'Highlight and note', hidden: true });
+    document.body.append(bar);
+    let pending = null;
+    const hide = () => { bar.hidden = true; pending = null; };
+    const place = (rect) => { bar.hidden = false; const w = bar.offsetWidth; bar.style.left = clamp(rect.left + rect.width / 2 - w / 2 + scrollX, 8 + scrollX, scrollX + innerWidth - w - 8) + 'px'; bar.style.top = (rect.top + scrollY - bar.offsetHeight - 8 < scrollY ? rect.bottom + scrollY + 8 : rect.top + scrollY - bar.offsetHeight - 8) + 'px'; };
+    const btn = (label, ico, fn) => h('button', { class: 'tm-iconbtn', type: 'button', html: (ico ? icon(ico) : '') + label, onmousedown: (e) => e.preventDefault(), onclick: fn });
+    const editNote = (m, rect) => {
+      const ta = h('textarea', { 'aria-label': 'Note', placeholder: 'Your note…', rows: 3 }); ta.value = m.note || '';
+      const save = () => { m.note = ta.value.trim(); saveProgress(); document.querySelectorAll(`mark[data-hl="${m.id}"]`).forEach((mk) => { mk.classList.toggle('tm-hasnote', !!m.note); mk.title = m.note; }); hide(); };
+      ta.onkeydown = (e) => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) save(); if (e.key === 'Escape') hide(); };
+      bar.replaceChildren(h('div', { class: 'tm-hlnote' }, h('q', { text: m.text.length > 80 ? m.text.slice(0, 80) + '…' : m.text }), ta, h('div', { class: 'tm-actions' }, h('button', { class: 'tm-btn tm-primary', type: 'button', text: 'Save note', onclick: save }), h('button', { class: 'tm-btn', type: 'button', text: 'Cancel', onclick: hide }))));
+      place(rect); ta.focus();
+    };
+    const create = (withNote) => {
+      if (!pending) return;
+      const { b, start, end, rect } = pending; const text = texts(b).map((t) => t.data).join('').slice(start, end);
+      const m = { id: 'h' + Date.now().toString(36), block: blocks().indexOf(b), start, end, text, note: '', at: new Date().toISOString() };
+      progress.marks.push(m); saveProgress(); getSelection().removeAllRanges(); wrap(b, start, end, m);
+      if (withNote) editNote(m, rect); else { hide(); toast('Highlighted'); }
+    };
+    const check = () => {
+      const sel = getSelection(); if (!sel.rangeCount || sel.isCollapsed) return;
+      const r = sel.getRangeAt(0), b = blockOf(r.startContainer);
+      if (!b || blockOf(r.endContainer) !== b || !sel.toString().trim()) return; // shortcut: one block per highlight; split across paragraphs if needed later
+      const start = offsetIn(b, r.startContainer, r.startOffset), end = offsetIn(b, r.endContainer, r.endOffset);
+      if (end <= start) return;
+      pending = { b, start, end, rect: r.getBoundingClientRect() };
+      bar.replaceChildren(btn('Highlight', 'highlight', () => create(false)), btn('Note', 'note', () => create(true)));
+      place(pending.rect);
+    };
+    const later = () => setTimeout(check, 10);
+    document.addEventListener('mouseup', later); document.addEventListener('keyup', (e) => e.shiftKey && later()); document.addEventListener('touchend', () => setTimeout(check, 350));
+    document.addEventListener('mousedown', (e) => { if (!bar.contains(e.target)) hide(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !bar.hidden) hide(); });
+    document.addEventListener('click', (e) => {
+      const mk = e.target.closest?.('mark.tm-hl'); if (!mk || !getSelection().isCollapsed) return;
+      const m = progress.marks.find((x) => x.id === mk.dataset.hl); if (!m) return;
+      bar.replaceChildren(btn(m.note ? 'Edit note' : 'Add note', 'note', () => editNote(m, mk.getBoundingClientRect())), btn('Remove', 'x', () => { unwrap(m.id); progress.marks = progress.marks.filter((x) => x !== m); saveProgress(); hide(); }));
+      place(mk.getBoundingClientRect());
+    });
   }
 
   /* ---------- theme toggle ---------- */
@@ -1203,6 +1289,7 @@ h2::before { content: ""; display: inline-block; width: 8px; height: 8px; border
     document.querySelectorAll('.tm-term[data-def]').forEach((t) => (t.tabIndex = 0));
     document.querySelectorAll('[data-tm-theme]').forEach(mountTheme);
     // Phones: a figure never shrinks below its drawn size; .tm-stage scrolls instead (see tm.css).
+    try { setupNotes(); } catch (err) { tm.errors.push('notes: ' + err.message); }
     document.querySelectorAll('.tm-stage svg[viewBox]').forEach((v) => v.style.setProperty('--vbw', v.viewBox.baseVal.width));
     tm.ready = true; document.documentElement.dataset.tmReady = '1';
     if (Q.get('check') === '1') setTimeout(writeReport, 60);
