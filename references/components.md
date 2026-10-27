@@ -70,6 +70,7 @@ tm.scene('espresso', {
 ```
 
 - Layout is a grid: `col` and `row` are integers, one node per cell. Budget: 9 to 12 nodes, 12 arrows.
+- Optional `tone` on a node or zone (`blue violet emerald amber cyan rose`) groups parts by meaning; without it nodes are tinted by column.
 - A step's `path` animates a packet along existing edges (either direction). `nodes` lights boxes without a packet.
 - Clicking a node shows its `tip`. Without `steps`, the diagram is static and explorable by clicking.
 - For many-node architecture or editorial diagrams, delegate (see `engines.md`).

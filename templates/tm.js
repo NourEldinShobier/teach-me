@@ -176,6 +176,7 @@
     });
   };
   let figN = 0, uidN = 0;
+  const TONES = ['blue', 'violet', 'emerald', 'amber', 'cyan', 'rose'];
   const figNum = (cfg) => { if (typeof cfg.fig === 'number') figN = Math.max(figN, cfg.fig); return cfg.fig || ++figN; };
   const cardHead = (cfg, extra = []) => h('div', { class: 'tm-card-head' }, h('span', { class: 'tm-fig', text: 'Fig ' + figNum(cfg) }), h('b', { text: cfg.title || '' }), h('span', { class: 'tm-sp' }), ...extra);
   const modeKey = (kind) => 'tm:mode:' + kind;
@@ -280,7 +281,7 @@
           const ns = z.nodes.map((id) => nodes[id]);
           const x0 = Math.min(...ns.map((n) => n.cx)) - NW / 2 - 16, x1 = Math.max(...ns.map((n) => n.cx)) + NW / 2 + 16;
           const y0 = Math.min(...ns.map((n) => n.cy)) - NH / 2 - 30, y1 = Math.max(...ns.map((n) => n.cy)) + NH / 2 + 14;
-          svg('rect', { x: x0 - (z.pad || 0), y: y0 - (z.pad || 0), width: x1 - x0 + 2 * (z.pad || 0), height: y1 - y0 + 2 * (z.pad || 0), rx: 14, class: 'zone ' + (z.class || '') }, s);
+          svg('rect', { x: x0 - (z.pad || 0), y: y0 - (z.pad || 0), width: x1 - x0 + 2 * (z.pad || 0), height: y1 - y0 + 2 * (z.pad || 0), rx: 14, class: 'zone ' + (z.tone ? 'tone-' + z.tone + ' ' : '') + (z.class || '') }, s);
           svg('text', { x: x0 - (z.pad || 0) + 12, y: y0 - (z.pad || 0) + 18, class: 'sub' }, s).textContent = z.label;
         }
         const edges = {};
@@ -295,7 +296,7 @@
         }
         const nodeEls = {};
         for (const n of Object.values(nodes)) {
-          const g = svg('g', { class: 'node', tabindex: 0, role: 'button', 'aria-label': n.label + (n.tip ? ': ' + n.tip.replace(/<[^>]+>/g, '') : '') }, s);
+          const g = svg('g', { class: 'node tone-' + (n.tone || TONES[(n.col || 0) % TONES.length]), tabindex: 0, role: 'button', 'aria-label': n.label + (n.tip ? ': ' + n.tip.replace(/<[^>]+>/g, '') : '') }, s);
           svg('rect', { x: n.cx - NW / 2, y: n.cy - NH / 2, width: NW, height: NH, rx: 10 }, g);
           svg('text', { x: n.cx, y: n.cy + (n.sub ? -3 : 5), 'text-anchor': 'middle', class: 'lbl' }, g).textContent = n.label;
           if (n.sub) svg('text', { x: n.cx, y: n.cy + 14, 'text-anchor': 'middle', class: 'sub' }, g).textContent = n.sub;

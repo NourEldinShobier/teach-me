@@ -45,3 +45,12 @@ Use `tm.icon(name)` (lucide: `play`, `pause`, `prev`, `next`, `reset`, `volume`,
 - Chips are `key value` pairs; mark at most one or two `hot` per frame.
 - Hints are one or two sentences; bold only the term being taught.
 - Check both themes: `?theme=light` and `?theme=dark`.
+
+## Colour layer
+
+Pages are not all white. Colour comes from three places, all automatic:
+- **Card tones** by kind: figures blue, code violet, sims cyan, quizzes amber, flashcards emerald. The card head, figure badge, hint bar, step numbers, slider and hot chips take the card's tone. Override with `data-tone="blue|violet|emerald|amber|rose|cyan"` on the mount element when a lesson has a reason (e.g. rose for a failure demo).
+- **Dark ink panels** for code, spot-the-bug and `pre`, so each page mixes light cards, black panels and colour.
+- **Diagram nodes** are tinted by column; set `tone` on a node or zone to group by meaning instead (e.g. all CloudWatch parts violet, AWS compute blue). The packet is rose.
+
+Mix colours with `color-mix(in oklab, …)`, never `in oklch`: oklch mixes with white or grey swing the hue toward pink.
